@@ -756,21 +756,6 @@ class Map extends React.Component {
     });
 
     this.state.map.addControl(drawControl);
-    // Disable dragging of the map while drawing
-    // this.state.map.dragging.disable();
-
-    // Event listener for the drawing end event
-    // this.state.map.on("draw:created", function (e) {
-    //   console.log("Drawing is finished");
-    //   const layer = e.layer;
-    //   console.log(layer, "layer drawn");
-
-    //   // // Add the drawn polygon to the map
-    //   // this.state.map.addLayer(layer);
-
-    //   // // // Enable dragging of the map again
-    //   // this.map.dragging.enable();
-    // });
 
     this.state.map.on(Leaflet.Draw.Event.CREATED, function (e) {
       const type = e.layerType,
