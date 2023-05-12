@@ -692,6 +692,10 @@ class Map extends React.Component {
     if (this.shareButton) this.shareButton.hidePopup();
   }
 
+  handleMeasureClick(e) {
+    console.log("Now measure is clicked");
+  }
+
   render() {
     return (
       <div style={{ height: "100%" }} className="map">
@@ -709,36 +713,28 @@ class Map extends React.Component {
         <div className="measuring-component">
           <h4 style={{ textAlign: "center" }}>Measurings</h4>
           <div>
-            <p>Categories</p>
+            <p className="measuring-title">Categories</p>
             <label>
               <input type="checkbox" id="grassCheckbox" />
-              Grass
+              <span className="checkbox-label">Grass</span>
             </label>
             <ul className="no-bullets">
               <li>
                 <label>
                   <input type="checkbox" id="grassCheckbox" />
-                  Grass 1
+                  <span className="checkbox-label">Grass 1</span>
                 </label>
               </li>
-              <li>
+              {/* <li>
                 <label>
                   <input type="checkbox" id="grassCheckbox" />
-                  Grass 2
+                  <span class="checkbox-label">Grass 2</span>
                 </label>
-              </li>
+              </li> */}
             </ul>
           </div>
         </div>
-        {/* <div class="sharePopup top">
-          <div class="sharePopupContainer popover in top">
-            <div class="arrow"></div>
-            <h3 class="popover-title theme-background-highlight">
-              Share This Task
-            </h3>
-          </div>
-          <div class="popover-content theme-secondary"></div>
-        </div> */}
+
         <Standby message={_("Loading...")} show={this.state.showLoading} />
         <div
           style={{ height: "100%" }}
@@ -748,7 +744,10 @@ class Map extends React.Component {
         <div className="actionButtons">
           {/* This is the draw button added by me  */}
           <div className="shareButton">
-            <button className="shareButton btn btn-sm btn-secondary">
+            <button
+              onClick={this.handleMeasureClick}
+              className="shareButton btn btn-sm btn-secondary"
+            >
               {" "}
               Measure
             </button>

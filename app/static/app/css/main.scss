@@ -273,6 +273,11 @@ footer{
 
 // Custom css added by me ..............
 
+.measure-button {
+    display: inline-block;
+    margin-left: 12px;
+}
+
 .measuring-component {
     border-radius: 4px;
     width: 220px;
@@ -287,12 +292,17 @@ footer{
   }
   
 
-.measure-button {
-    display: inline-block;
-    margin-left: 12px;
+.measuring-title{
+    margin-left: 1px; 
 }
 
 .no-bullets {
     list-style-type: none;
-    
   }
+  
+  .checkbox-label {
+    margin-left: 8px; 
+    /* Adjust the value as per your preference */
+    margin-right: 10px; /* Adjust the value as per your preference */
+  }
+  
