@@ -269,3 +269,21 @@ footer{
 .floatfix{
     clear: both;
 }
+
+
+// Custom css added by me ..............
+
+.measuring-component{
+    border-radius: 4px;
+    text-align: center;
+    width: 220px;
+    position: absolute;
+    top: 20px;
+    left: 15%;
+    margin-left: -100px;
+    z-index: 999;
+    padding-bottom: 6px;
+    background-color: white;
+    width: 200px;
+    height: 200px;
+}

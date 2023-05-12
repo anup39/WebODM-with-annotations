@@ -705,6 +705,7 @@ class Map extends React.Component {
             onChange={this.updateOpacity}
           />
         </div>
+        <div className="measuring-component">Measurings</div>
 
         <Standby message={_("Loading...")} show={this.state.showLoading} />
 
