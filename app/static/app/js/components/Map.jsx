@@ -705,17 +705,54 @@ class Map extends React.Component {
             onChange={this.updateOpacity}
           />
         </div>
-        <div className="measuring-component">Measurings</div>
-
+        {/* This is the custom element added by me for the Measurings  */}
+        <div className="measuring-component">
+          <h4 style={{ textAlign: "center" }}>Measurings</h4>
+          <div>
+            <p>Categories</p>
+            <label>
+              <input type="checkbox" id="grassCheckbox" />
+              Grass
+            </label>
+            <ul className="no-bullets">
+              <li>
+                <label>
+                  <input type="checkbox" id="grassCheckbox" />
+                  Grass 1
+                </label>
+              </li>
+              <li>
+                <label>
+                  <input type="checkbox" id="grassCheckbox" />
+                  Grass 2
+                </label>
+              </li>
+            </ul>
+          </div>
+        </div>
+        {/* <div class="sharePopup top">
+          <div class="sharePopupContainer popover in top">
+            <div class="arrow"></div>
+            <h3 class="popover-title theme-background-highlight">
+              Share This Task
+            </h3>
+          </div>
+          <div class="popover-content theme-secondary"></div>
+        </div> */}
         <Standby message={_("Loading...")} show={this.state.showLoading} />
-
         <div
           style={{ height: "100%" }}
           ref={(domNode) => (this.container = domNode)}
           onMouseDown={this.handleMapMouseDown}
         />
-
         <div className="actionButtons">
+          {/* This is the draw button added by me  */}
+          <div className="shareButton">
+            <button className="shareButton btn btn-sm btn-secondary">
+              {" "}
+              Measure
+            </button>
+          </div>
           {this.state.pluginActionButtons.map((button, i) => (
             <div key={i}>{button}</div>
           ))}
