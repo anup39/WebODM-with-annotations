@@ -269,3 +269,40 @@ footer{
 .floatfix{
     clear: both;
 }
+
+
+// Custom css added by me ..............
+
+.measure-button {
+    display: inline-block;
+    margin-left: 12px;
+}
+
+.measuring-component {
+    border-radius: 4px;
+    width: 220px;
+    position: absolute;
+    bottom: 20vh;
+    left: 7.5%;
+    margin-left: -100px;
+    z-index: 999;
+    padding-bottom: 6px;
+    background-color: white;
+    height: 200px;
+  }
+  
+
+.measuring-title{
+    margin-left: 1px; 
+}
+
+.no-bullets {
+    list-style-type: none;
+  }
+  
+  .checkbox-label {
+    margin-left: 8px; 
+    /* Adjust the value as per your preference */
+    margin-right: 10px; /* Adjust the value as per your preference */
+  }
+  

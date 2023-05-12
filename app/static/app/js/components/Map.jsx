@@ -30,6 +30,10 @@ import "rbush";
 import "../vendor/leaflet/leaflet-markers-canvas";
 import { _ } from "../classes/gettext";
 
+// Draw imports
+import "leaflet-draw/dist/leaflet.draw.css";
+import "leaflet-draw";
+
 class Map extends React.Component {
   static defaultProps = {
     showBackground: false,
@@ -57,6 +61,8 @@ class Map extends React.Component {
       opacity: 100,
       imageryLayers: [],
       overlays: [],
+      // Added by me
+      map: null,
     };
 
     this.basemaps = {};
@@ -67,11 +73,19 @@ class Map extends React.Component {
     this.loadImageryLayers = this.loadImageryLayers.bind(this);
     this.updatePopupFor = this.updatePopupFor.bind(this);
     this.handleMapMouseDown = this.handleMapMouseDown.bind(this);
+    this.handleMeasureClick = this.handleMeasureClick.bind(this);
   }
 
   updateOpacity = (evt) => {
     this.setState({
       opacity: parseFloat(evt.target.value),
+    });
+  };
+
+  // Added by me
+  updateMap = (evt) => {
+    this.setState({
+      map: evt,
     });
   };
 
@@ -411,7 +425,8 @@ class Map extends React.Component {
       minZoom: 0,
       maxZoom: 24,
     });
-
+    // This is added by me
+    this.setState({ map: this.map });
     // For some reason, in production this class is not added (but we need it)
     // leaflet bug?
     $(this.container).addClass("leaflet-touch");
@@ -658,6 +673,7 @@ class Map extends React.Component {
   }
 
   componentDidUpdate(prevProps, prevState) {
+    console.log("console in component update");
     this.state.imageryLayers.forEach((imageryLayer) => {
       imageryLayer.setOpacity(this.state.opacity / 100);
       this.updatePopupFor(imageryLayer);
@@ -674,6 +690,20 @@ class Map extends React.Component {
     ) {
       this.layersControl.update(this.state.imageryLayers, this.state.overlays);
     }
+
+    // Added by me
+
+    // if (this.state.map) {
+    //   this.state.map.on("draw:created", function (e) {
+    //     const layer = e.layer;
+
+    //     // Add the drawn polygon to the map
+    //     this.state.map.addLayer(layer);
+
+    //     // Enable dragging of the map again
+    //     this.state.map.dragging.enable();
+    //   });
+    // }
   }
 
   componentWillUnmount() {
@@ -691,6 +721,53 @@ class Map extends React.Component {
     // Make sure the share popup closes
     if (this.shareButton) this.shareButton.hidePopup();
   }
+  // This function is added by me
+  handleMeasureClick(e) {
+    console.log("Now measure is clicked");
+    console.log(this.state.map);
+
+    const editableLayers = new Leaflet.FeatureGroup();
+    this.state.map.addLayer(editableLayers);
+
+    const drawControl = new Leaflet.Control.Draw({
+      position: "topleft",
+      draw: {
+        polygon: {
+          allowIntersection: false, // Restricts shapes to simple polygons
+          drawError: {
+            color: "#e1e100", // Color the shape will turn when intersects
+            message: "<strong>Oh snap!<strong> you can't draw that!", // Message that will show when intersect
+          },
+          shapeOptions: {
+            color: "#bada55",
+          },
+        }, // Enable drawing polygons
+        polyline: false,
+        rectangle: false,
+        circle: false,
+        marker: false,
+        circlemarker: false,
+      },
+
+      edit: {
+        featureGroup: editableLayers, //REQUIRED!!
+        remove: false,
+      },
+    });
+
+    this.state.map.addControl(drawControl);
+
+    this.state.map.on(Leaflet.Draw.Event.CREATED, function (e) {
+      const type = e.layerType,
+        layer = e.layer;
+
+      if (type === "marker") {
+        layer.bindPopup("A popup!");
+      }
+
+      editableLayers.addLayer(layer);
+    });
+  }
 
   render() {
     return (
@@ -705,16 +782,49 @@ class Map extends React.Component {
             onChange={this.updateOpacity}
           />
         </div>
+        {/* This is the custom element added by me for the Measurings  */}
+        <div className="measuring-component">
+          <h4 style={{ textAlign: "center" }}>Measurings</h4>
+          <div>
+            <p className="measuring-title">Categories</p>
+            <label>
+              <input type="checkbox" id="grassCheckbox" />
+              <span className="checkbox-label">Grass</span>
+            </label>
+            <ul className="no-bullets">
+              <li>
+                <label>
+                  <input type="checkbox" id="grassCheckbox" />
+                  <span className="checkbox-label">Grass 1</span>
+                </label>
+              </li>
+              {/* <li>
+                <label>
+                  <input type="checkbox" id="grassCheckbox" />
+                  <span class="checkbox-label">Grass 2</span>
+                </label>
+              </li> */}
+            </ul>
+          </div>
+        </div>
 
         <Standby message={_("Loading...")} show={this.state.showLoading} />
-
         <div
           style={{ height: "100%" }}
           ref={(domNode) => (this.container = domNode)}
           onMouseDown={this.handleMapMouseDown}
         />
-
         <div className="actionButtons">
+          {/* This is the draw button added by me  */}
+          <div className="shareButton">
+            <button
+              onClick={this.handleMeasureClick}
+              className="shareButton btn btn-sm btn-secondary"
+            >
+              {" "}
+              Measure
+            </button>
+          </div>
           {this.state.pluginActionButtons.map((button, i) => (
             <div key={i}>{button}</div>
           ))}
