@@ -3,6 +3,7 @@ import re
 import subprocess
 import hashlib
 
+
 def parse_requirements(requirements_file):
     """
     Parse a requirements.txt file
@@ -11,7 +12,8 @@ def parse_requirements(requirements_file):
     """
     if os.path.exists(requirements_file):
         with open(requirements_file, 'r') as f:
-            deps = list(filter(lambda x: len(x) > 0, map(str.strip, f.read().split('\n'))))
+            deps = list(filter(lambda x: len(x) > 0, map(
+                str.strip, f.read().split('\n'))))
             return [re.split('==|<=|>=|<|>', d)[0] for d in deps]
 
     return []
@@ -32,6 +34,7 @@ def requirements_installed(requirements_file, python_path):
     deps = parse_requirements(requirements_file)
 
     return set(deps) & set(installed_packages) == set(deps)
+
 
 def compute_file_md5(filename):
     return hashlib.md5(open(filename, 'rb').read()).hexdigest()

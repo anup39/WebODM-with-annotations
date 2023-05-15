@@ -17,14 +17,16 @@ from .tags import TagsField, parse_tags_input
 from .common import get_and_check_project
 from django.utils.translation import gettext as _
 
+
 def normalized_perm_names(perms):
-    return list(map(lambda p: p.replace("_project", ""),perms))
+    return list(map(lambda p: p.replace("_project", ""), perms))
+
 
 class ProjectSerializer(serializers.ModelSerializer):
     tasks = TaskIDsSerializer(many=True, read_only=True)
     owner = serializers.HiddenField(
-            default=serializers.CurrentUserDefault()
-        )
+        default=serializers.CurrentUserDefault()
+    )
     owned = serializers.SerializerMethodField()
     created_at = serializers.ReadOnlyField()
     permissions = serializers.SerializerMethodField()
@@ -36,7 +38,7 @@ class ProjectSerializer(serializers.ModelSerializer):
         else:
             # Cannot list permissions, no user is associated with request (happens when serializing ui test mocks)
             return []
-    
+
     def get_owned(self, obj):
         if 'request' in self.context:
             user = self.context['request'].user
@@ -66,23 +68,27 @@ class ProjectFilter(filters.FilterSet):
 
         if len(names) > 0:
             project_name_vec = SearchVector("name")
-            task_name_vec = SearchVector(StringAgg("task__name", delimiter=' '))
+            task_name_vec = SearchVector(
+                StringAgg("task__name", delimiter=' '))
             name_query = SearchQuery(names, search_type="plain")
-            qs = qs.annotate(n_search=project_name_vec + task_name_vec).filter(n_search=name_query)
+            qs = qs.annotate(n_search=project_name_vec +
+                             task_name_vec).filter(n_search=name_query)
 
         if len(task_tags) > 0:
             task_tags_vec = SearchVector("task__tags")
             tags_query = SearchQuery(task_tags[0])
             for t in task_tags[1:]:
                 tags_query = tags_query & SearchQuery(t)
-            qs = qs.annotate(tt_search=task_tags_vec).filter(tt_search=tags_query)
+            qs = qs.annotate(tt_search=task_tags_vec).filter(
+                tt_search=tags_query)
 
         if len(project_tags) > 0:
             project_tags_vec = SearchVector("tags")
             tags_query = SearchQuery(project_tags[0])
             for t in project_tags[1:]:
                 tags_query = tags_query & SearchQuery(t)
-            qs = qs.annotate(pt_search=project_tags_vec).filter(pt_search=tags_query)
+            qs = qs.annotate(pt_search=project_tags_vec).filter(
+                pt_search=tags_query)
 
         return qs.distinct()
 
@@ -101,7 +107,8 @@ class ProjectViewSet(viewsets.ModelViewSet):
     """
     filter_fields = ('id', 'name', 'description', 'created_at')
     serializer_class = ProjectSerializer
-    queryset = models.Project.objects.prefetch_related('task_set').filter(deleting=False).order_by('-created_at')
+    queryset = models.Project.objects.prefetch_related(
+        'task_set').filter(deleting=False).order_by('-created_at')
     filterset_class = ProjectFilter
     ordering_fields = '__all__'
 
@@ -130,15 +137,16 @@ class ProjectViewSet(viewsets.ModelViewSet):
 
         result = []
 
-        perms = get_users_with_perms(project, attach_perms=True, with_group_users=False)
+        perms = get_users_with_perms(
+            project, attach_perms=True, with_group_users=False)
         for user in perms:
             result.append({'username': user.username,
                            'owner': project.owner == user,
                            'permissions': normalized_perm_names(perms[user])})
-        
+
         result.sort(key=lambda r: r['owner'], reverse=True)
         return Response(result, status=status.HTTP_200_OK)
-    
+
     @action(detail=True, methods=['post'])
     def edit(self, request, pk=None):
         project = get_and_check_project(request, pk, ('change_project', ))
@@ -147,7 +155,8 @@ class ProjectViewSet(viewsets.ModelViewSet):
             with transaction.atomic():
                 project.name = request.data.get('name', '')
                 project.description = request.data.get('description', '')
-                project.tags = TagsField().to_internal_value(parse_tags_input(request.data.get('tags', [])))
+                project.tags = TagsField().to_internal_value(
+                    parse_tags_input(request.data.get('tags', [])))
                 project.save()
 
                 form_perms = request.data.get('permissions')
@@ -158,19 +167,20 @@ class ProjectViewSet(viewsets.ModelViewSet):
                         if not perm.get('owner') and perm.get('username'):
                             perms_map[perm['username']] = perm['permissions']
 
-                    db_perms = get_users_with_perms(project, attach_perms=True, with_group_users=False)
-                    
+                    db_perms = get_users_with_perms(
+                        project, attach_perms=True, with_group_users=False)
+
                     # Check users to remove
                     for user in db_perms:
 
                         # Never modify owner permissions
                         if project.owner == user:
                             continue
-                        
+
                         if perms_map.get(user.username) is None:
                             for p in db_perms[user]:
                                 remove_perm(p, user, project)
-                    
+
                     # Check users to add/edit
                     for username in perms_map:
                         for p in ["add", "change", "delete", "view"]:
@@ -184,7 +194,7 @@ class ProjectViewSet(viewsets.ModelViewSet):
                             # Has permission in database but not in form?
                             if user.has_perm(perm, project) and not p in perms_map[username]:
                                 remove_perm(perm, user, project)
-                            
+
                             # Has permission in form but not in database?
                             elif p in perms_map[username] and not user.has_perm(perm, project):
                                 assign_perm(perm, user, project)
@@ -209,4 +219,3 @@ class ProjectViewSet(viewsets.ModelViewSet):
                 perm = p + "_project"
                 remove_perm(perm, request.user, project)
             return Response(status=status.HTTP_204_NO_CONTENT)
-        

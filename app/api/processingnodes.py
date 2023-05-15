@@ -22,8 +22,10 @@ class ProcessingNodeSerializer(serializers.ModelSerializer):
         model = ProcessingNode
         fields = '__all__'
 
+
 class ProcessingNodeFilter(FilterSet):
-    has_available_options = django_filters.CharFilter(method='filter_has_available_options')
+    has_available_options = django_filters.CharFilter(
+        method='filter_has_available_options')
 
     # noinspection PyMethodMayBeStatic
     def filter_has_available_options(self, queryset, name, value):
@@ -34,7 +36,9 @@ class ProcessingNodeFilter(FilterSet):
 
     class Meta:
         model = ProcessingNode
-        fields = ['has_available_options', 'id', 'hostname', 'port', 'api_version', 'queue_count', 'max_images', 'label', 'engine', 'engine_version', ]
+        fields = ['has_available_options', 'id', 'hostname', 'port', 'api_version',
+                  'queue_count', 'max_images', 'label', 'engine', 'engine_version', ]
+
 
 class ProcessingNodeViewSet(viewsets.ModelViewSet):
     """
@@ -59,7 +63,8 @@ class ProcessingNodeOptionsView(APIView):
 
     def get(self, request):
 
-        nodes = get_objects_for_user(request.user, 'view_processingnode', ProcessingNode, accept_global_perms=False)
+        nodes = get_objects_for_user(
+            request.user, 'view_processingnode', ProcessingNode, accept_global_perms=False)
         common_options = []
 
         for node in nodes:

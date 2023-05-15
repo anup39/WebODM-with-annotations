@@ -4,6 +4,7 @@ import logging
 
 logger = logging.getLogger('app.logger')
 
+
 class GCPFile:
     def __init__(self, gcp_path):
         self.gcp_path = gcp_path

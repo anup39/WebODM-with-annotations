@@ -5,6 +5,7 @@ import logging
 
 logger = logging.getLogger('app.logger')
 
+
 class DataStore(ABC):
     def __init__(self, namespace, user=None):
         """
@@ -23,12 +24,13 @@ class DataStore(ABC):
     def set_value(self, type, key, value):
         try:
             return PluginDatum.objects.update_or_create(key=self.db_key(key),
-                                                         user=self.user,
-                                                         defaults={type + '_value': value})
+                                                        user=self.user,
+                                                        defaults={type + '_value': value})
         except MultipleObjectsReturned:
             # This should never happen
             logger.warning("A plugin data store for the {} plugin returned multiple objects. This is potentially bad. The plugin developer needs to fix this! The data store will not be changed.".format(self.namespace))
-            PluginDatum.objects.filter(key=self.db_key(key), user=self.user).delete()
+            PluginDatum.objects.filter(
+                key=self.db_key(key), user=self.user).delete()
         except ValidationError as e:
             raise InvalidDataStoreValue(e)
 

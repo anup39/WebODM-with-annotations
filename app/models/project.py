@@ -20,13 +20,19 @@ logger = logging.getLogger('app.logger')
 
 
 class Project(models.Model):
-    owner = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT, help_text=_("The person who created the project"), verbose_name=_("Owner"))
-    name = models.CharField(max_length=255, help_text=_("A label used to describe the project"), verbose_name=_("Name"))
-    description = models.TextField(default="", blank=True, help_text=_("More in-depth description of the project"), verbose_name=_("Description"))
-    created_at = models.DateTimeField(default=timezone.now, help_text=_("Creation date"), verbose_name=_("Created at"))
-    deleting = models.BooleanField(db_index=True, default=False, help_text=_("Whether this project has been marked for deletion. Projects that have running tasks need to wait for tasks to be properly cleaned up before they can be deleted."), verbose_name=_("Deleting"))
-    tags = models.TextField(db_index=True, default="", blank=True, help_text=_("Project tags"), verbose_name=_("Tags"))
-    
+    owner = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT, help_text=_(
+        "The person who created the project"), verbose_name=_("Owner"))
+    name = models.CharField(max_length=255, help_text=_(
+        "A label used to describe the project"), verbose_name=_("Name"))
+    description = models.TextField(default="", blank=True, help_text=_(
+        "More in-depth description of the project"), verbose_name=_("Description"))
+    created_at = models.DateTimeField(default=timezone.now, help_text=_(
+        "Creation date"), verbose_name=_("Created at"))
+    deleting = models.BooleanField(db_index=True, default=False, help_text=_(
+        "Whether this project has been marked for deletion. Projects that have running tasks need to wait for tasks to be properly cleaned up before they can be deleted."), verbose_name=_("Deleting"))
+    tags = models.TextField(db_index=True, default="", blank=True, help_text=_(
+        "Project tags"), verbose_name=_("Tags"))
+
     def delete(self, *args):
         # No tasks?
         if self.task_set.count() == 0:
@@ -40,7 +46,8 @@ class Project(models.Model):
             self.task_set.update(pending_action=pending_actions.REMOVE)
             self.deleting = True
             self.save()
-            logger.info("Tasks pending, set project {} deleting flag".format(self.id))
+            logger.info(
+                "Tasks pending, set project {} deleting flag".format(self.id))
 
     def __str__(self):
         return self.name
@@ -53,16 +60,17 @@ class Project(models.Model):
 
     def get_map_items(self):
         return [task.get_map_items() for task in self.task_set.filter(
-                    status=status_codes.COMPLETED
-                ).filter(Q(orthophoto_extent__isnull=False) | Q(dsm_extent__isnull=False) | Q(dtm_extent__isnull=False))
-                .only('id', 'project_id')]
-    
+            status=status_codes.COMPLETED
+        ).filter(Q(orthophoto_extent__isnull=False) | Q(dsm_extent__isnull=False) | Q(dtm_extent__isnull=False))
+            .only('id', 'project_id')]
+
     def duplicate(self, new_owner=None):
         try:
             with transaction.atomic():
                 project = Project.objects.get(pk=self.pk)
                 project.pk = None
-                project.name = gettext('Copy of %(task)s') % {'task': self.name}
+                project.name = gettext('Copy of %(task)s') % {
+                    'task': self.name}
                 project.created_at = timezone.now()
                 if new_owner is not None:
                     project.owner = new_owner
@@ -72,23 +80,23 @@ class Project(models.Model):
                 for task in self.task_set.all():
                     new_task = task.duplicate(set_new_name=False)
                     if not new_task:
-                        raise Exception("Failed to duplicate {}".format(new_task))
-                    
+                        raise Exception(
+                            "Failed to duplicate {}".format(new_task))
+
                     # Move/Assign to new duplicate
                     new_task.project = project
                     new_task.save()
-                    
+
             return project
         except Exception as e:
             logger.warning("Cannot duplicate project: {}".format(str(e)))
-        
+
         return False
-
-
 
     class Meta:
         verbose_name = _("Project")
         verbose_name_plural = _("Projects")
+
 
 @receiver(signals.post_save, sender=Project, dispatch_uid="project_post_save")
 def project_post_save(sender, instance, created, **kwargs):

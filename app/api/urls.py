@@ -20,12 +20,14 @@ router.register(r'projects', ProjectViewSet)
 router.register(r'processingnodes', ProcessingNodeViewSet)
 router.register(r'presets', PresetViewSet, basename='presets')
 
-tasks_router = routers.NestedSimpleRouter(router, r'projects', lookup='project')
+tasks_router = routers.NestedSimpleRouter(
+    router, r'projects', lookup='project')
 tasks_router.register(r'tasks', TaskViewSet, basename='projects-tasks')
 
 admin_router = routers.DefaultRouter()
 admin_router.register(r'admin/users', AdminUserViewSet, basename='admin-users')
-admin_router.register(r'admin/groups', AdminGroupViewSet, basename='admin-groups')
+admin_router.register(r'admin/groups', AdminGroupViewSet,
+                      basename='admin-groups')
 
 urlpatterns = [
     url(r'processingnodes/options/$', ProcessingNodeOptionsView.as_view()),
@@ -41,14 +43,20 @@ urlpatterns = [
     url(r'projects/(?P<project_pk>[^/.]+)/tasks/(?P<pk>[^/.]+)/(?P<tile_type>orthophoto|dsm|dtm)/tiles/(?P<z>[\d]+)/(?P<x>[\d]+)/(?P<y>[\d]+)@(?P<scale>[\d]+)x\.?(?P<ext>png|jpg|webp)?$', Tiles.as_view()),
     url(r'projects/(?P<project_pk>[^/.]+)/tasks/(?P<pk>[^/.]+)/(?P<asset_type>orthophoto|dsm|dtm|georeferenced_model)/export$', Export.as_view()),
 
-    url(r'projects/(?P<project_pk>[^/.]+)/tasks/(?P<pk>[^/.]+)/download/(?P<asset>.+)$', TaskDownloads.as_view()),
-    url(r'projects/(?P<project_pk>[^/.]+)/tasks/(?P<pk>[^/.]+)/assets/(?P<unsafe_asset_path>.+)$', TaskAssets.as_view()),
-    url(r'projects/(?P<project_pk>[^/.]+)/tasks/import$', TaskAssetsImport.as_view()),
+    url(r'projects/(?P<project_pk>[^/.]+)/tasks/(?P<pk>[^/.]+)/download/(?P<asset>.+)$',
+        TaskDownloads.as_view()),
+    url(r'projects/(?P<project_pk>[^/.]+)/tasks/(?P<pk>[^/.]+)/assets/(?P<unsafe_asset_path>.+)$',
+        TaskAssets.as_view()),
+    url(r'projects/(?P<project_pk>[^/.]+)/tasks/import$',
+        TaskAssetsImport.as_view()),
     url(r'projects/(?P<project_pk>[^/.]+)/tasks/(?P<pk>[^/.]+)/images/thumbnail/(?P<image_filename>.+)$', Thumbnail.as_view()),
-    url(r'projects/(?P<project_pk>[^/.]+)/tasks/(?P<pk>[^/.]+)/images/download/(?P<image_filename>.+)$', ImageDownload.as_view()),
+    url(r'projects/(?P<project_pk>[^/.]+)/tasks/(?P<pk>[^/.]+)/images/download/(?P<image_filename>.+)$',
+        ImageDownload.as_view()),
 
-    url(r'projects/(?P<project_pk>[^/.]+)/tasks/(?P<pk>[^/.]+)/3d/scene$', Scene.as_view()),
-    url(r'projects/(?P<project_pk>[^/.]+)/tasks/(?P<pk>[^/.]+)/3d/cameraview$', CameraView.as_view()),
+    url(r'projects/(?P<project_pk>[^/.]+)/tasks/(?P<pk>[^/.]+)/3d/scene$',
+        Scene.as_view()),
+    url(r'projects/(?P<project_pk>[^/.]+)/tasks/(?P<pk>[^/.]+)/3d/cameraview$',
+        CameraView.as_view()),
 
     url(r'workers/check/(?P<celery_task_id>.+)', CheckTask.as_view()),
     url(r'workers/get/(?P<celery_task_id>.+)', GetTaskResult.as_view()),
@@ -61,4 +69,3 @@ urlpatterns = [
 
 if settings.ENABLE_USERS_API:
     urlpatterns.append(url(r'users', UsersList.as_view()))
-

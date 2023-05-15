@@ -12,6 +12,7 @@ from webodm import settings
 
 logger = logging.getLogger('app.logger')
 
+
 def valid_cogeo(src_path):
     """
     Validate a Cloud Optimized GeoTIFF
@@ -23,7 +24,8 @@ def valid_cogeo(src_path):
         warnings, errors, details = validate(src_path, full_check=True)
         return not errors and not warnings
     except ModuleNotFoundError:
-        logger.warning("Using legacy cog_validate (osgeo.gdal package not found)")
+        logger.warning(
+            "Using legacy cog_validate (osgeo.gdal package not found)")
         # Legacy
         return cog_validate(src_path, strict=True)
 
@@ -38,7 +40,8 @@ def assure_cogeo(src_path):
     """
 
     if not os.path.isfile(src_path):
-        logger.warning("Cannot validate cogeo: %s (file does not exist)" % src_path)
+        logger.warning(
+            "Cannot validate cogeo: %s (file does not exist)" % src_path)
         return
 
     if valid_cogeo(src_path):
@@ -52,38 +55,41 @@ def assure_cogeo(src_path):
     gdal_version = get_gdal_version()
     if gdal_version:
         major, minor, build = gdal_version
-        
+
         # GDAL 2 and lower
         if major <= 2:
             use_legacy = True
-        
+
         # GDAL 3.0 and lower
         if major == 3 and minor < 1:
             use_legacy = True
     else:
         # This shouldn't happen
         use_legacy = True
-        
+
     if use_legacy:
         logger.warning("Using legacy implementation (GDAL >= 3.1 not found)")
         return make_cogeo_legacy(src_path)
     else:
         return make_cogeo_gdal(src_path)
 
+
 def get_gdal_version():
-    # Bit of a hack without installing 
+    # Bit of a hack without installing
     # python bindings
     gdal_translate = shutil.which('gdal_translate')
     if not gdal_translate:
         return None
-    
+
     # Get version
-    version_output = subprocess.check_output([gdal_translate, "--version"]).decode('utf-8')
-    
-    m = re.match(r"GDAL\s+([\d+])\.([\d+])\.([\d+]),\s+released", version_output)
+    version_output = subprocess.check_output(
+        [gdal_translate, "--version"]).decode('utf-8')
+
+    m = re.match(
+        r"GDAL\s+([\d+])\.([\d+])\.([\d+]),\s+released", version_output)
     if not m:
         return None
-    
+
     return tuple(map(int, m.groups()))
 
 
@@ -109,13 +115,14 @@ def make_cogeo_gdal(src_path):
         logger.warning("Cannot create Cloud Optimized GeoTIFF: %s" % str(e))
 
     if os.path.isfile(tmpfile):
-        shutil.move(src_path, swapfile) # Move to swap location
+        shutil.move(src_path, swapfile)  # Move to swap location
 
         try:
             shutil.move(tmpfile, src_path)
         except IOError as e:
-            logger.warning("Cannot move %s to %s: %s" % (tmpfile, src_path, str(e)))
-            shutil.move(swapfile, src_path) # Attempt to restore
+            logger.warning("Cannot move %s to %s: %s" %
+                           (tmpfile, src_path, str(e)))
+            shutil.move(swapfile, src_path)  # Attempt to restore
             raise e
 
         if os.path.isfile(swapfile):
@@ -124,6 +131,7 @@ def make_cogeo_gdal(src_path):
         return True
     else:
         return False
+
 
 def make_cogeo_legacy(src_path):
     """
@@ -153,7 +161,7 @@ def make_cogeo_legacy(src_path):
 
         nodata = None
         if has_alpha_band(dst) and dst.meta['dtype'] == 'uint16':
-            nodata = 0.0 # Hack to workaround https://github.com/cogeotiff/rio-cogeo/issues/112
+            nodata = 0.0  # Hack to workaround https://github.com/cogeotiff/rio-cogeo/issues/112
 
         cog_translate(dst, tmpfile, output_profile, nodata=nodata,
                       config=config, in_memory=False,
@@ -162,13 +170,14 @@ def make_cogeo_legacy(src_path):
         # we want to keep resolution and projection at the tradeoff of slightly slower tile render speed
 
     if os.path.isfile(tmpfile):
-        shutil.move(src_path, swapfile) # Move to swap location
+        shutil.move(src_path, swapfile)  # Move to swap location
 
         try:
             shutil.move(tmpfile, src_path)
         except IOError as e:
-            logger.warning("Cannot move %s to %s: %s" % (tmpfile, src_path, str(e)))
-            shutil.move(swapfile, src_path) # Attempt to restore
+            logger.warning("Cannot move %s to %s: %s" %
+                           (tmpfile, src_path, str(e)))
+            shutil.move(swapfile, src_path)  # Attempt to restore
             raise e
 
         if os.path.isfile(swapfile):

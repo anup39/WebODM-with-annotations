@@ -5,6 +5,7 @@ from worker.tasks import execute_grass_script
 
 task = app.task
 
+
 def run_function_async(func, *args, **kwargs):
     """
     Run a function asynchronously using Celery.

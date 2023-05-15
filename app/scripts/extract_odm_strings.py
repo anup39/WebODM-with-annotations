@@ -1,21 +1,34 @@
 #!/usr/bin/python3
 
-import argparse, os, urllib.request, ast, sys
+import argparse
+import os
+import urllib.request
+import ast
+import sys
 from io import StringIO
 
 # Misc variables needed to get config to run
 __version__ = '?'
-class context:    
+
+
+class context:
     root_path = ''
     num_cores = 4
+
+
 class io:
     def path_or_json_string_to_dict(s):
         return s
+
+
 def path_or_json_string(s):
     return s
+
+
 class log:
     def ODM_ERROR(s):
         pass
+
 
 def extract_odm_strings(url, outfile):
     strings = []
@@ -25,19 +38,20 @@ def extract_odm_strings(url, outfile):
     # config_file = open("test.py").read()
 
     options = {}
+
     class ArgumentParserStub(argparse.ArgumentParser):
         def add_argument(self, *args, **kwargs):
             argparse.ArgumentParser.add_argument(self, *args, **kwargs)
             options[args[0]] = {}
             for name, value in kwargs.items():
                 options[args[0]][str(name)] = str(value)
-        
+
         def add_mutually_exclusive_group(self):
             return ArgumentParserStub()
 
     # Voodoo! :)
     # ( parse AST, extract "def config()" function, set module to only
-    # contain that function, execute module in current scope, 
+    # contain that function, execute module in current scope,
     # run config function)
     root = ast.parse(config_file)
     new_body = []
@@ -52,8 +66,6 @@ def extract_odm_strings(url, outfile):
 
     root.body = new_body
     exec(compile(root, filename="<ast>", mode="exec"), globals())
-
-
 
     config(["--project-path", "/bogus", "name"], parser=ArgumentParserStub())
     for opt in options:

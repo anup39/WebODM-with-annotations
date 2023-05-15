@@ -5,10 +5,12 @@ from rest_framework.response import Response
 from django.contrib.auth.hashers import make_password
 from app import models
 
+
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
-        model  = User
-        fields = '__all__' 
+        model = User
+        fields = '__all__'
+
 
 class AdminUserViewSet(viewsets.ModelViewSet):
     serializer_class = UserSerializer
@@ -20,6 +22,7 @@ class AdminUserViewSet(viewsets.ModelViewSet):
         if email is not None:
             queryset = queryset.filter(email=email)
         return queryset
+
     def create(self, request):
         data = request.data.copy()
         password = data.get('password')
@@ -29,10 +32,12 @@ class AdminUserViewSet(viewsets.ModelViewSet):
         user.save()
         return Response(user.data, status=status.HTTP_201_CREATED)
 
+
 class GroupSerializer(serializers.ModelSerializer):
     class Meta:
-        model  = Group
+        model = Group
         fields = '__all__'
+
 
 class AdminGroupViewSet(viewsets.ModelViewSet):
     serializer_class = GroupSerializer
