@@ -61,7 +61,7 @@ class Map extends React.Component {
       opacity: 100,
       imageryLayers: [],
       overlays: [],
-      // Added by me
+      // ### ADDED BY ME###
       map: null,
     };
 
@@ -82,7 +82,7 @@ class Map extends React.Component {
     });
   };
 
-  // Added by me
+  // ### ADDED BY ME###
   updateMap = (evt) => {
     this.setState({
       map: evt,
@@ -425,7 +425,7 @@ class Map extends React.Component {
       minZoom: 0,
       maxZoom: 24,
     });
-    // This is added by me
+    // ### ADDED BY ME###
     this.setState({ map: this.map });
     // For some reason, in production this class is not added (but we need it)
     // leaflet bug?
@@ -691,7 +691,7 @@ class Map extends React.Component {
       this.layersControl.update(this.state.imageryLayers, this.state.overlays);
     }
 
-    // Added by me
+    // ### ADDED BY ME###
 
     // if (this.state.map) {
     //   this.state.map.on("draw:created", function (e) {
@@ -721,7 +721,8 @@ class Map extends React.Component {
     // Make sure the share popup closes
     if (this.shareButton) this.shareButton.hidePopup();
   }
-  // This function is added by me
+
+  // ### ADDED BY ME###
   handleMeasureClick(e) {
     console.log("Now measure is clicked");
     console.log(this.state.map);
@@ -782,7 +783,8 @@ class Map extends React.Component {
             onChange={this.updateOpacity}
           />
         </div>
-        {/* This is the custom element added by me for the Measurings  */}
+        {/*  ### ADDED BY ME### */}
+
         <div className="measuring-component">
           <h4 style={{ textAlign: "center" }}>Measurings</h4>
           <div>
@@ -815,7 +817,7 @@ class Map extends React.Component {
           onMouseDown={this.handleMapMouseDown}
         />
         <div className="actionButtons">
-          {/* This is the draw button added by me  */}
+          {/* ### ADDED BY ME### */}
           <div className="shareButton">
             <button
               onClick={this.handleMeasureClick}
