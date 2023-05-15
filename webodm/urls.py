@@ -28,24 +28,27 @@ from drf_yasg import openapi
 admin.site.site_header = 'WebODM Administration'
 
 schema_view = get_schema_view(
-   openapi.Info(
-      title="WebODM API",
-      default_version='v1.0.0',
-      description="WebODM API",
-      #terms_of_service="",
-      #contact=openapi.Contact(email=""),
-   ),
-   public=True,
-   permission_classes=[permissions.AllowAny],
+    openapi.Info(
+        title="WebODM API",
+        default_version='v1.0.0',
+        description="WebODM API",
+        # terms_of_service="",
+        # contact=openapi.Contact(email=""),
+    ),
+    public=True,
+    permission_classes=[permissions.AllowAny],
 )
 
 urlpatterns = [
     url(r'^', include('app.urls')),
     url(r'^', include('django.contrib.auth.urls')),
     url(r'^admin/', admin.site.urls),
-    re_path(r'^swagger(?P<format>\.json|\.yaml)$', schema_view.without_ui(cache_timeout=0), name='schema-json'),
-    re_path(r'^swagger/$', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
-    re_path(r'^redoc/$', schema_view.with_ui('redoc', cache_timeout=0), name='schema-redoc'),
+    re_path(r'^swagger(?P<format>\.json|\.yaml)$',
+            schema_view.without_ui(cache_timeout=0), name='schema-json'),
+    re_path(r'^swagger/$', schema_view.with_ui('swagger',
+            cache_timeout=0), name='schema-swagger-ui'),
+    re_path(r'^redoc/$', schema_view.with_ui('redoc',
+            cache_timeout=0), name='schema-redoc'),
 ]
 
 if settings.DEBUG or settings.FORCE_MEDIA_STATICFILES:
@@ -60,6 +63,5 @@ if settings.DEBUG or settings.FORCE_MEDIA_STATICFILES:
 
     ]
 
-#from django.contrib.staticfiles.urls import staticfiles_urlpatterns
-#urlpatterns += staticfiles_urlpatterns()
-
+# from django.contrib.staticfiles.urls import staticfiles_urlpatterns
+# urlpatterns += staticfiles_urlpatterns()

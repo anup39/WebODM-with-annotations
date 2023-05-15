@@ -10,7 +10,9 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/1.10/ref/settings/
 """
 
-import os, sys, json
+import os
+import sys
+import json
 
 import datetime
 
@@ -36,7 +38,7 @@ except ImportError:
     secret = get_random_string(50, chars)
     with open(os.path.join(current_dir, 'secret_key.py'), 'w') as f:
         f.write("SECRET_KEY='{}'".format(secret))
-    SECRET_KEY=secret
+    SECRET_KEY = secret
 
     print("Generated secret key")
 
@@ -52,8 +54,10 @@ WORKER_RUNNING = sys.argv[2:3] == ["worker"]
 # SECURITY WARNING: don't run with debug turned on a public facing server!
 DEBUG = os.environ.get('WO_DEBUG', 'YES') == 'YES' or TESTING
 DEV = os.environ.get('WO_DEV', 'NO') == 'YES' and not TESTING
-DEV_WATCH_PLUGINS = DEV and os.environ.get('WO_DEV_WATCH_PLUGINS', 'NO') == 'YES'
-SESSION_COOKIE_SECURE = CSRF_COOKIE_SECURE = os.environ.get('WO_SSL', 'NO') == 'YES'
+DEV_WATCH_PLUGINS = DEV and os.environ.get(
+    'WO_DEV_WATCH_PLUGINS', 'NO') == 'YES'
+SESSION_COOKIE_SECURE = CSRF_COOKIE_SECURE = os.environ.get(
+    'WO_SSL', 'NO') == 'YES'
 INTERNAL_IPS = ['127.0.0.1']
 
 ALLOWED_HOSTS = ['*']
@@ -72,7 +76,7 @@ PROCESSING_NODES_ONBOARDING = None
 # Enable the /api/users endpoint which is used for autocompleting
 # usernames when handling project permissions. This can be disabled
 # for security reasons if you don't want to let authenticated users
-# retrieve the user list. 
+# retrieve the user list.
 ENABLE_USERS_API = True
 
 # Enable desktop mode. In desktop mode some styling changes
@@ -85,7 +89,7 @@ DEFAULT_THEME_CSS = ''
 
 # Plugins never to load
 PLUGINS_BLACKLIST = [
-    #'measure',
+    # 'measure',
 ]
 
 # Serve media static files URLs even in production
@@ -151,23 +155,23 @@ DATABASES = {
 # https://docs.djangoproject.com/en/1.10/ref/settings/#auth-password-validators
 
 AUTH_PASSWORD_VALIDATORS = [
-   {
-       'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
-   },
-   {
-       'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
-   },
-   {
-       'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
-   },
-   {
-       'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
-   },
+    {
+        'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
+    },
+    {
+        'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
+    },
+    {
+        'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
+    },
+    {
+        'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
+    },
 ]
 
 # Hook guardian
 AUTHENTICATION_BACKENDS = (
-    'django.contrib.auth.backends.ModelBackend', # this is default
+    'django.contrib.auth.backends.ModelBackend',  # this is default
     'guardian.backends.ObjectPermissionBackend',
 )
 
@@ -199,13 +203,14 @@ STATICFILES_FINDERS = [
 ]
 
 # File Uploads
-FILE_UPLOAD_MAX_MEMORY_SIZE = 4718592 # 4.5 MB
-DATA_UPLOAD_MAX_MEMORY_SIZE = 10485760 # 10 MB
+FILE_UPLOAD_MAX_MEMORY_SIZE = 4718592  # 4.5 MB
+DATA_UPLOAD_MAX_MEMORY_SIZE = 10485760  # 10 MB
 DATA_UPLOAD_MAX_NUMBER_FIELDS = None
 
 FILE_UPLOAD_HANDLERS = [
     'django.core.files.uploadhandler.MemoryFileUploadHandler',
-    'app.uploadhandler.TemporaryFileUploadHandler', # Ours doesn't keep file descriptors open by default
+    # Ours doesn't keep file descriptors open by default
+    'app.uploadhandler.TemporaryFileUploadHandler',
 ]
 
 # Webpack
@@ -302,28 +307,28 @@ TEMPLATES = [
 # Store flash messages in cookies
 MESSAGE_STORAGE = 'django.contrib.messages.storage.cookie.CookieStorage'
 MESSAGE_TAGS = {
-    messages.ERROR: 'danger' # Bootstrap 3 compatibility
+    messages.ERROR: 'danger'  # Bootstrap 3 compatibility
 }
 
 # REST setup
 # Use Django's standard django.contrib.auth permissions (no anonymous usage)
 REST_FRAMEWORK = {
-  'DEFAULT_PERMISSION_CLASSES': [
-    'rest_framework.permissions.DjangoObjectPermissions',
-  ],
-  'DEFAULT_FILTER_BACKENDS': [
-    'rest_framework_guardian.filters.ObjectPermissionsFilter',
-    'django_filters.rest_framework.DjangoFilterBackend',
-    'rest_framework.filters.OrderingFilter',
-  ],
-  'DEFAULT_AUTHENTICATION_CLASSES': (
-    'rest_framework.authentication.SessionAuthentication',
-    'rest_framework.authentication.BasicAuthentication',
-    'rest_framework_jwt.authentication.JSONWebTokenAuthentication',
-    'app.api.authentication.JSONWebTokenAuthenticationQS',
-  ),
-  'PAGE_SIZE': 10,
-  'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.DjangoObjectPermissions',
+    ],
+    'DEFAULT_FILTER_BACKENDS': [
+        'rest_framework_guardian.filters.ObjectPermissionsFilter',
+        'django_filters.rest_framework.DjangoFilterBackend',
+        'rest_framework.filters.OrderingFilter',
+    ],
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework.authentication.SessionAuthentication',
+        'rest_framework.authentication.BasicAuthentication',
+        'rest_framework_jwt.authentication.JSONWebTokenAuthentication',
+        'app.api.authentication.JSONWebTokenAuthenticationQS',
+    ),
+    'PAGE_SIZE': 10,
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
 }
 
 JWT_AUTH = {
@@ -338,6 +343,8 @@ COMPRESS_ENABLED = True
 COMPRESS_MTIME_DELAY = 0
 
 # Sass
+
+
 def theme(color):
     from app.contexts.settings import theme as f
     return f(color)
@@ -372,13 +379,13 @@ CELERY_RESULT_BACKEND = os.environ.get('WO_BROKER', 'redis://localhost')
 CELERY_TASK_SERIALIZER = 'json'
 CELERY_RESULT_SERIALIZER = 'json'
 CELERY_ACCEPT_CONTENT = ['json']
-CELERY_INCLUDE=['worker.tasks', 'app.plugins.worker']
+CELERY_INCLUDE = ['worker.tasks', 'app.plugins.worker']
 CELERY_WORKER_REDIRECT_STDOUTS = False
 CELERY_WORKER_HIJACK_ROOT_LOGGER = False
 
-# Number of minutes a processing node hasn't been seen 
+# Number of minutes a processing node hasn't been seen
 # before it should be considered offline
-NODE_OFFLINE_MINUTES = 5 
+NODE_OFFLINE_MINUTES = 5
 
 if TESTING or FLUSHING:
     CELERY_TASK_ALWAYS_EAGER = True
