@@ -30,6 +30,7 @@ redis_client = redis.Redis.from_url(settings.CELERY_BROKER_URL)
 # What class to use for async results, since during testing we need to mock it
 TestSafeAsyncResult = worker.celery.MockAsyncResult if settings.TESTING else app.AsyncResult
 
+
 @app.task
 def update_nodes_info():
     processing_nodes = ProcessingNode.objects.all()
@@ -37,7 +38,7 @@ def update_nodes_info():
         processing_node.update_node_info()
 
         # Workaround for mysterious "webodm_node-odm-1" or "webodm-node-odm-1" hostname switcharoo on Mac
-        # Technically we already check for the correct hostname during setup, 
+        # Technically we already check for the correct hostname during setup,
         # but sometimes that doesn't work?
         check_hostname = 'webodm_node-odm-1'
         if processing_node.hostname == check_hostname and not processing_node.is_online():
@@ -48,10 +49,12 @@ def update_nodes_info():
                 processing_node.hostname = 'webodm-node-odm-1'
                 processing_node.update_node_info()
                 if processing_node.is_online():
-                    logger.info("Found and fixed webodm_node-odm-1 hostname switcharoo")
+                    logger.info(
+                        "Found and fixed webodm_node-odm-1 hostname switcharoo")
                 else:
                     processing_node.hostname = check_hostname
                 processing_node.save()
+
 
 @app.task
 def cleanup_projects():
@@ -87,6 +90,7 @@ def cleanup_tmp_directory():
 # Based on https://stackoverflow.com/questions/22498038/improve-current-implementation-of-a-setinterval-python/22498708#22498708
 def setInterval(interval, func, *args):
     stopped = Event()
+
     def loop():
         while not stopped.wait(interval):
             func(*args)
@@ -94,6 +98,7 @@ def setInterval(interval, func, *args):
     t.daemon = True
     t.start()
     return stopped.set
+
 
 @app.task
 def process_task(taskId):
@@ -111,7 +116,8 @@ def process_task(taskId):
                 return
             else:
                 # Expired
-                logger.warning("Task {} has an expired lock! This could mean that WebODM is running out of memory. Check your server configuration.".format(taskId))
+                logger.warning(
+                    "Task {} has an expired lock! This could mean that WebODM is running out of memory. Check your server configuration.".format(taskId))
 
         # Set lock
         def update_lock():
@@ -130,7 +136,8 @@ def process_task(taskId):
             logger.error(
                 "Uncaught error! This is potentially bad. Please report it to http://github.com/OpenDroneMap/WebODM/issues: {} {}".format(
                     e, traceback.format_exc()))
-            if settings.TESTING: raise e
+            if settings.TESTING:
+                raise e
     finally:
         if cancel_monitor is not None:
             cancel_monitor()
@@ -143,7 +150,6 @@ def process_task(taskId):
                 pass
 
 
-
 def get_pending_tasks():
     # All tasks that have a processing node assigned
     # Or that need one assigned (via auto)
@@ -151,9 +157,10 @@ def get_pending_tasks():
     # or tasks that have a pending action
     # no partial tasks allowed
     return Task.objects.filter(Q(processing_node__isnull=True, auto_processing_node=True, partial=False) |
-                                Q(Q(status=None) | Q(status__in=[status_codes.QUEUED, status_codes.RUNNING]),
-                                  processing_node__isnull=False, partial=False) |
-                                Q(pending_action__isnull=False, partial=False))
+                               Q(Q(status=None) | Q(status__in=[status_codes.QUEUED, status_codes.RUNNING]),
+                                 processing_node__isnull=False, partial=False) |
+                               Q(pending_action__isnull=False, partial=False))
+
 
 @app.task
 def process_pending_tasks():
@@ -163,7 +170,7 @@ def process_pending_tasks():
 
 
 @app.task
-def execute_grass_script(script, serialized_context = {}, out_key='output'):
+def execute_grass_script(script, serialized_context={}, out_key='output'):
     try:
         ctx = grass.create_context(serialized_context)
         return {out_key: ctx.execute(script), 'context': ctx.serialize()}
@@ -175,8 +182,10 @@ def execute_grass_script(script, serialized_context = {}, out_key='output'):
 @app.task(bind=True)
 def export_raster(self, input, **opts):
     try:
-        logger.info("Exporting raster {} with options: {}".format(input, json.dumps(opts)))
-        tmpfile = tempfile.mktemp('_raster.{}'.format(extension_for_export_format(opts.get('format', 'gtiff'))), dir=settings.MEDIA_TMP)
+        logger.info("Exporting raster {} with options: {}".format(
+            input, json.dumps(opts)))
+        tmpfile = tempfile.mktemp('_raster.{}'.format(extension_for_export_format(
+            opts.get('format', 'gtiff'))), dir=settings.MEDIA_TMP)
         export_raster_sync(input, tmpfile, **opts)
         result = {'file': tmpfile}
 
@@ -188,11 +197,14 @@ def export_raster(self, input, **opts):
         logger.error(str(e))
         return {'error': str(e)}
 
+
 @app.task(bind=True)
 def export_pointcloud(self, input, **opts):
     try:
-        logger.info("Exporting point cloud {} with options: {}".format(input, json.dumps(opts)))
-        tmpfile = tempfile.mktemp('_pointcloud.{}'.format(opts.get('format', 'laz')), dir=settings.MEDIA_TMP)
+        logger.info("Exporting point cloud {} with options: {}".format(
+            input, json.dumps(opts)))
+        tmpfile = tempfile.mktemp('_pointcloud.{}'.format(
+            opts.get('format', 'laz')), dir=settings.MEDIA_TMP)
         export_pointcloud_sync(input, tmpfile, **opts)
         result = {'file': tmpfile}
 
