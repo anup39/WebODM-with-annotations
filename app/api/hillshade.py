@@ -6,6 +6,7 @@
 
 import numpy as np
 
+
 def _vector_magnitude(arr):
     # things that don't work here:
     #  * np.linalg.norm
@@ -18,6 +19,7 @@ def _vector_magnitude(arr):
     for i in range(arr.shape[-1]):
         sum_sq += np.square(arr[..., i, np.newaxis])
     return np.sqrt(sum_sq)
+
 
 class LightSource:
     def __init__(self, azdeg=315, altdeg=45):
@@ -36,7 +38,6 @@ class LightSource:
             np.sin(az) * np.cos(alt),
             np.sin(alt)
         ])
-
 
     def hillshade(self, elevation, vert_exag=1, dx=1, dy=1, fraction=1.):
         """

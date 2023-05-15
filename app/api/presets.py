@@ -40,7 +40,8 @@ class PresetViewSet(viewsets.ModelViewSet):
             preset = Preset.objects.create(owner=self.request.user)
 
             # Update other parameters
-            serializer = PresetSerializer(preset, data=request.data, partial=True)
+            serializer = PresetSerializer(
+                preset, data=request.data, partial=True)
             serializer.is_valid(raise_exception=True)
             serializer.save()
 

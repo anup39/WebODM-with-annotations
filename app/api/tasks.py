@@ -30,15 +30,19 @@ def flatten_files(request_files):
     return [file for filesList in map(
         lambda key: request_files.getlist(key),
         [keys for keys in request_files])
-     for file in filesList]
+        for file in filesList]
+
 
 class TaskIDsSerializer(serializers.BaseSerializer):
     def to_representation(self, obj):
         return obj.id
 
+
 class TaskSerializer(serializers.ModelSerializer):
-    project = serializers.PrimaryKeyRelatedField(queryset=models.Project.objects.all())
-    processing_node = serializers.PrimaryKeyRelatedField(queryset=ProcessingNode.objects.all()) 
+    project = serializers.PrimaryKeyRelatedField(
+        queryset=models.Project.objects.all())
+    processing_node = serializers.PrimaryKeyRelatedField(
+        queryset=ProcessingNode.objects.all())
     processing_node_name = serializers.SerializerMethodField()
     can_rerun_from = serializers.SerializerMethodField()
     statistics = serializers.SerializerMethodField()
@@ -66,7 +70,8 @@ class TaskSerializer(serializers.ModelSerializer):
         :return: array of valid rerun-from parameters
         """
         if obj.processing_node is not None:
-            rerun_from_option = list(filter(lambda d: 'name' in d and d['name'] == 'rerun-from', obj.processing_node.available_options))
+            rerun_from_option = list(filter(
+                lambda d: 'name' in d and d['name'] == 'rerun-from', obj.processing_node.available_options))
             if len(rerun_from_option) > 0 and 'domain' in rerun_from_option[0]:
                 return rerun_from_option[0]['domain']
 
@@ -74,8 +79,11 @@ class TaskSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = models.Task
-        exclude = ('console_output', 'orthophoto_extent', 'dsm_extent', 'dtm_extent', )
-        read_only_fields = ('processing_time', 'status', 'last_error', 'created_at', 'pending_action', 'available_assets', )
+        exclude = ('console_output', 'orthophoto_extent',
+                   'dsm_extent', 'dtm_extent', )
+        read_only_fields = ('processing_time', 'status', 'last_error',
+                            'created_at', 'pending_action', 'available_assets', )
+
 
 class TaskViewSet(viewsets.ViewSet):
     """
@@ -83,9 +91,11 @@ class TaskViewSet(viewsets.ViewSet):
     A task represents a set of images and other input to be sent to a processing node.
     Once a processing node completes processing, results are stored in the task.
     """
-    queryset = models.Task.objects.all().defer('orthophoto_extent', 'dsm_extent', 'dtm_extent', 'console_output', )
-    
-    parser_classes = (parsers.MultiPartParser, parsers.JSONParser, parsers.FormParser, )
+    queryset = models.Task.objects.all().defer(
+        'orthophoto_extent', 'dsm_extent', 'dtm_extent', 'console_output', )
+
+    parser_classes = (parsers.MultiPartParser,
+                      parsers.JSONParser, parsers.FormParser, )
     ordering_fields = '__all__'
 
     def get_permissions(self):
@@ -110,7 +120,7 @@ class TaskViewSet(viewsets.ViewSet):
             raise exceptions.NotFound()
 
         task.pending_action = pending_action
-        task.partial = False # Otherwise this will not be processed
+        task.partial = False  # Otherwise this will not be processed
         task.last_error = None
         task.save()
 
@@ -182,7 +192,8 @@ class TaskViewSet(viewsets.ViewSet):
         task.images_count = len(task.scan_images())
 
         if task.images_count < 2:
-            raise exceptions.ValidationError(detail=_("You need to upload at least 2 images before commit"))
+            raise exceptions.ValidationError(
+                detail=_("You need to upload at least 2 images before commit"))
 
         task.save()
         worker_tasks.process_task.delay(task.id)
@@ -212,7 +223,7 @@ class TaskViewSet(viewsets.ViewSet):
         serializer = TaskSerializer(task, data=request.data, partial=True)
         serializer.is_valid(raise_exception=True)
         serializer.save()
-        
+
         return Response({'success': True}, status=status.HTTP_200_OK)
 
     @action(detail=True, methods=['post'])
@@ -233,7 +244,8 @@ class TaskViewSet(viewsets.ViewSet):
             return Response({'error': _("Cannot duplicate task")}, status=status.HTTP_200_OK)
 
     def create(self, request, project_pk=None):
-        project = get_and_check_project(request, project_pk, ('change_project', ))
+        project = get_and_check_project(
+            request, project_pk, ('change_project', ))
 
         # If this is a partial task, we're going to upload images later
         # for now we just create a placeholder task.
@@ -247,7 +259,8 @@ class TaskViewSet(viewsets.ViewSet):
             files = flatten_files(request.FILES)
 
             if len(files) <= 1:
-                raise exceptions.ValidationError(detail=_("Cannot create task, you need at least 2 images"))
+                raise exceptions.ValidationError(
+                    detail=_("Cannot create task, you need at least 2 images"))
 
             with transaction.atomic():
                 task = models.Task.objects.create(project=project,
@@ -257,14 +270,14 @@ class TaskViewSet(viewsets.ViewSet):
                 task.images_count = len(task.scan_images())
 
                 # Update other parameters such as processing node, task name, etc.
-                serializer = TaskSerializer(task, data=request.data, partial=True)
+                serializer = TaskSerializer(
+                    task, data=request.data, partial=True)
                 serializer.is_valid(raise_exception=True)
                 serializer.save()
 
                 worker_tasks.process_task.delay(task.id)
 
         return Response(serializer.data, status=status.HTTP_201_CREATED)
-
 
     def update(self, request, pk=None, project_pk=None, partial=False):
         get_and_check_project(request, project_pk, ('change_project', ))
@@ -276,7 +289,8 @@ class TaskViewSet(viewsets.ViewSet):
         # Check that a user has access to reassign a project
         if 'project' in request.data:
             try:
-                get_and_check_project(request, request.data['project'], ('change_project', ))
+                get_and_check_project(
+                    request, request.data['project'], ('change_project', ))
             except exceptions.NotFound:
                 raise exceptions.PermissionDenied()
 
@@ -295,7 +309,8 @@ class TaskViewSet(viewsets.ViewSet):
 
 
 class TaskNestedView(APIView):
-    queryset = models.Task.objects.all().defer('orthophoto_extent', 'dtm_extent', 'dsm_extent', 'console_output', )
+    queryset = models.Task.objects.all().defer(
+        'orthophoto_extent', 'dtm_extent', 'dsm_extent', 'console_output', )
     permission_classes = (AllowAny, )
 
     def get_and_check_task(self, request, pk, annotate={}):
@@ -313,7 +328,7 @@ class TaskNestedView(APIView):
 
 def download_file_response(request, filePath, content_disposition, download_filename=None):
     filename = os.path.basename(filePath)
-    if download_filename is None: 
+    if download_filename is None:
         download_filename = filename
     filesize = os.stat(filePath).st_size
     file = open(filePath, "rb")
@@ -327,8 +342,10 @@ def download_file_response(request, filePath, content_disposition, download_file
         response = HttpResponse(FileWrapper(file),
                                 content_type=(mimetypes.guess_type(filename)[0] or "application/zip"))
 
-    response['Content-Type'] = mimetypes.guess_type(filename)[0] or "application/zip"
-    response['Content-Disposition'] = "{}; filename={}".format(content_disposition, download_filename)
+    response['Content-Type'] = mimetypes.guess_type(
+        filename)[0] or "application/zip"
+    response['Content-Disposition'] = "{}; filename={}".format(
+        content_disposition, download_filename)
     response['Content-Length'] = filesize
 
     # For testing
@@ -342,12 +359,14 @@ def download_file_stream(request, stream, content_disposition, download_filename
     response = HttpResponse(FileWrapper(stream),
                             content_type=(mimetypes.guess_type(download_filename)[0] or "application/zip"))
 
-    response['Content-Type'] = mimetypes.guess_type(download_filename)[0] or "application/zip"
-    response['Content-Disposition'] = "{}; filename={}".format(content_disposition, download_filename)
+    response['Content-Type'] = mimetypes.guess_type(
+        download_filename)[0] or "application/zip"
+    response['Content-Disposition'] = "{}; filename={}".format(
+        content_disposition, download_filename)
 
     # For testing
     response['_stream'] = 'yes'
-    
+
     return response
 
 
@@ -355,6 +374,8 @@ def download_file_stream(request, stream, content_disposition, download_filename
 Task downloads are simply aliases to download the task's assets
 (but require a shorter path and look nicer the API user)
 """
+
+
 class TaskDownloads(TaskNestedView):
     def get(self, request, pk=None, project_pk=None, asset=""):
         """
@@ -370,18 +391,22 @@ class TaskDownloads(TaskNestedView):
 
         if not is_zipstream and not os.path.isfile(asset_fs):
             raise exceptions.NotFound(_("Asset does not exist"))
-        
-        download_filename = request.GET.get('filename', get_asset_download_filename(task, asset))
+
+        download_filename = request.GET.get(
+            'filename', get_asset_download_filename(task, asset))
 
         if not is_zipstream:
             return download_file_response(request, asset_fs, 'attachment', download_filename=download_filename)
         else:
             return download_file_stream(request, asset_fs, 'attachment', download_filename=download_filename)
 
+
 """
 Raw access to the task's asset folder resources
 Useful when accessing a textured 3d model, or the Potree point cloud data
 """
+
+
 class TaskAssets(TaskNestedView):
     def get(self, request, pk=None, project_pk=None, unsafe_asset_path=""):
         """
@@ -391,7 +416,8 @@ class TaskAssets(TaskNestedView):
 
         # Check for directory traversal attacks
         try:
-            asset_path = path_traversal_check(task.assets_path(unsafe_asset_path), task.assets_path(""))
+            asset_path = path_traversal_check(task.assets_path(
+                unsafe_asset_path), task.assets_path(""))
         except SuspiciousFileOperation:
             raise exceptions.NotFound(_("Asset does not exist"))
 
@@ -400,25 +426,32 @@ class TaskAssets(TaskNestedView):
 
         return download_file_response(request, asset_path, 'inline')
 
+
 """
 Task assets import
 """
+
+
 class TaskAssetsImport(APIView):
     permission_classes = (permissions.AllowAny,)
-    parser_classes = (parsers.MultiPartParser, parsers.JSONParser, parsers.FormParser,)
+    parser_classes = (parsers.MultiPartParser,
+                      parsers.JSONParser, parsers.FormParser,)
 
     def post(self, request, project_pk=None):
-        project = get_and_check_project(request, project_pk, ('change_project',))
+        project = get_and_check_project(
+            request, project_pk, ('change_project',))
 
         files = flatten_files(request.FILES)
         import_url = request.data.get('url', None)
         task_name = request.data.get('name', _('Imported Task'))
 
         if not import_url and len(files) != 1:
-            raise exceptions.ValidationError(detail=_("Cannot create task, you need to upload 1 file"))
+            raise exceptions.ValidationError(
+                detail=_("Cannot create task, you need to upload 1 file"))
 
         if import_url and len(files) > 0:
-            raise exceptions.ValidationError(detail=_("Cannot create task, either specify a URL or upload 1 file."))
+            raise exceptions.ValidationError(
+                detail=_("Cannot create task, either specify a URL or upload 1 file."))
 
         with transaction.atomic():
             task = models.Task.objects.create(project=project,

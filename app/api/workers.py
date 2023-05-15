@@ -10,6 +10,7 @@ from django.http import FileResponse
 from django.http import HttpResponse
 from wsgiref.util import FileWrapper
 
+
 class CheckTask(APIView):
     permission_classes = (permissions.AllowAny,)
 
@@ -37,8 +38,10 @@ class CheckTask(APIView):
     def error_check(self, result):
         pass
 
+
 class TaskResultOutputError(Exception):
     pass
+
 
 class GetTaskResult(APIView):
     permission_classes = (permissions.AllowAny,)
@@ -47,13 +50,14 @@ class GetTaskResult(APIView):
         res = TestSafeAsyncResult(celery_task_id)
         if res.ready():
             result = res.get()
-            file = result.get('file', None) # File path
-            output = result.get('output', None) # String/object
+            file = result.get('file', None)  # File path
+            output = result.get('output', None)  # String/object
         else:
             return Response({'error': 'Task not ready'})
 
         if file is not None:
-            filename = request.query_params.get('filename', os.path.basename(file))
+            filename = request.query_params.get(
+                'filename', os.path.basename(file))
             filesize = os.stat(file).st_size
 
             f = open(file, "rb")
@@ -67,8 +71,10 @@ class GetTaskResult(APIView):
                 response = HttpResponse(FileWrapper(f),
                                         content_type=(mimetypes.guess_type(filename)[0] or "application/zip"))
 
-            response['Content-Type'] = mimetypes.guess_type(filename)[0] or "application/zip"
-            response['Content-Disposition'] = "attachment; filename={}".format(filename)
+            response['Content-Type'] = mimetypes.guess_type(
+                filename)[0] or "application/zip"
+            response['Content-Disposition'] = "attachment; filename={}".format(
+                filename)
             response['Content-Length'] = filesize
 
             return response
