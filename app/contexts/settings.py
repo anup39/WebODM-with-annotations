@@ -5,10 +5,13 @@ from app.models import Setting
 logger = logging.getLogger('app.logger')
 
 # Make the SETTINGS object available to all templates
+
+
 def load(request=None):
     return {'SETTINGS': Setting.objects.first()}
 
 # Helper functions for libsass
+
 
 def theme(color):
     """Return a theme color from the currently selected theme"""
@@ -16,7 +19,7 @@ def theme(color):
         return getattr(load()['SETTINGS'].theme, color)
     except Exception as e:
         logger.warning("Cannot load configuration from theme(): " + e.message)
-        return "blue" # dah buh dih ah buh daa..
+        return "blue"  # dah buh dih ah buh daa..
 
 
 def complementary(hexcolor):
@@ -30,7 +33,7 @@ def complementary(hexcolor):
     return '#' + ''.join(comp)
 
 
-def scaleby(hexcolor, scalefactor, ignore_value = False):
+def scaleby(hexcolor, scalefactor, ignore_value=False):
     """
     Scales a hex string by ``scalefactor``, but is color dependent, unless ignore_value is True
     scalefactor is now always between 0 and 1. A value of 0.8
@@ -64,7 +67,8 @@ def scaleby(hexcolor, scalefactor, ignore_value = False):
         if scalefactor < 0 or len(hexcolor) != 6:
             return hexcolor
 
-        r, g, b = int(hexcolor[:2], 16), int(hexcolor[2:4], 16), int(hexcolor[4:], 16)
+        r, g, b = int(hexcolor[:2], 16), int(
+            hexcolor[2:4], 16), int(hexcolor[4:], 16)
 
         r = clamp(r * scalefactor)
         g = clamp(g * scalefactor)
@@ -72,12 +76,12 @@ def scaleby(hexcolor, scalefactor, ignore_value = False):
 
         return "#%02x%02x%02x" % (r, g, b)
 
-
     hexcolor = hexcolor.strip('#')
     scalefactor = abs(float(scalefactor.value))
     scalefactor = min(1.0, max(0, scalefactor))
 
-    r, g, b = int(hexcolor[:2], 16), int(hexcolor[2:4], 16), int(hexcolor[4:], 16)
+    r, g, b = int(hexcolor[:2], 16), int(
+        hexcolor[2:4], 16), int(hexcolor[4:], 16)
     value = max(r, g, b)
 
     return calculate(hexcolor, scalefactor if ignore_value or value >= 127 else 2 - scalefactor)
