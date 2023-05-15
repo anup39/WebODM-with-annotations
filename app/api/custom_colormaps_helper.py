@@ -1,6 +1,7 @@
 import math
 from .common import hex2rgb
 
+
 def discrete_cmap_from_hex(hex_colors):
     rgb_colors = [hex2rgb(h, with_alpha=True) for h in hex_colors]
     return {x: rgb_colors[math.floor(x / 256.0 * len(rgb_colors))] for x in range(0, 255)}
@@ -39,5 +40,5 @@ contrast_ndvi_arr = [
 custom_colormaps = [
     {"discrete_ndvi": discrete_cmap_from_hex(contrast_ndvi_arr)},
     {"better_discrete_ndvi": discrete_cmap_from_hex(ndvi_arr)},
-    #add custom maps here
+    # add custom maps here
 ]

@@ -32,19 +32,19 @@ algos = {
         'help': _('Normalized Difference Vegetation Index shows the amount of green vegetation.'),
         'range': (-1, 1)
     },
-    'ENDVI':{
+    'ENDVI': {
         'expr': '((N + G) - (2 * B)) / ((N + G) + (2 * B))',
         'help': _('Enhanced Normalized Difference Vegetation Index is like NDVI, but uses Blue and Green bands instead of only Red to isolate plant health.')
     },
-    'vNDVI':{
+    'vNDVI': {
         'expr': '0.5268*((R ** -0.1294) * (G ** 0.3389) * (B ** -0.3118))',
         'help': _('Visible NDVI is an un-normalized index for RGB sensors using constants derived from citrus, grape, and sugarcane crop data.')
-    },    
+    },
     'VARI': {
         'expr': '(G - R) / (G + R - B)',
         'help': _('Visual Atmospheric Resistance Index shows the areas of vegetation.'),
         'range': (-1, 1)
-    },    
+    },
     'MPRI': {
         'expr': '(G - R) / (G + R)',
         'help': _('Modified Photochemical Reflectance Index'),
@@ -67,20 +67,20 @@ algos = {
         'help': _('Green Leaf Index shows greens leaves and stems.'),
         'range': (-1, 1)
     },
-    'GNDVI':{
+    'GNDVI': {
         'expr': '(N - G) / (N + G)',
         'help': _('Green Normalized Difference Vegetation Index is similar to NDVI, but measures the green spectrum instead of red.'),
         'range': (-1, 1)
     },
-    'GRVI':{
+    'GRVI': {
         'expr': 'N / G',
         'help': _('Green Ratio Vegetation Index is sensitive to photosynthetic rates in forests.')
     },
-    'SAVI':{
+    'SAVI': {
         'expr': '(1.5 * (N - R)) / (N + R + 0.5)',
         'help': _('Soil Adjusted Vegetation Index is similar to NDVI but attempts to remove the effects of soil areas using an adjustment factor (0.5).')
     },
-    'MNLI':{
+    'MNLI': {
         'expr': '((N ** 2 - R) * 1.5) / (N ** 2 + R + 0.5)',
         'help': _('Modified Non-Linear Index improves the Non-Linear Index algorithm to account for soil areas.')
     },
@@ -128,7 +128,7 @@ algos = {
 
     '_TESTRB': {
         'expr': 'R + B',
-        'range': (0,1)
+        'range': (0, 1)
     },
 
     '_TESTFUNC': {
@@ -158,8 +158,9 @@ camera_filters = [
     # TODO: certain cameras have only two bands? eg. MAPIR NDVI BLUE+NIR
 ]
 
+
 @lru_cache(maxsize=20)
-def lookup_formula(algo, band_order = 'RGB'):
+def lookup_formula(algo, band_order='RGB'):
     if algo is None:
         return None, None
     if band_order is None:
@@ -168,19 +169,23 @@ def lookup_formula(algo, band_order = 'RGB'):
     if algo not in algos:
         raise ValueError("Cannot find algorithm " + algo)
 
-    input_bands = tuple(b for b in re.split(r"([A-Z][a-z]*)", band_order) if b != "")
-    
+    input_bands = tuple(b for b in re.split(
+        r"([A-Z][a-z]*)", band_order) if b != "")
+
     def repl(matches):
         b = matches.group(1)
         try:
             return 'b' + str(input_bands.index(b) + 1)
         except ValueError:
-            raise ValueError("Cannot find band \"" + b + "\" from \"" + band_order + "\". Choose a proper band order.")
+            raise ValueError("Cannot find band \"" + b + "\" from \"" +
+                             band_order + "\". Choose a proper band order.")
 
-    expr = re.sub("([A-Z]+?[a-z]*)", repl, re.sub("\s+", "", algos[algo]['expr']))
+    expr = re.sub("([A-Z]+?[a-z]*)", repl,
+                  re.sub("\s+", "", algos[algo]['expr']))
     hrange = algos[algo].get('range', None)
 
     return expr, hrange
+
 
 @lru_cache(maxsize=2)
 def get_algorithm_list(max_bands=3):
@@ -188,9 +193,9 @@ def get_algorithm_list(max_bands=3):
     for k in algos:
         if k.startswith("_"):
             continue
-        
+
         cam_filters = get_camera_filters_for(algos[k], max_bands)
-        
+
         if len(cam_filters) == 0:
             continue
 
@@ -201,6 +206,7 @@ def get_algorithm_list(max_bands=3):
         })
 
     return res
+
 
 def get_camera_filters_for(algo, max_bands=3):
     result = []
@@ -221,4 +227,3 @@ def get_camera_filters_for(algo, max_bands=3):
             result.append(f)
 
     return result
-

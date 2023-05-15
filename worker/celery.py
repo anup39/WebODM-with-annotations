@@ -7,7 +7,7 @@ app = Celery('tasks')
 app.config_from_object('django.conf:settings', namespace='CELERY')
 app.conf.result_backend_transport_options = {
     'retry_policy': {
-       'timeout': 5.0
+        'timeout': 5.0
     }
 }
 
@@ -16,16 +16,16 @@ app.conf.beat_schedule = {
         'task': 'worker.tasks.update_nodes_info',
         'schedule': 30,
         'options': {
-        	'expires': 14,
-        	'retry': False
+                'expires': 14,
+                'retry': False
         }
     },
     'cleanup-projects': {
         'task': 'worker.tasks.cleanup_projects',
         'schedule': 60,
         'options': {
-        	'expires': 29,
-        	'retry': False
+                'expires': 29,
+                'retry': False
         }
     },
     'cleanup-tmp-directory': {
@@ -40,15 +40,17 @@ app.conf.beat_schedule = {
         'task': 'worker.tasks.process_pending_tasks',
         'schedule': 5,
         'options': {
-        	'expires': 2,
-        	'retry': False
+                'expires': 2,
+                'retry': False
         }
     },
 }
 
 # Mock class for handling async results during testing
+
+
 class MockAsyncResult:
-    def __init__(self, celery_task_id, result = None):
+    def __init__(self, celery_task_id, result=None):
         self.celery_task_id = celery_task_id
         if result is None:
             if celery_task_id == 'bogus':
@@ -64,6 +66,7 @@ class MockAsyncResult:
 
     def ready(self):
         return self.result is not None
+
 
 MockAsyncResult.results = {}
 MockAsyncResult.set = lambda cti, r: MockAsyncResult(cti, r)

@@ -1,5 +1,6 @@
 import re
 
+
 class MountPoint:
     def __init__(self, url, view, *args, **kwargs):
         """
@@ -10,7 +11,7 @@ class MountPoint:
         """
         super().__init__()
 
-        self.url = re.sub(r'^/+', '', url) # remove leading slashes
+        self.url = re.sub(r'^/+', '', url)  # remove leading slashes
         self.view = view
         self.args = args
         self.kwargs = kwargs

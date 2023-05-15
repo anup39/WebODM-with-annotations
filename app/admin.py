@@ -37,7 +37,8 @@ class TaskAdmin(admin.ModelAdmin):
     def has_add_permission(self, request):
         return False
 
-    list_display = ('id', 'project', 'processing_node', 'created_at', 'status', 'last_error')
+    list_display = ('id', 'project', 'processing_node',
+                    'created_at', 'status', 'last_error')
     list_filter = ('status', 'project',)
     search_fields = ('id', 'project__name')
 
@@ -95,7 +96,8 @@ admin.site.register(PluginDatum, admin.ModelAdmin)
 
 
 class PluginAdmin(admin.ModelAdmin):
-    list_display = ("name", "description", "version", "author", "enabled", "plugin_actions")
+    list_display = ("name", "description", "version",
+                    "author", "enabled", "plugin_actions")
     readonly_fields = ("name",)
     change_list_template = "admin/change_list_plugin.html"
 
@@ -106,19 +108,22 @@ class PluginAdmin(admin.ModelAdmin):
         return False
 
     def description(self, obj):
-        manifest = get_plugin_by_name(obj.name, only_active=False, refresh_cache_if_none=True).get_manifest()
+        manifest = get_plugin_by_name(
+            obj.name, only_active=False, refresh_cache_if_none=True).get_manifest()
         return _(manifest.get('description', ''))
 
     description.short_description = _("Description")
 
     def version(self, obj):
-        manifest = get_plugin_by_name(obj.name, only_active=False, refresh_cache_if_none=True).get_manifest()
+        manifest = get_plugin_by_name(
+            obj.name, only_active=False, refresh_cache_if_none=True).get_manifest()
         return manifest.get('version', '')
 
     version.short_description = _("Version")
 
     def author(self, obj):
-        manifest = get_plugin_by_name(obj.name, only_active=False, refresh_cache_if_none=True).get_manifest()
+        manifest = get_plugin_by_name(
+            obj.name, only_active=False, refresh_cache_if_none=True).get_manifest()
         return manifest.get('author', '')
 
     author.short_description = _("Author")
@@ -186,8 +191,10 @@ class PluginAdmin(admin.ModelAdmin):
         file = request.FILES.get('file')
         if file is not None:
             # Save to tmp dir
-            tmp_zip_path = tempfile.mktemp('plugin.zip', dir=settings.MEDIA_TMP)
-            tmp_extract_path = tempfile.mkdtemp('plugin', dir=settings.MEDIA_TMP)
+            tmp_zip_path = tempfile.mktemp(
+                'plugin.zip', dir=settings.MEDIA_TMP)
+            tmp_extract_path = tempfile.mkdtemp(
+                'plugin', dir=settings.MEDIA_TMP)
 
             try:
                 with open(tmp_zip_path, 'wb+') as fd:
@@ -205,7 +212,8 @@ class PluginAdmin(admin.ModelAdmin):
                 # Validate
                 folders = os.listdir(tmp_extract_path)
                 if len(folders) != 1:
-                    raise ValueError("The plugin has more than 1 root directory (it should have only one)")
+                    raise ValueError(
+                        "The plugin has more than 1 root directory (it should have only one)")
 
                 plugin_name = folders[0]
                 plugin_path = os.path.join(tmp_extract_path, plugin_name)
@@ -227,7 +235,8 @@ class PluginAdmin(admin.ModelAdmin):
 
                 messages.info(request, _("Plugin added successfully"))
             except Exception as e:
-                messages.warning(request, _("Cannot load plugin: %(message)s") % {'message': str(e)})
+                messages.warning(request, _("Cannot load plugin: %(message)s") % {
+                                 'message': str(e)})
                 if os.path.exists(tmp_zip_path):
                     os.remove(tmp_zip_path)
                 if os.path.exists(tmp_extract_path):
@@ -243,12 +252,13 @@ class PluginAdmin(admin.ModelAdmin):
             '<a class="button" href="{}" {}>{}</a>&nbsp;'
             '<a class="button" href="{}" {}>{}</a>'
             + (
-                '&nbsp;<a class="button" href="{}" onclick="return confirm(\'Are you sure you want to delete {}?\')"><i class="fa fa-trash"></i></a>' if not plugin.is_persistent() else '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;')
-            ,
-            reverse('admin:plugin-disable', args=[obj.pk]) if obj.enabled else '#',
+                '&nbsp;<a class="button" href="{}" onclick="return confirm(\'Are you sure you want to delete {}?\')"><i class="fa fa-trash"></i></a>' if not plugin.is_persistent() else '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'),
+            reverse('admin:plugin-disable',
+                    args=[obj.pk]) if obj.enabled else '#',
             'disabled' if not obj.enabled else '',
             _('Disable'),
-            reverse('admin:plugin-enable', args=[obj.pk]) if not obj.enabled else '#',
+            reverse('admin:plugin-enable',
+                    args=[obj.pk]) if not obj.enabled else '#',
             'disabled' if obj.enabled else '',
             _('Enable'),
             reverse('admin:plugin-delete', args=[obj.pk]),

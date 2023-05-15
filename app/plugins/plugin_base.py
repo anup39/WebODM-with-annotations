@@ -1,5 +1,8 @@
 import json
-import logging, os, sys, subprocess
+import logging
+import os
+import sys
+import subprocess
 from abc import ABC
 from app.plugins import UserDataStore, GlobalDataStore
 from app.plugins.functions import get_plugins_persistent_path
@@ -8,6 +11,7 @@ from contextlib import contextmanager
 from app.plugins.pyutils import requirements_installed, compute_file_md5
 
 logger = logging.getLogger('app.logger')
+
 
 class PluginBase(ABC):
     def __init__(self):
@@ -23,7 +27,8 @@ class PluginBase(ABC):
         """
         req_file = self.get_path("requirements.txt")
         if os.path.exists(req_file):
-            reqs_installed =  requirements_installed(req_file, self.get_python_packages_path())
+            reqs_installed = requirements_installed(
+                req_file, self.get_python_packages_path())
 
             md5_file = self.get_python_packages_path("install_md5")
             md5_mismatch = False
@@ -42,20 +47,22 @@ class PluginBase(ABC):
                     os.makedirs(self.get_python_packages_path(), exist_ok=True)
 
                 p = subprocess.Popen(['python', '-m', 'pip', 'install', '-U', '-r', 'requirements.txt',
-                                  '--target', self.get_python_packages_path()],
+                                      '--target', self.get_python_packages_path()],
                                      cwd=self.get_path())
                 p.wait()
 
                 # Verify
                 if requirements_installed(self.get_path("requirements.txt"), self.get_python_packages_path()):
-                    logger.info("Installed requirements.txt for {}".format(self))
+                    logger.info(
+                        "Installed requirements.txt for {}".format(self))
 
                     # Write MD5
                     if req_md5:
                         with open(md5_file, 'w') as f:
                             f.write(req_md5)
                 else:
-                    logger.warning("Failed to install requirements.txt for {}".format(self))
+                    logger.warning(
+                        "Failed to install requirements.txt for {}".format(self))
 
     def get_persistent_path(self, *paths):
         return get_plugins_persistent_path(self.name, *paths)
@@ -72,7 +79,6 @@ class PluginBase(ABC):
         finally:
             # Remove python path
             sys.path.remove(self.get_python_packages_path())
-
 
     def get_path(self, *paths):
         """
@@ -136,7 +142,6 @@ class PluginBase(ABC):
         else:
             return "plugins/{}/templates/{}".format(self.get_name(), path)
 
-
     def path_exists(self, path):
         return os.path.exists(self.get_path(path))
 
@@ -191,7 +196,7 @@ class PluginBase(ABC):
         you know what you are doing.
         :return: [] of MountPoint objects
         """
-        return [] 
+        return []
 
     def app_mount_points(self):
         """
@@ -219,7 +224,7 @@ class PluginBase(ABC):
         """
         return True
 
-    def get_dynamic_script(self, script_path, callback = None, **template_args):
+    def get_dynamic_script(self, script_path, callback=None, **template_args):
         """
         Retrieves a view handler that serves a dynamic script from
         the plugin's directory. Dynamic scripts are normal Javascript
@@ -236,7 +241,8 @@ class PluginBase(ABC):
 
     def get_manifest(self):
         # Lazy loading
-        if self.manifest: return self.manifest
+        if self.manifest:
+            return self.manifest
 
         manifest_path = self.get_path("manifest.json")
 

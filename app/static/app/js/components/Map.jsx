@@ -30,7 +30,7 @@ import "rbush";
 import "../vendor/leaflet/leaflet-markers-canvas";
 import { _ } from "../classes/gettext";
 
-// Draw imports
+// # ADDED BY ME
 import "leaflet-draw/dist/leaflet.draw.css";
 import "leaflet-draw";
 
@@ -53,6 +53,9 @@ class Map extends React.Component {
   constructor(props) {
     super(props);
 
+    // Debug line Anup
+    console.log(props, "props");
+
     this.state = {
       error: "",
       singleTask: null, // When this is set to a task, show a switch mode button to view the 3d model
@@ -61,8 +64,8 @@ class Map extends React.Component {
       opacity: 100,
       imageryLayers: [],
       overlays: [],
-      // Added by me
-      map: null,
+      // ### ADDED BY ME###
+      // map: null,
     };
 
     this.basemaps = {};
@@ -82,12 +85,12 @@ class Map extends React.Component {
     });
   };
 
-  // Added by me
-  updateMap = (evt) => {
-    this.setState({
-      map: evt,
-    });
-  };
+  // // ### ADDED BY ME###
+  // updateMap = (evt) => {
+  //   this.setState({
+  //     map: evt,
+  //   });
+  // };
 
   updatePopupFor(layer) {
     const popup = layer.getPopup();
@@ -425,7 +428,7 @@ class Map extends React.Component {
       minZoom: 0,
       maxZoom: 24,
     });
-    // This is added by me
+    // ### ADDED BY ME###
     this.setState({ map: this.map });
     // For some reason, in production this class is not added (but we need it)
     // leaflet bug?
@@ -673,7 +676,7 @@ class Map extends React.Component {
   }
 
   componentDidUpdate(prevProps, prevState) {
-    console.log("console in component update");
+    console.log("console in component update , Debug Anup");
     this.state.imageryLayers.forEach((imageryLayer) => {
       imageryLayer.setOpacity(this.state.opacity / 100);
       this.updatePopupFor(imageryLayer);
@@ -691,7 +694,7 @@ class Map extends React.Component {
       this.layersControl.update(this.state.imageryLayers, this.state.overlays);
     }
 
-    // Added by me
+    // ### ADDED BY ME###
 
     // if (this.state.map) {
     //   this.state.map.on("draw:created", function (e) {
@@ -721,10 +724,11 @@ class Map extends React.Component {
     // Make sure the share popup closes
     if (this.shareButton) this.shareButton.hidePopup();
   }
-  // This function is added by me
+
+  // ### ADDED BY ME###
   handleMeasureClick(e) {
-    console.log("Now measure is clicked");
-    console.log(this.state.map);
+    console.log("Now measure is clicked Anup");
+    console.log(this.state.map, "Map state ");
 
     const editableLayers = new Leaflet.FeatureGroup();
     this.state.map.addLayer(editableLayers);
@@ -782,7 +786,8 @@ class Map extends React.Component {
             onChange={this.updateOpacity}
           />
         </div>
-        {/* This is the custom element added by me for the Measurings  */}
+        {/*  ### ADDED BY ME### */}
+
         <div className="measuring-component">
           <h4 style={{ textAlign: "center" }}>Measurings</h4>
           <div>
@@ -815,7 +820,7 @@ class Map extends React.Component {
           onMouseDown={this.handleMapMouseDown}
         />
         <div className="actionButtons">
-          {/* This is the draw button added by me  */}
+          {/* ### ADDED BY ME### */}
           <div className="shareButton">
             <button
               onClick={this.handleMeasureClick}

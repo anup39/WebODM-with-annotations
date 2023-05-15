@@ -5,6 +5,7 @@ import re
 
 from app import models
 
+
 def get_and_check_project(request, project_pk, perms=('view_project',)):
     """
     Django comes with a standard `model level` permission system. You can
@@ -27,7 +28,8 @@ def get_and_check_project(request, project_pk, perms=('view_project',)):
     try:
         project = models.Project.objects.get(pk=project_pk, deleting=False)
         for perm in perms:
-            if not request.user.has_perm(perm, project): raise ObjectDoesNotExist()
+            if not request.user.has_perm(perm, project):
+                raise ObjectDoesNotExist()
     except ObjectDoesNotExist:
         raise exceptions.NotFound()
     return project
@@ -54,10 +56,13 @@ def hex2rgb(hex_color, with_alpha=False):
         else:
             return tuple((255, 255, 255))
 
+
 def get_asset_download_filename(task, asset):
     name = task.name
-    if name is None: name = ""
+    if name is None:
+        name = ""
 
-    filename = re.sub(r'[^0-9a-zA-Z-_]+', '', name.replace(" ", "-").replace("/", "-")) + ("-" if name else "") + asset
+    filename = re.sub(r'[^0-9a-zA-Z-_]+', '', name.replace(" ",
+                      "-").replace("/", "-")) + ("-" if name else "") + asset
     filename = re.sub(r'-[-]+', '-', filename)
     return filename
