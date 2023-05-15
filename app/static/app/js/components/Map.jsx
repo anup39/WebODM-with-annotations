@@ -65,7 +65,7 @@ class Map extends React.Component {
       imageryLayers: [],
       overlays: [],
       // ### ADDED BY ME###
-      map: null,
+      // map: null,
     };
 
     this.basemaps = {};
