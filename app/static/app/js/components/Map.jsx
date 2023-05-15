@@ -30,7 +30,7 @@ import "rbush";
 import "../vendor/leaflet/leaflet-markers-canvas";
 import { _ } from "../classes/gettext";
 
-// Draw imports
+// # ADDED BY ME
 import "leaflet-draw/dist/leaflet.draw.css";
 import "leaflet-draw";
 
@@ -52,6 +52,9 @@ class Map extends React.Component {
 
   constructor(props) {
     super(props);
+
+    // Debug line Anup
+    console.log(props, "props");
 
     this.state = {
       error: "",
@@ -82,12 +85,12 @@ class Map extends React.Component {
     });
   };
 
-  // ### ADDED BY ME###
-  updateMap = (evt) => {
-    this.setState({
-      map: evt,
-    });
-  };
+  // // ### ADDED BY ME###
+  // updateMap = (evt) => {
+  //   this.setState({
+  //     map: evt,
+  //   });
+  // };
 
   updatePopupFor(layer) {
     const popup = layer.getPopup();
