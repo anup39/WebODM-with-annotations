@@ -7,5 +7,7 @@ from .plugin_datum import PluginDatum
 from .plugin import Plugin
 
 # deprecated
+
+
 def image_directory_path(image_upload, filename):
     raise Exception("Deprecated")
