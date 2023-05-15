@@ -64,8 +64,6 @@ class Map extends React.Component {
       opacity: 100,
       imageryLayers: [],
       overlays: [],
-      // ### ADDED BY ME###
-      // map: null,
     };
 
     this.basemaps = {};
@@ -84,13 +82,6 @@ class Map extends React.Component {
       opacity: parseFloat(evt.target.value),
     });
   };
-
-  // // ### ADDED BY ME###
-  // updateMap = (evt) => {
-  //   this.setState({
-  //     map: evt,
-  //   });
-  // };
 
   updatePopupFor(layer) {
     const popup = layer.getPopup();
@@ -428,8 +419,6 @@ class Map extends React.Component {
       minZoom: 0,
       maxZoom: 24,
     });
-    // ### ADDED BY ME###
-    // this.setState({ map: this.map });
     // For some reason, in production this class is not added (but we need it)
     // leaflet bug?
     $(this.container).addClass("leaflet-touch");
@@ -694,20 +683,6 @@ class Map extends React.Component {
     ) {
       this.layersControl.update(this.state.imageryLayers, this.state.overlays);
     }
-
-    // ### ADDED BY ME###
-
-    // if (this.state.map) {
-    //   this.state.map.on("draw:created", function (e) {
-    //     const layer = e.layer;
-
-    //     // Add the drawn polygon to the map
-    //     this.state.map.addLayer(layer);
-
-    //     // Enable dragging of the map again
-    //     this.state.map.dragging.enable();
-    //   });
-    // }
   }
 
   componentWillUnmount() {
@@ -729,8 +704,6 @@ class Map extends React.Component {
   // ### ADDED BY ME###
   handleMeasureClick(e) {
     this.map.closePopup();
-    console.log("Now measure is clicked Anup");
-    console.log(this.map, "Map state ");
 
     const editableLayers = new Leaflet.FeatureGroup();
     this.map.addLayer(editableLayers);
