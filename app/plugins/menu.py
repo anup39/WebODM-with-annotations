@@ -1,5 +1,5 @@
 class Menu:
-    def __init__(self, label, link = "javascript:void(0)", css_icon = 'fa fa-caret-right fa-fw', submenu = []):
+    def __init__(self, label, link="javascript:void(0)", css_icon='fa fa-caret-right fa-fw', submenu=[]):
         """
         Create a menu
         :param label: text shown in entry
@@ -16,7 +16,6 @@ class Menu:
 
         if (self.has_submenu()):
             self.link = "#"
-
 
     def has_submenu(self):
         return len(self.submenu) > 0

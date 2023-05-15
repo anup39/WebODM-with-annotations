@@ -19,25 +19,27 @@ def try_resolve_url(request, url):
     else:
         return (None, None, None)
 
+
 def app_view_handler(request, plugin_name=None):
-    plugin = get_plugin_by_name(plugin_name) # TODO: this pings the server, which might be bad for performance with very large amount of files
+    # TODO: this pings the server, which might be bad for performance with very large amount of files
+    plugin = get_plugin_by_name(plugin_name)
     if plugin is None:
         raise Http404("Plugin not found")
 
     # Try mountpoints first
     for mount_point in plugin.app_mount_points():
         view, args, kwargs = try_resolve_url(request, url(r'^/plugins/{}/{}'.format(plugin_name, mount_point.url),
-                                                 mount_point.view,
-                                                 *mount_point.args,
-                                                 **mount_point.kwargs))
+                                                          mount_point.view,
+                                                          *mount_point.args,
+                                                          **mount_point.kwargs))
         if view:
             return view(request, *args, **kwargs)
 
     # Try public assets
     if os.path.exists(plugin.get_path("public")) and plugin.serve_public_assets(request):
         view, args, kwargs = try_resolve_url(request, url('^/plugins/{}/(.*)'.format(plugin_name),
-                                                            serve,
-                                                            {'document_root': plugin.get_path("public")}))
+                                                          serve,
+                                                          {'document_root': plugin.get_path("public")}))
         if view:
             return view(request, *args, **kwargs)
 
@@ -45,25 +47,28 @@ def app_view_handler(request, plugin_name=None):
 
 
 def api_view_handler(request, plugin_name=None):
-    plugin = get_plugin_by_name(plugin_name) # TODO: this pings the server, which might be bad for performance with very large amount of files
+    # TODO: this pings the server, which might be bad for performance with very large amount of files
+    plugin = get_plugin_by_name(plugin_name)
     if plugin is None:
         raise Http404("Plugin not found")
 
     for mount_point in plugin.api_mount_points():
         view, args, kwargs = try_resolve_url(request, url(r'^/api/plugins/{}/{}'.format(plugin_name, mount_point.url),
-                                                 mount_point.view,
-                                                 *mount_point.args,
-                                                 **mount_point.kwargs))
+                                                          mount_point.view,
+                                                          *mount_point.args,
+                                                          **mount_point.kwargs))
 
         if view:
             return view(request, *args, **kwargs)
 
     raise Http404("No valid routes")
 
+
 def root_url_patterns():
     result = []
     for p in get_active_plugins():
         for mount_point in p.root_mount_points():
-            result.append(url(mount_point.url, mount_point.view, *mount_point.args, **mount_point.kwargs))
-            
+            result.append(url(mount_point.url, mount_point.view,
+                          *mount_point.args, **mount_point.kwargs))
+
     return result
