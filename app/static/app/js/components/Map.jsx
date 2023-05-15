@@ -429,7 +429,7 @@ class Map extends React.Component {
       maxZoom: 24,
     });
     // ### ADDED BY ME###
-    this.setState({ map: this.map });
+    // this.setState({ map: this.map });
     // For some reason, in production this class is not added (but we need it)
     // leaflet bug?
     $(this.container).addClass("leaflet-touch");
@@ -585,6 +585,7 @@ class Map extends React.Component {
 
         this.map
           .on("click", (e) => {
+            console.log("clicked to get the popup");
             // Find first tile layer at the selected coordinates
             for (let layer of this.state.imageryLayers) {
               if (layer._map && layer.options.bounds.contains(e.latlng)) {
@@ -727,11 +728,12 @@ class Map extends React.Component {
 
   // ### ADDED BY ME###
   handleMeasureClick(e) {
+    this.map.closePopup();
     console.log("Now measure is clicked Anup");
-    console.log(this.state.map, "Map state ");
+    console.log(this.map, "Map state ");
 
     const editableLayers = new Leaflet.FeatureGroup();
-    this.state.map.addLayer(editableLayers);
+    this.map.addLayer(editableLayers);
 
     const drawControl = new Leaflet.Control.Draw({
       position: "topleft",
@@ -759,9 +761,9 @@ class Map extends React.Component {
       },
     });
 
-    this.state.map.addControl(drawControl);
+    this.map.addControl(drawControl);
 
-    this.state.map.on(Leaflet.Draw.Event.CREATED, function (e) {
+    this.map.on(Leaflet.Draw.Event.CREATED, function (e) {
       const type = e.layerType,
         layer = e.layer;
 
