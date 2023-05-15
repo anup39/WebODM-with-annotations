@@ -727,8 +727,8 @@ class Map extends React.Component {
 
   // ### ADDED BY ME###
   handleMeasureClick(e) {
-    console.log("Now measure is clicked");
-    console.log(this.state.map);
+    console.log("Now measure is clicked Anup");
+    console.log(this.state.map, "Map state ");
 
     const editableLayers = new Leaflet.FeatureGroup();
     this.state.map.addLayer(editableLayers);
