@@ -26,7 +26,8 @@ from webodm.wsgi import booted
 def boot():
     # booted is a shared memory variable to keep track of boot status
     # as multiple gunicorn workers could trigger the boot sequence twice
-    if (not settings.DEBUG and booted.value) or settings.MIGRATING: return
+    if (not settings.DEBUG and booted.value) or settings.MIGRATING:
+        return
 
     booted.value = True
     logger = logging.getLogger('app.logger')
@@ -37,7 +38,8 @@ def boot():
         logger.warning("Debug mode is ON (for development this is OK)")
 
     # Silence django's "Warning: Session data corrupted" messages
-    session_logger = logging.getLogger("django.SuspiciousOperation.SuspiciousSession")
+    session_logger = logging.getLogger(
+        "django.SuspiciousOperation.SuspiciousSession")
     session_logger.disabled = True
 
     # Make sure our app/media/tmp folder exists
@@ -55,10 +57,10 @@ def boot():
             try:
                 pnode = ProcessingNode.objects.get(hostname="node-odm-1")
                 assign_perm('view_processingnode', default_group, pnode)
-                logger.info("Added view_processingnode permissions to default group")
+                logger.info(
+                    "Added view_processingnode permissions to default group")
             except ObjectDoesNotExist:
                 pass
-
 
         # Add default permissions (view_project, change_project, delete_project, etc.)
         for permission in ('_project', '_task', '_preset'):
@@ -67,7 +69,8 @@ def boot():
             )
 
         # Add permission to view processing nodes
-        default_group.permissions.add(Permission.objects.get(codename="view_processingnode"))
+        default_group.permissions.add(
+            Permission.objects.get(codename="view_processingnode"))
 
         add_default_presets()
 
@@ -82,23 +85,25 @@ def boot():
 
         if Setting.objects.all().count() == 0:
             s = Setting.objects.create(
-                    app_name=settings.APP_NAME,
-                    theme=default_theme)
-            s.app_logo.save(os.path.basename(settings.APP_DEFAULT_LOGO), File(open(settings.APP_DEFAULT_LOGO, 'rb')))
+                app_name=settings.APP_NAME,
+                theme=default_theme)
+            s.app_logo.save(os.path.basename(settings.APP_DEFAULT_LOGO), File(
+                open(settings.APP_DEFAULT_LOGO, 'rb')))
 
             logger.info("Created settings")
-        
+
         init_plugins()
 
         if not settings.TESTING:
             try:
                 worker_tasks.update_nodes_info.delay()
             except kombu.exceptions.OperationalError as e:
-                logger.error("Cannot connect to celery broker at {}. Make sure that your redis-server is running at that address: {}".format(settings.CELERY_BROKER_URL, str(e)))
-
+                logger.error("Cannot connect to celery broker at {}. Make sure that your redis-server is running at that address: {}".format(
+                    settings.CELERY_BROKER_URL, str(e)))
 
     except ProgrammingError:
-        logger.warning("Could not touch the database. If running a migration, this is expected.")
+        logger.warning(
+            "Could not touch the database. If running a migration, this is expected.")
 
 
 def add_default_presets():
@@ -108,53 +113,73 @@ def add_default_presets():
                                                               {'name': 'radiometric-calibration', 'value': 'camera'}]})
         Preset.objects.update_or_create(name='Volume Analysis', system=True,
                                         defaults={'options': [{'name': 'auto-boundary', 'value': True},
-                                                              {'name': 'dsm', 'value': True},
-                                                              {'name': 'dem-resolution', 'value': '2'},
-                                                              {'name': 'pc-quality', 'value': 'high'},
+                                                              {'name': 'dsm',
+                                                                  'value': True},
+                                                              {'name': 'dem-resolution',
+                                                                  'value': '2'},
+                                                              {'name': 'pc-quality',
+                                                                  'value': 'high'},
                                                               {'name': 'use-3dmesh', 'value': True}]})
         Preset.objects.update_or_create(name='3D Model', system=True,
                                         defaults={'options': [{'name': 'auto-boundary', 'value': True},
-                                                              {'name': 'mesh-octree-depth', 'value': "12"},
-                                                              {'name': 'use-3dmesh', 'value': True},
-                                                              {'name': 'pc-quality', 'value': 'high'},
+                                                              {'name': 'mesh-octree-depth',
+                                                                  'value': "12"},
+                                                              {'name': 'use-3dmesh',
+                                                                  'value': True},
+                                                              {'name': 'pc-quality',
+                                                                  'value': 'high'},
                                                               {'name': 'mesh-size', 'value': '300000'}]})
         Preset.objects.update_or_create(name='Buildings', system=True,
                                         defaults={'options': [{'name': 'auto-boundary', 'value': True},
-                                                              {'name': 'mesh-size', 'value': '300000'},
-                                                              {'name': 'pc-geometric', 'value': True},
-                                                              {'name': 'feature-quality', 'value': 'high'},
+                                                              {'name': 'mesh-size',
+                                                                  'value': '300000'},
+                                                              {'name': 'pc-geometric',
+                                                                  'value': True},
+                                                              {'name': 'feature-quality',
+                                                                  'value': 'high'},
                                                               {'name': 'pc-quality', 'value': 'high'}]})
         Preset.objects.update_or_create(name='Buildings Ultra Quality', system=True,
                                         defaults={'options': [{'name': 'auto-boundary', 'value': True},
-                                                              {'name': 'mesh-size', 'value': '300000'},
-                                                              {'name': 'pc-geometric', 'value': True},
-                                                              {'name': 'feature-quality', 'value': 'ultra'},
+                                                              {'name': 'mesh-size',
+                                                                  'value': '300000'},
+                                                              {'name': 'pc-geometric',
+                                                                  'value': True},
+                                                              {'name': 'feature-quality',
+                                                                  'value': 'ultra'},
                                                               {'name': 'pc-quality', 'value': 'ultra'}]})
         Preset.objects.update_or_create(name='Point of Interest', system=True,
                                         defaults={'options': [{'name': 'auto-boundary', 'value': True},
-                                                              {'name': 'mesh-size', 'value': '300000'},
+                                                              {'name': 'mesh-size',
+                                                                  'value': '300000'},
                                                               {'name': 'use-3dmesh', 'value': True}]})
         Preset.objects.update_or_create(name='Forest', system=True,
                                         defaults={'options': [{'name': 'auto-boundary', 'value': True},
-                                                              {'name': 'min-num-features', 'value': '18000'},
-                                                              {'name': 'use-3dmesh', 'value': True},
+                                                              {'name': 'min-num-features',
+                                                                  'value': '18000'},
+                                                              {'name': 'use-3dmesh',
+                                                                  'value': True},
                                                               {'name': 'feature-quality', 'value': 'ultra'}]})
         Preset.objects.update_or_create(name='DSM + DTM', system=True,
                                         defaults={'options': [{'name': 'auto-boundary', 'value': True},
-                                                              {'name': 'dsm', 'value': True},
+                                                              {'name': 'dsm',
+                                                                  'value': True},
                                                               {'name': 'dtm', 'value': True}]})
         Preset.objects.update_or_create(name='Field', system=True,
                                         defaults={'options': [{'name': 'sfm-algorithm', 'value': 'planar'},
-                                                              {'name': 'fast-orthophoto', 'value': True},
+                                                              {'name': 'fast-orthophoto',
+                                                                  'value': True},
                                                               {'name': 'matcher-neighbors', 'value': 4}]})
         Preset.objects.update_or_create(name='Fast Orthophoto', system=True,
                                         defaults={'options': [{'name': 'auto-boundary', 'value': True},
                                                               {'name': 'fast-orthophoto', 'value': True}]})
         Preset.objects.update_or_create(name='High Resolution', system=True,
                                         defaults={'options': [{'name': 'auto-boundary', 'value': True},
-                                                              {'name': 'dsm', 'value': True},
-                                                              {'name': 'pc-quality', 'value': 'high'},
-                                                              {'name': 'dem-resolution', 'value': "2.0"},
+                                                              {'name': 'dsm',
+                                                                  'value': True},
+                                                              {'name': 'pc-quality',
+                                                                  'value': 'high'},
+                                                              {'name': 'dem-resolution',
+                                                                  'value': "2.0"},
                                                               {'name': 'orthophoto-resolution', 'value': "2.0"}]})
         Preset.objects.update_or_create(name='Default', system=True,
                                         defaults={'options': [{'name': 'auto-boundary', 'value': True},

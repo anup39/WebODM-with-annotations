@@ -18,12 +18,14 @@ logger = logging.getLogger('app.logger')
 
 ZOOM_EXTRA_LEVELS = 3
 
+
 def extension_for_export_format(export_format):
     extensions = {
         'gtiff': 'tif',
         'gtiff-rgb': 'tif',
     }
     return extensions.get(export_format, export_format)
+
 
 def export_raster(input, output, **opts):
     epsg = opts.get('epsg')
@@ -33,10 +35,10 @@ def export_raster(input, output, **opts):
     color_map = opts.get('color_map')
     hillshade = opts.get('hillshade')
     asset_type = opts.get('asset_type')
-    name = opts.get('name', 'raster') # KMZ specific
+    name = opts.get('name', 'raster')  # KMZ specific
 
     dem = asset_type in ['dsm', 'dtm']
-    
+
     with COGReader(input) as ds_src:
         src = ds_src.dataset
         profile = src.meta.copy()
@@ -49,7 +51,7 @@ def export_raster(input, output, **opts):
         rgb = False
         indexes = src.indexes
         output_raster = output
-        jpg_background = 255 # white
+        jpg_background = 255  # white
 
         # KMZ is special, we just export it as PNG with EPSG:4326
         # and then call GDAL to tile/package it
@@ -78,7 +80,7 @@ def export_raster(input, output, **opts):
         else:
             compress = "DEFLATE"
             band_count = src.count
-        
+
         if compress is not None:
             profile.update(compress=compress)
             profile.update(predictor=2 if compress == "DEFLATE" else 1)
@@ -88,8 +90,10 @@ def export_raster(input, output, **opts):
             nodata = None
             if asset_type == 'orthophoto':
                 nodata = 0
-            md = ds_src.metadata(pmin=2.0, pmax=98.0, hist_options={"bins": 255}, nodata=nodata)
-            rescale = [md['statistics']['1']['min'], md['statistics']['1']['max']]
+            md = ds_src.metadata(pmin=2.0, pmax=98.0, hist_options={
+                                 "bins": 255}, nodata=nodata)
+            rescale = [md['statistics']['1']['min'],
+                       md['statistics']['1']['max']]
 
         ci = src.colorinterp
 
@@ -102,9 +106,9 @@ def export_raster(input, output, **opts):
                         ColorInterp.blue in ci and \
                         ColorInterp.alpha in ci:
                     indexes = (ci.index(ColorInterp.red) + 1,
-                                ci.index(ColorInterp.green) + 1,
-                                ci.index(ColorInterp.blue) + 1,
-                                ci.index(ColorInterp.alpha) + 1)
+                               ci.index(ColorInterp.green) + 1,
+                               ci.index(ColorInterp.blue) + 1,
+                               ci.index(ColorInterp.alpha) + 1)
 
         if ColorInterp.alpha in ci:
             mask = src.read(ci.index(ColorInterp.alpha) + 1)
@@ -118,12 +122,11 @@ def export_raster(input, output, **opts):
             except InvalidColorMapName:
                 logger.warning("Invalid colormap {}".format(color_map))
 
-
         def process(arr, skip_rescale=False, skip_alpha=False, skip_type=False):
             if not skip_rescale and rescale is not None:
                 arr = linear_rescale(arr, in_range=rescale)
             if not skip_alpha and not with_alpha:
-                arr[mask==0] = jpg_background
+                arr[mask == 0] = jpg_background
             if not skip_type and rgb and arr.dtype != np.uint8:
                 arr = arr.astype(np.uint8)
 
@@ -131,9 +134,11 @@ def export_raster(input, output, **opts):
 
         def update_rgb_colorinterp(dst):
             if with_alpha:
-                dst.colorinterp = [ColorInterp.red, ColorInterp.green, ColorInterp.blue, ColorInterp.alpha]
+                dst.colorinterp = [
+                    ColorInterp.red, ColorInterp.green, ColorInterp.blue, ColorInterp.alpha]
             else:
-                dst.colorinterp = [ColorInterp.red, ColorInterp.green, ColorInterp.blue]
+                dst.colorinterp = [ColorInterp.red,
+                                   ColorInterp.green, ColorInterp.blue]
 
         profile.update(driver=driver, count=band_count)
         if rgb:
@@ -158,13 +163,13 @@ def export_raster(input, output, **opts):
             )
 
             def write_band(arr, dst, band_num):
-                reproject(source=arr, 
-                        destination=rasterio.band(dst, band_num),
-                        src_transform=src.transform,
-                        src_crs=src.crs,
-                        dst_transform=transform,
-                        dst_crs=dst_crs,
-                        resampling=Resampling.nearest)
+                reproject(source=arr,
+                          destination=rasterio.band(dst, band_num),
+                          src_transform=src.transform,
+                          src_crs=src.crs,
+                          dst_transform=transform,
+                          dst_crs=dst_crs,
+                          resampling=Resampling.nearest)
 
         else:
             # No reprojection needed
@@ -178,7 +183,8 @@ def export_raster(input, output, **opts):
             else:
                 profile.update(dtype=rasterio.float32, count=1, nodata=-9999)
 
-            bands_names = ["b{}".format(b) for b in tuple(sorted(set(re.findall(r"b(?P<bands>[0-9]{1,2})", expression))))]
+            bands_names = ["b{}".format(b) for b in tuple(
+                sorted(set(re.findall(r"b(?P<bands>[0-9]{1,2})", expression))))]
             rgb_expr = expression.split(",")
             indexes = tuple([int(b.replace("b", "")) for b in bands_names])
 
@@ -192,7 +198,8 @@ def export_raster(input, output, **opts):
 
             data = src.read(indexes=indexes, out_dtype=np.float32)
             arr = dict(zip(bands_names, data))
-            arr = np.array([np.nan_to_num(ne.evaluate(bloc.strip(), local_dict=arr)) for bloc in rgb_expr])
+            arr = np.array(
+                [np.nan_to_num(ne.evaluate(bloc.strip(), local_dict=arr)) for bloc in rgb_expr])
 
             # Set nodata values
             index_band = arr[0]
@@ -201,8 +208,8 @@ def export_raster(input, output, **opts):
                 index_band[data[-1] == 0] = -9999
 
             # Remove infinity values
-            index_band[index_band>1e+30] = -9999
-            index_band[index_band<-1e+30] = -9999
+            index_band[index_band > 1e+30] = -9999
+            index_band[index_band < -1e+30] = -9999
 
             # Make sure this is float32
             arr = arr.astype(np.float32)
@@ -210,16 +217,18 @@ def export_raster(input, output, **opts):
             with rasterio.open(output_raster, 'w', **profile) as dst:
                 # Apply colormap?
                 if rgb and cmap is not None:
-                    rgb_data, _ = apply_cmap(process(arr, skip_alpha=True), cmap)
+                    rgb_data, _ = apply_cmap(
+                        process(arr, skip_alpha=True), cmap)
 
                     band_num = 1
                     for b in rgb_data:
-                        write_band(process(b, skip_rescale=True), dst, band_num)
+                        write_band(process(b, skip_rescale=True),
+                                   dst, band_num)
                         band_num += 1
 
                     if with_alpha:
                         write_band(mask, dst, band_num)
-                    
+
                     update_rgb_colorinterp(dst)
                 else:
                     # Raw
@@ -235,21 +244,24 @@ def export_raster(input, output, **opts):
                     dx = src.meta["transform"][0] * delta_scale
                     dy = -src.meta["transform"][4] * delta_scale
                     ls = LightSource(azdeg=315, altdeg=45)
-                    intensity = ls.hillshade(arr[0], dx=dx, dy=dy, vert_exag=hillshade)
+                    intensity = ls.hillshade(
+                        arr[0], dx=dx, dy=dy, vert_exag=hillshade)
                     intensity = intensity * 255.0
 
                 # Apply colormap?
                 if rgb and cmap is not None:
-                    rgb_data, _ = apply_cmap(process(arr, skip_alpha=True), cmap)
+                    rgb_data, _ = apply_cmap(
+                        process(arr, skip_alpha=True), cmap)
 
                     if intensity is not None:
                         rgb_data = hsv_blend(rgb_data, intensity)
-                        
+
                     band_num = 1
                     for b in rgb_data:
-                        write_band(process(b, skip_rescale=True), dst, band_num)
+                        write_band(process(b, skip_rescale=True),
+                                   dst, band_num)
                         band_num += 1
-                    
+
                     if with_alpha:
                         write_band(mask, dst, band_num)
 
@@ -272,14 +284,14 @@ def export_raster(input, output, **opts):
                     else:
                         write_band(process(arr), dst, band_num)
                         band_num += 1
-                
+
                 new_ci = [src.colorinterp[idx - 1] for idx in indexes]
                 if not with_alpha:
                     new_ci = [ci for ci in new_ci if ci != ColorInterp.alpha]
-                    
+
                 dst.colorinterp = new_ci
-                
+
         if kmz:
-            subprocess.check_output(["gdal_translate", "-of", "KMLSUPEROVERLAY", 
-                                        "-co", "Name={}".format(name),
-                                        "-co", "FORMAT=PNG", output_raster, output])
+            subprocess.check_output(["gdal_translate", "-of", "KMLSUPEROVERLAY",
+                                     "-co", "Name={}".format(name),
+                                     "-co", "FORMAT=PNG", output_raster, output])

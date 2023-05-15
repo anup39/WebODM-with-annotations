@@ -5,6 +5,7 @@ from webodm import settings
 
 logger = logging.getLogger('app.logger')
 
+
 class TestWatch:
     def __init__(self):
         self.clear()
@@ -16,7 +17,7 @@ class TestWatch:
         self._calls = {}
         self._intercept_list = {}
 
-    def intercept(self, fname, f = None):
+    def intercept(self, fname, f=None):
         self._intercept_list[fname] = f if f is not None else True
 
     def intercept_list_has(self, fname):
@@ -38,7 +39,7 @@ class TestWatch:
     def get_calls_count(self, fname):
         return len(self.get_calls(fname))
 
-    def wait_until_call(self, fname, count = 1, timeout = 30):
+    def wait_until_call(self, fname, count=1, timeout=30):
         SLEEP_INTERVAL = 0.125
         TIMEOUT_LIMIT = timeout / SLEEP_INTERVAL
         c = 0
@@ -47,7 +48,8 @@ class TestWatch:
             c += 1
 
         if c >= TIMEOUT_LIMIT:
-            raise TimeoutError("wait_until_call has timed out waiting for {}".format(fname))
+            raise TimeoutError(
+                "wait_until_call has timed out waiting for {}".format(fname))
 
         return self.get_calls(fname)
 
@@ -67,8 +69,8 @@ class TestWatch:
             logger.info(fname + " intercepted")
             self.execute_intercept_function_replacement(fname, *args, **kwargs)
             self.log_call(func, *args, **kwargs)
-            return True # Intercept
-        return False # Do not intercept
+            return True  # Intercept
+        return False  # Do not intercept
 
     def hook_post(self, func, *args, **kwargs):
         if settings.TESTING:
@@ -79,13 +81,16 @@ class TestWatch:
         Decorator that adds pre/post hook calls
         """
         tw = kwargs.get('testWatch', testWatch)
+
         def outer(func):
             def wrapper(*args, **kwargs):
-                if tw.hook_pre(func, *args, **kwargs): return
+                if tw.hook_pre(func, *args, **kwargs):
+                    return
                 ret = func(*args, **kwargs)
                 tw.hook_post(func, *args, **kwargs)
                 return ret
             return wrapper
         return outer
+
 
 testWatch = TestWatch()
