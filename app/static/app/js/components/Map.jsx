@@ -431,10 +431,14 @@ class Map extends React.Component {
     $(this.container).addClass("leaflet-touch");
 
     // This controls is for countours and measurements, map and tiles is necessary props
+    // console.log(window.PluginsAPI, "plygin api");
+
     PluginsAPI.Map.triggerWillAddControls({
       map: this.map,
       tiles,
     });
+
+    console.log(PluginsAPI.Map, "plugin api map");
 
     let scaleControl = Leaflet.control
       .scale({
@@ -695,10 +699,20 @@ class Map extends React.Component {
     });
 
     this.map.addControl(drawControl);
-    this.map.on(Leaflet.Draw.Event.CREATED, function (e) {
+    this.map.on(Leaflet.Draw.Event.CREATED, (e) => {
+      this.setState({ drawMode: false });
       const type = e.layerType,
         layer = e.layer;
+
+      layer.bindPopup("A popup!");
       editableLayers.addLayer(layer);
+      layer.openPopup();
+    });
+
+    this.map.on(Leaflet.Draw.Event.DRAWSTART, (e) => {
+      console.log(this.map, "map");
+      console.log("Draw has started");
+      this.setState({ drawMode: true });
     });
 
     // I have to investigate on this
@@ -716,17 +730,18 @@ class Map extends React.Component {
   }
 
   componentDidUpdate(prevProps, prevState) {
+    console.log(
+      "Component is updated",
+      prevState.drawMode,
+      this.state.drawMode
+    );
     this.state.imageryLayers.forEach((imageryLayer) => {
       imageryLayer.setOpacity(this.state.opacity / 100);
       this.updatePopupFor(imageryLayer);
     });
 
-    this.map.on(Leaflet.Draw.Event.DRAWSTART, function (e) {
-      this.map.closePopup();
-      // console.log("draw is started");
-    });
-
     if (prevProps.tiles !== this.props.tiles) {
+      console.log("Tiles not similar");
       this.loadImageryLayers(true);
     }
 
@@ -735,6 +750,7 @@ class Map extends React.Component {
       (prevState.imageryLayers !== this.state.imageryLayers ||
         prevState.overlays !== this.state.overlays)
     ) {
+      console.log("layercontrol and imagelayers and overlayrs");
       this.layersControl.update(this.state.imageryLayers, this.state.overlays);
     }
     if (prevState.drawMode !== this.state.drawMode) {

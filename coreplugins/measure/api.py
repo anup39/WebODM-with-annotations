@@ -16,8 +16,10 @@ from app.plugins.grass_engine import grass, GrassEngineException, cleanup_grass_
 from geojson import Feature, Point, FeatureCollection
 from django.utils.translation import gettext_lazy as _
 
+
 class GeoJSONSerializer(serializers.Serializer):
-    area = serializers.JSONField(help_text="Polygon contour defining the volume area to compute")
+    area = serializers.JSONField(
+        help_text="Polygon contour defining the volume area to compute")
 
 
 class TaskVolume(TaskView):
@@ -30,7 +32,8 @@ class TaskVolume(TaskView):
         serializer.is_valid(raise_exception=True)
 
         area = serializer['area'].value
-        points = FeatureCollection([Feature(geometry=Point(coords)) for coords in area['geometry']['coordinates'][0]])
+        points = FeatureCollection([Feature(geometry=Point(
+            coords)) for coords in area['geometry']['coordinates'][0]])
         dsm = os.path.abspath(task.get_asset_download_path("dsm.tif"))
 
         try:
@@ -49,9 +52,11 @@ class TaskVolume(TaskView):
         except GrassEngineException as e:
             return Response({'error': str(e)}, status=status.HTTP_200_OK)
 
+
 class TaskVolumeCheck(CheckTask):
     def on_error(self, result):
         cleanup_grass_context(result['context'])
+
 
 class TaskVolumeResult(GetTaskResult):
     def get(self, request, pk=None, celery_task_id=None):
@@ -78,4 +83,3 @@ class TaskVolumeResult(GetTaskResult):
             return str(volume)
         else:
             raise TaskResultOutputError(output)
-
