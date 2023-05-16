@@ -53,9 +53,6 @@ class Map extends React.Component {
   constructor(props) {
     super(props);
 
-    // Debug line Anup
-    console.log(props, "props");
-
     this.state = {
       error: "",
       singleTask: null, // When this is set to a task, show a switch mode button to view the 3d model
@@ -64,6 +61,7 @@ class Map extends React.Component {
       opacity: 100,
       imageryLayers: [],
       overlays: [],
+      drawMode: false,
     };
 
     this.basemaps = {};
@@ -74,7 +72,6 @@ class Map extends React.Component {
     this.loadImageryLayers = this.loadImageryLayers.bind(this);
     this.updatePopupFor = this.updatePopupFor.bind(this);
     this.handleMapMouseDown = this.handleMapMouseDown.bind(this);
-    this.handleMeasureClick = this.handleMeasureClick.bind(this);
   }
 
   updateOpacity = (evt) => {
@@ -103,6 +100,8 @@ class Map extends React.Component {
   };
 
   loadImageryLayers(forceAddLayers = false) {
+    console.log(forceAddLayers, "forceAddLayers");
+    console.log(this.tileJsonRequests, "tile json request");
     // Cancel previous requests
     if (this.tileJsonRequests) {
       this.tileJsonRequests.forEach((tileJsonRequest) =>
@@ -111,20 +110,27 @@ class Map extends React.Component {
       this.tileJsonRequests = [];
     }
 
-    const { tiles } = this.props,
-      layerId = (layer) => {
-        const meta = layer[Symbol.for("meta")];
-        return meta.task.project + "_" + meta.task.id;
-      };
+    console.log(this.props.tiles, "tiles");
+
+    const { tiles } = this.props;
+    const layerId = (layer) => {
+      const meta = layer[Symbol.for("meta")];
+      return meta.task.project + "_" + meta.task.id;
+    };
+
+    console.log(tiles, "tiles");
 
     // Remove all previous imagery layers
     // and keep track of which ones were selected
+
+    console.log(this.state.imageryLayers, "state imagery layers ");
     const prevSelectedLayers = [];
 
     this.state.imageryLayers.forEach((layer) => {
       if (this.map.hasLayer(layer)) prevSelectedLayers.push(layerId(layer));
       layer.remove();
     });
+
     this.setState({ imageryLayers: [] });
 
     // Request new tiles
@@ -419,14 +425,20 @@ class Map extends React.Component {
       minZoom: 0,
       maxZoom: 24,
     });
+
     // For some reason, in production this class is not added (but we need it)
     // leaflet bug?
     $(this.container).addClass("leaflet-touch");
+
+    // This controls is for countours and measurements, map and tiles is necessary props
+    // console.log(window.PluginsAPI, "plygin api");
 
     PluginsAPI.Map.triggerWillAddControls({
       map: this.map,
       tiles,
     });
+
+    console.log(PluginsAPI.Map, "plugin api map");
 
     let scaleControl = Leaflet.control
       .scale({
@@ -434,7 +446,7 @@ class Map extends React.Component {
       })
       .addTo(this.map);
 
-    //add zoom control with your options
+    // add zoom control with your options
     let zoomControl = Leaflet.control
       .zoom({
         position: "bottomleft",
@@ -574,7 +586,7 @@ class Map extends React.Component {
 
         this.map
           .on("click", (e) => {
-            console.log("clicked to get the popup");
+            // console.log("clicked to get the popup");
             // Find first tile layer at the selected coordinates
             for (let layer of this.state.imageryLayers) {
               if (layer._map && layer.options.bounds.contains(e.latlng)) {
@@ -582,7 +594,9 @@ class Map extends React.Component {
                   e.originalEvent
                 );
                 this.updatePopupFor(layer);
-                layer.openPopup();
+                if (!this.state.drawMode) {
+                  layer.openPopup();
+                }
                 break;
               }
             }
@@ -640,16 +654,6 @@ class Map extends React.Component {
         this.setState({ showLoading: false, error: e.message });
       });
 
-    PluginsAPI.Map.triggerDidAddControls({
-      map: this.map,
-      tiles: tiles,
-      controls: {
-        autolayers: this.autolayers,
-        scale: scaleControl,
-        zoom: zoomControl,
-      },
-    });
-
     PluginsAPI.Map.triggerAddActionButton(
       {
         map: this.map,
@@ -663,48 +667,8 @@ class Map extends React.Component {
         );
       }
     );
-  }
 
-  componentDidUpdate(prevProps, prevState) {
-    console.log("console in component update , Debug Anup");
-    this.state.imageryLayers.forEach((imageryLayer) => {
-      imageryLayer.setOpacity(this.state.opacity / 100);
-      this.updatePopupFor(imageryLayer);
-    });
-
-    if (prevProps.tiles !== this.props.tiles) {
-      this.loadImageryLayers(true);
-    }
-
-    if (
-      this.layersControl &&
-      (prevState.imageryLayers !== this.state.imageryLayers ||
-        prevState.overlays !== this.state.overlays)
-    ) {
-      this.layersControl.update(this.state.imageryLayers, this.state.overlays);
-    }
-  }
-
-  componentWillUnmount() {
-    this.map.remove();
-
-    if (this.tileJsonRequests) {
-      this.tileJsonRequests.forEach((tileJsonRequest) =>
-        tileJsonRequest.abort()
-      );
-      this.tileJsonRequests = [];
-    }
-  }
-
-  handleMapMouseDown(e) {
-    // Make sure the share popup closes
-    if (this.shareButton) this.shareButton.hidePopup();
-  }
-
-  // ### ADDED BY ME###
-  handleMeasureClick(e) {
-    this.map.closePopup();
-
+    // Now add a draw button here
     const editableLayers = new Leaflet.FeatureGroup();
     this.map.addLayer(editableLayers);
 
@@ -734,18 +698,99 @@ class Map extends React.Component {
       },
     });
 
-    this.map.addControl(drawControl);
+    const polygonIcon = new L.Icon({
+      iconUrl: "path/to/your/polygon-icon.png",
+      iconSize: [32, 32],
+      iconAnchor: [16, 16],
+    });
+    drawControl.setDrawingOptions({
+      polygon: {
+        icon: new Leaflet.DivIcon({
+          iconSize: new Leaflet.Point(6, 6),
+          // className: "leaflet-div-icon leaflet-editing-icon my-own-class",
+        }),
 
-    this.map.on(Leaflet.Draw.Event.CREATED, function (e) {
+        shapeOptions: {
+          color: "#0000FF",
+        },
+      },
+    });
+
+    this.map.addControl(drawControl);
+    this.map.on(Leaflet.Draw.Event.CREATED, (e) => {
+      this.setState({ drawMode: false });
       const type = e.layerType,
         layer = e.layer;
 
-      if (type === "marker") {
-        layer.bindPopup("A popup!");
-      }
-
+      layer.bindPopup("A popup!");
       editableLayers.addLayer(layer);
+      layer.openPopup();
     });
+
+    this.map.on(Leaflet.Draw.Event.DRAWSTART, (e) => {
+      console.log(this.map, "map");
+      console.log("Draw has started");
+      this.setState({ drawMode: true });
+    });
+
+    // I have to investigate on this
+
+    PluginsAPI.Map.triggerDidAddControls({
+      map: this.map,
+      tiles: tiles,
+      controls: {
+        autolayers: this.autolayers,
+        scale: scaleControl,
+        zoom: zoomControl,
+        // draw: drawControl,
+      },
+    });
+  }
+
+  componentDidUpdate(prevProps, prevState) {
+    console.log(
+      "Component is updated",
+      prevState.drawMode,
+      this.state.drawMode
+    );
+    this.state.imageryLayers.forEach((imageryLayer) => {
+      imageryLayer.setOpacity(this.state.opacity / 100);
+      this.updatePopupFor(imageryLayer);
+    });
+
+    if (prevProps.tiles !== this.props.tiles) {
+      console.log("Tiles not similar");
+      this.loadImageryLayers(true);
+    }
+
+    if (
+      this.layersControl &&
+      (prevState.imageryLayers !== this.state.imageryLayers ||
+        prevState.overlays !== this.state.overlays)
+    ) {
+      console.log("layercontrol and imagelayers and overlayrs");
+      this.layersControl.update(this.state.imageryLayers, this.state.overlays);
+    }
+    if (prevState.drawMode !== this.state.drawMode) {
+      // Get the image layer
+      console.log("draw mode is changed");
+    }
+  }
+
+  componentWillUnmount() {
+    this.map.remove();
+
+    if (this.tileJsonRequests) {
+      this.tileJsonRequests.forEach((tileJsonRequest) =>
+        tileJsonRequest.abort()
+      );
+      this.tileJsonRequests = [];
+    }
+  }
+
+  handleMapMouseDown(e) {
+    // Make sure the share popup closes
+    if (this.shareButton) this.shareButton.hidePopup();
   }
 
   render() {
@@ -761,33 +806,6 @@ class Map extends React.Component {
             onChange={this.updateOpacity}
           />
         </div>
-        {/*  ### ADDED BY ME### */}
-
-        <div className="measuring-component">
-          <h4 style={{ textAlign: "center" }}>Measurings</h4>
-          <div>
-            <p className="measuring-title">Categories</p>
-            <label>
-              <input type="checkbox" id="grassCheckbox" />
-              <span className="checkbox-label">Grass</span>
-            </label>
-            <ul className="no-bullets">
-              <li>
-                <label>
-                  <input type="checkbox" id="grassCheckbox" />
-                  <span className="checkbox-label">Grass 1</span>
-                </label>
-              </li>
-              {/* <li>
-                <label>
-                  <input type="checkbox" id="grassCheckbox" />
-                  <span class="checkbox-label">Grass 2</span>
-                </label>
-              </li> */}
-            </ul>
-          </div>
-        </div>
-
         <Standby message={_("Loading...")} show={this.state.showLoading} />
         <div
           style={{ height: "100%" }}
@@ -795,16 +813,6 @@ class Map extends React.Component {
           onMouseDown={this.handleMapMouseDown}
         />
         <div className="actionButtons">
-          {/* ### ADDED BY ME### */}
-          <div className="shareButton">
-            <button
-              onClick={this.handleMeasureClick}
-              className="shareButton btn btn-sm btn-secondary"
-            >
-              {" "}
-              Measure
-            </button>
-          </div>
           {this.state.pluginActionButtons.map((button, i) => (
             <div key={i}>{button}</div>
           ))}

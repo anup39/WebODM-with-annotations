@@ -6,6 +6,7 @@ from app.plugins.views import TaskView
 from django.shortcuts import render
 from django import forms
 
+
 class TestForm(forms.Form):
     testField = forms.CharField(label='Test')
 
@@ -34,7 +35,7 @@ class Plugin(PluginBase):
         # Show script only if '?print=1' is set
         def dynamic_cb(request):
             if 'print' in request.GET:
-                return {'name': 'WebODM'} # Test template substitution
+                return {'name': 'WebODM'}  # Test template substitution
             else:
                 return False
 
@@ -44,7 +45,8 @@ class Plugin(PluginBase):
                 'test_form': TestForm()
             })),
             MountPoint('task/(?P<pk>[^/.]+)/', TestTaskView.as_view()),
-            MountPoint('/app_dynamic_script.js$', self.get_dynamic_script('dynamic.js', dynamic_cb))
+            MountPoint('/app_dynamic_script.js$',
+                       self.get_dynamic_script('dynamic.js', dynamic_cb))
         ]
 
     def get_current_plugin_test(self):

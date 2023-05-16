@@ -1,4 +1,4 @@
-import { _ } from './gettext';
+import { _ } from "./gettext";
 
 export default [
   {
@@ -7,7 +7,7 @@ export default [
     maxZoom: 21,
     minZoom: 0,
     label: _("Google Maps Hybrid"),
-    url: "//{s}.google.com/vt/lyrs=s,h&x={x}&y={y}&z={z}"
+    url: "//{s}.google.com/vt/lyrs=s,h&x={x}&y={y}&z={z}",
   },
   {
     attribution:
@@ -15,8 +15,7 @@ export default [
     maxZoom: 21,
     minZoom: 0,
     label: _("ESRI Satellite"),
-    url:
-      "//server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"
+    url: "//server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
   },
   {
     attribution:
@@ -24,6 +23,6 @@ export default [
     maxZoom: 21,
     minZoom: 0,
     label: _("OSM Mapnik"),
-    url: "//{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-  }
+    url: "//{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+  },
 ];
