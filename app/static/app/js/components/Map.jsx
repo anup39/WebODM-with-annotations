@@ -698,6 +698,24 @@ class Map extends React.Component {
       },
     });
 
+    const polygonIcon = new L.Icon({
+      iconUrl: "path/to/your/polygon-icon.png",
+      iconSize: [32, 32],
+      iconAnchor: [16, 16],
+    });
+    drawControl.setDrawingOptions({
+      polygon: {
+        icon: new Leaflet.DivIcon({
+          iconSize: new Leaflet.Point(6, 6),
+          // className: "leaflet-div-icon leaflet-editing-icon my-own-class",
+        }),
+
+        shapeOptions: {
+          color: "#0000FF",
+        },
+      },
+    });
+
     this.map.addControl(drawControl);
     this.map.on(Leaflet.Draw.Event.CREATED, (e) => {
       this.setState({ drawMode: false });
