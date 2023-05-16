@@ -61,6 +61,7 @@ class Map extends React.Component {
       opacity: 100,
       imageryLayers: [],
       overlays: [],
+      drawMode: false,
     };
 
     this.basemaps = {};
@@ -424,6 +425,7 @@ class Map extends React.Component {
       minZoom: 0,
       maxZoom: 24,
     });
+
     // For some reason, in production this class is not added (but we need it)
     // leaflet bug?
     $(this.container).addClass("leaflet-touch");
@@ -588,7 +590,9 @@ class Map extends React.Component {
                   e.originalEvent
                 );
                 this.updatePopupFor(layer);
-                layer.openPopup();
+                if (!this.state.drawMode) {
+                  layer.openPopup();
+                }
                 break;
               }
             }
@@ -717,6 +721,11 @@ class Map extends React.Component {
       this.updatePopupFor(imageryLayer);
     });
 
+    this.map.on(Leaflet.Draw.Event.DRAWSTART, function (e) {
+      this.map.closePopup();
+      // console.log("draw is started");
+    });
+
     if (prevProps.tiles !== this.props.tiles) {
       this.loadImageryLayers(true);
     }
@@ -727,6 +736,10 @@ class Map extends React.Component {
         prevState.overlays !== this.state.overlays)
     ) {
       this.layersControl.update(this.state.imageryLayers, this.state.overlays);
+    }
+    if (prevState.drawMode !== this.state.drawMode) {
+      // Get the image layer
+      console.log("draw mode is changed");
     }
   }
 
