@@ -646,16 +646,6 @@ class Map extends React.Component {
         this.setState({ showLoading: false, error: e.message });
       });
 
-    PluginsAPI.Map.triggerDidAddControls({
-      map: this.map,
-      tiles: tiles,
-      controls: {
-        autolayers: this.autolayers,
-        scale: scaleControl,
-        zoom: zoomControl,
-      },
-    });
-
     PluginsAPI.Map.triggerAddActionButton(
       {
         map: this.map,
@@ -701,6 +691,27 @@ class Map extends React.Component {
     });
 
     this.map.addControl(drawControl);
+    this.map.on(Leaflet.Draw.Event.CREATED, function (e) {
+      const type = e.layerType,
+        layer = e.layer;
+
+      if (type === "marker") {
+        layer.bindPopup("A popup!");
+      }
+
+      editableLayers.addLayer(layer);
+    });
+
+    PluginsAPI.Map.triggerDidAddControls({
+      map: this.map,
+      tiles: tiles,
+      controls: {
+        autolayers: this.autolayers,
+        scale: scaleControl,
+        zoom: zoomControl,
+        // draw: drawControl,
+      },
+    });
   }
 
   componentDidUpdate(prevProps, prevState) {
