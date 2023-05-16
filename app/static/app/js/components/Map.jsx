@@ -694,13 +694,10 @@ class Map extends React.Component {
     this.map.on(Leaflet.Draw.Event.CREATED, function (e) {
       const type = e.layerType,
         layer = e.layer;
-
-      if (type === "marker") {
-        layer.bindPopup("A popup!");
-      }
-
       editableLayers.addLayer(layer);
     });
+
+    // I have to investigate on this
 
     PluginsAPI.Map.triggerDidAddControls({
       map: this.map,
