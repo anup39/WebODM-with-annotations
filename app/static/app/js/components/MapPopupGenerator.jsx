@@ -1,9 +1,9 @@
-const  mapPopupGenerator(
+const mapPopupGenerator = (
   categories,
   deleteSelectedCategory,
   editSelectedCategory,
   saveSelectedCategory
-) =>{
+) => {
   const form = document.createElement("form");
 
   const message = document.createElement("p");
@@ -50,6 +50,6 @@ const  mapPopupGenerator(
   form.addEventListener("submit", saveSelectedCategory);
 
   return form;
-}
+};
 
-export default  mapPopupGenerator
+export default mapPopupGenerator;
