@@ -16,7 +16,7 @@ class MeasuringCategory(models.Model):
         "Creation date"), verbose_name=_("Created at"))
 
     def __str__(self):
-        return self.name
+        return self.project.name + " - " + self.name
 
     class Meta:
         verbose_name = _("MeasuringCategory")
