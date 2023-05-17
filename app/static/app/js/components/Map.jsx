@@ -36,6 +36,40 @@ import "leaflet-draw/dist/leaflet.draw.css";
 import "leaflet-draw";
 import mapPopupGenerator from "./MapPopupGenerator";
 
+const geojson_grass_api = {
+  type: "Feature",
+  properties: {},
+  geometry: {
+    type: "Polygon",
+    coordinates: [
+      [
+        [-4.662391, 36.522684],
+        [-4.662407, 36.522821],
+        [-4.662212, 36.52282],
+        [-4.662221, 36.522578],
+        [-4.662391, 36.522684],
+      ],
+    ],
+  },
+};
+const geojson_lake_api = {
+  type: "Feature",
+  properties: {},
+  geometry: {
+    type: "Polygon",
+    coordinates: [
+      [
+        [-4.66205, 36.522263],
+        [-4.661846, 36.522525],
+        [-4.661736, 36.522351],
+        [-4.661797, 36.522196],
+        [-4.661797, 36.522196],
+        [-4.66205, 36.522263],
+      ],
+    ],
+  },
+};
+
 class Map extends React.Component {
   static defaultProps = {
     showBackground: false,
@@ -73,6 +107,7 @@ class Map extends React.Component {
     this.addedCameraShots = false;
 
     this.loadImageryLayers = this.loadImageryLayers.bind(this);
+    // this.loadOverlayMeasuringLayers = this.loadOverlayMeasuringLayers(this);
     this.updatePopupFor = this.updatePopupFor.bind(this);
     this.handleMapMouseDown = this.handleMapMouseDown.bind(this);
   }
@@ -101,6 +136,15 @@ class Map extends React.Component {
     }
     return "";
   };
+
+  // loadOverlayMeasuringLayers(forceAddLayers = false) {
+  //   const geojsonLayer = L.geoJSON(geojson_grass_api);
+  //   this.setState(
+  //     update(this.state, {
+  //       overlays_measuring: { $push: [layer] },
+  //     })
+  //   );
+  // }
 
   loadImageryLayers(forceAddLayers = false) {
     // Cancel previous requests
