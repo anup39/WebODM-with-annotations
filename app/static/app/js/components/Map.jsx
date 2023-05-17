@@ -23,6 +23,7 @@ import PluginsAPI from "../classes/plugins/API";
 import Basemaps from "../classes/Basemaps";
 import Standby from "./Standby";
 import LayersControl from "./LayersControl";
+import LayersControlMeasuring from "./LayersControlMeasuring";
 import update from "immutability-helper";
 import Utils from "../classes/Utils";
 import "../vendor/leaflet/Leaflet.Ajax";
@@ -33,6 +34,70 @@ import { _ } from "../classes/gettext";
 // # ADDED BY ME
 import "leaflet-draw/dist/leaflet.draw.css";
 import "leaflet-draw";
+import mapPopupGenerator from "./MapPopupGenerator";
+
+const geojson1 = {
+  type: "Feature",
+  properties: {},
+  geometry: {
+    type: "Polygon",
+    coordinates: [
+      [
+        [-4.662391, 36.522684],
+        [-4.662407, 36.522821],
+        [-4.662212, 36.52282],
+        [-4.662221, 36.522578],
+        [-4.662391, 36.522684],
+      ],
+    ],
+  },
+};
+
+// GeoJSON object 2
+const geojson2 = {
+  type: "Feature",
+  properties: {},
+  geometry: {
+    type: "Polygon",
+    coordinates: [
+      [
+        [-4.663391, 36.523684],
+        [-4.663407, 36.523821],
+        [-4.663212, 36.52382],
+        [-4.663221, 36.523578],
+        [-4.663391, 36.523684],
+      ],
+    ],
+  },
+};
+
+const geojson3 = {
+  type: "Feature",
+  properties: {},
+  geometry: {
+    type: "Polygon",
+    coordinates: [
+      [
+        [-4.66205, 36.522263],
+        [-4.661846, 36.522525],
+        [-4.661736, 36.522351],
+        [-4.661797, 36.522196],
+        [-4.661797, 36.522196],
+        [-4.66205, 36.522263],
+      ],
+    ],
+  },
+};
+
+const geojson_lake_api = {
+  type: "FeatureCollection",
+  features: [geojson3],
+};
+
+const geojson_grass_api = {
+  type: "FeatureCollection",
+  features: [geojson1, geojson2],
+};
 
 class Map extends React.Component {
   static defaultProps = {
@@ -62,6 +127,7 @@ class Map extends React.Component {
       imageryLayers: [],
       overlays: [],
       drawMode: false,
+      overlays_measuring: [],
     };
 
     this.basemaps = {};
@@ -70,6 +136,7 @@ class Map extends React.Component {
     this.addedCameraShots = false;
 
     this.loadImageryLayers = this.loadImageryLayers.bind(this);
+    this.loadOverlayaMeasuring = this.loadOverlayaMeasuring.bind(this);
     this.updatePopupFor = this.updatePopupFor.bind(this);
     this.handleMapMouseDown = this.handleMapMouseDown.bind(this);
   }
@@ -99,9 +166,60 @@ class Map extends React.Component {
     return "";
   };
 
+  loadOverlayaMeasuring = (forceAddLayers = false) => {
+    // Check if the name already exists in the state
+    const grassIndex = this.state.overlays_measuring.findIndex(
+      (layer) => layer[Symbol.for("meta")].name === "Grass"
+    );
+    const lakeIndex = this.state.overlays_measuring.findIndex(
+      (layer) => layer[Symbol.for("meta")].name === "Lake"
+    );
+
+    // Create new GeoJSON layers
+    const geojsonLayer_grass = L.geoJSON(geojson_grass_api);
+    geojsonLayer_grass[Symbol.for("meta")] = {
+      name: "Grass",
+      icon: "fa fa-tree fa-fw",
+    };
+
+    const geojsonLayer_lake = L.geoJSON(geojson_lake_api);
+    geojsonLayer_lake[Symbol.for("meta")] = {
+      name: "Lake",
+      icon: "fa fa-home fa-fw",
+    };
+
+    // Remove existing layers from the map
+    if (grassIndex !== -1) {
+      const existingGrassLayer = this.state.overlays_measuring[grassIndex];
+      existingGrassLayer.removeFrom(this.map);
+    }
+    if (lakeIndex !== -1) {
+      const existingLakeLayer = this.state.overlays_measuring[lakeIndex];
+      existingLakeLayer.removeFrom(this.map);
+    }
+
+    // Update the state based on the name existence
+    if (grassIndex !== -1 && lakeIndex !== -1) {
+      this.setState(
+        update(this.state, {
+          overlays_measuring: {
+            [grassIndex]: { $set: geojsonLayer_grass },
+            [lakeIndex]: { $set: geojsonLayer_lake },
+          },
+        })
+      );
+    } else {
+      this.setState(
+        update(this.state, {
+          overlays_measuring: {
+            $push: [geojsonLayer_grass, geojsonLayer_lake],
+          },
+        })
+      );
+    }
+  };
+
   loadImageryLayers(forceAddLayers = false) {
-    console.log(forceAddLayers, "forceAddLayers");
-    console.log(this.tileJsonRequests, "tile json request");
     // Cancel previous requests
     if (this.tileJsonRequests) {
       this.tileJsonRequests.forEach((tileJsonRequest) =>
@@ -110,20 +228,15 @@ class Map extends React.Component {
       this.tileJsonRequests = [];
     }
 
-    console.log(this.props.tiles, "tiles");
-
     const { tiles } = this.props;
     const layerId = (layer) => {
       const meta = layer[Symbol.for("meta")];
       return meta.task.project + "_" + meta.task.id;
     };
 
-    console.log(tiles, "tiles");
-
     // Remove all previous imagery layers
     // and keep track of which ones were selected
 
-    console.log(this.state.imageryLayers, "state imagery layers ");
     const prevSelectedLayers = [];
 
     this.state.imageryLayers.forEach((layer) => {
@@ -431,14 +544,11 @@ class Map extends React.Component {
     $(this.container).addClass("leaflet-touch");
 
     // This controls is for countours and measurements, map and tiles is necessary props
-    // console.log(window.PluginsAPI, "plygin api");
 
     PluginsAPI.Map.triggerWillAddControls({
       map: this.map,
       tiles,
     });
-
-    console.log(PluginsAPI.Map, "plugin api map");
 
     let scaleControl = Leaflet.control
       .scale({
@@ -507,6 +617,13 @@ class Map extends React.Component {
     this.layersControl = new LayersControl({
       layers: this.state.imageryLayers,
       overlays: this.state.overlays,
+    }).addTo(this.map);
+
+    // Adding a overlays for Measurings geometry
+    this.layersControl_measuring = new LayersControlMeasuring({
+      position: "topleft",
+      // layers: this.state.imageryLayers,
+      overlays_measuring: this.state.overlays_measuring,
     }).addTo(this.map);
 
     this.autolayers = Leaflet.control
@@ -586,7 +703,6 @@ class Map extends React.Component {
 
         this.map
           .on("click", (e) => {
-            // console.log("clicked to get the popup");
             // Find first tile layer at the selected coordinates
             for (let layer of this.state.imageryLayers) {
               if (layer._map && layer.options.bounds.contains(e.latlng)) {
@@ -668,7 +784,10 @@ class Map extends React.Component {
       }
     );
 
-    // Now add a draw button here
+    //Anup : Call the loadOverlaysMeasuring here
+    this.loadOverlayaMeasuring();
+
+    //Anup: Now add a draw button here
     const editableLayers = new Leaflet.FeatureGroup();
     this.map.addLayer(editableLayers);
 
@@ -691,18 +810,8 @@ class Map extends React.Component {
         marker: false,
         circlemarker: false,
       },
-
-      edit: {
-        featureGroup: editableLayers, //REQUIRED!!
-        remove: false,
-      },
     });
 
-    const polygonIcon = new L.Icon({
-      iconUrl: "path/to/your/polygon-icon.png",
-      iconSize: [32, 32],
-      iconAnchor: [16, 16],
-    });
     drawControl.setDrawingOptions({
       polygon: {
         icon: new Leaflet.DivIcon({
@@ -722,19 +831,94 @@ class Map extends React.Component {
       const type = e.layerType,
         layer = e.layer;
 
-      layer.bindPopup("A popup!");
       editableLayers.addLayer(layer);
+
+      // Assuming you have the categories array
+      const categories = [
+        { id: 1, category: "Grass" },
+        { id: 2, category: "Lake" },
+      ];
+
+      // Function to handle form submission
+      const saveSelectedCategory = (event) => {
+        event.preventDefault();
+        const selectedCategory = document.querySelector(
+          'input[name="selectedCategory"]:checked'
+        );
+
+        if (selectedCategory) {
+          const categoryId = selectedCategory.value;
+          // Perform the save operation with the categoryId
+          this.setState({ showLoading: true });
+          const drawn_geojson = layer.toGeoJSON();
+          geojson_grass_api.features.push(drawn_geojson);
+          // const geojsonLayer_grass_updated = L.geoJSON(geojson_grass_api);
+          // geojsonLayer_grass_updated[Symbol.for("meta")] = {
+          //   name: "Grass Updated",
+          //   icon: "fa fa-tree fa-fw",
+          // };
+
+          // this.setState(
+          //   update(this.state, {
+          //     overlays_measuring: {
+          //       $push: [...this.state.overlays_measuring],
+          //     },
+          //   })
+          // );
+
+          this.loadOverlayaMeasuring();
+
+          setTimeout(() => {
+            this.setState({ showLoading: false });
+            this.setState({ drawMode: false });
+            layer.closePopup();
+            editableLayers.clearLayers();
+          }, 3000);
+        } else {
+          console.log("Please select a category to save");
+        }
+      };
+
+      // Function to handle delete button click
+      const deleteSelectedCategory = () => {
+        const selectedCategory = document.querySelector(
+          'input[name="selectedCategory"]:checked'
+        );
+        this.setState({ drawMode: true });
+        editableLayers.clearLayers();
+      };
+
+      // Function to handle edit button click
+      const editSelectedCategory = () => {
+        const selectedCategory = document.querySelector(
+          'input[name="selectedCategory"]:checked'
+        );
+        this.setState({ drawMode: true });
+        layer.editing.enable();
+        layer.closePopup();
+      };
+
+      // layer.bindPopup(popupContent).openPopup();
+      layer.bindPopup(
+        mapPopupGenerator(
+          categories,
+          deleteSelectedCategory,
+          editSelectedCategory,
+          saveSelectedCategory
+        )
+      );
       layer.openPopup();
     });
 
     this.map.on(Leaflet.Draw.Event.DRAWSTART, (e) => {
-      console.log(this.map, "map");
-      console.log("Draw has started");
+      editableLayers.clearLayers();
       this.setState({ drawMode: true });
+    });
+    this.map.on(Leaflet.Draw.Event.DRAWSTOP, (e) => {
+      this.setState({ drawMode: false });
     });
 
     // I have to investigate on this
-
     PluginsAPI.Map.triggerDidAddControls({
       map: this.map,
       tiles: tiles,
@@ -748,18 +932,12 @@ class Map extends React.Component {
   }
 
   componentDidUpdate(prevProps, prevState) {
-    console.log(
-      "Component is updated",
-      prevState.drawMode,
-      this.state.drawMode
-    );
     this.state.imageryLayers.forEach((imageryLayer) => {
       imageryLayer.setOpacity(this.state.opacity / 100);
       this.updatePopupFor(imageryLayer);
     });
 
     if (prevProps.tiles !== this.props.tiles) {
-      console.log("Tiles not similar");
       this.loadImageryLayers(true);
     }
 
@@ -768,12 +946,16 @@ class Map extends React.Component {
       (prevState.imageryLayers !== this.state.imageryLayers ||
         prevState.overlays !== this.state.overlays)
     ) {
-      console.log("layercontrol and imagelayers and overlayrs");
       this.layersControl.update(this.state.imageryLayers, this.state.overlays);
+    }
+    if (
+      this.layersControl_measuring &&
+      prevState.overlays_measuring !== this.state.overlays_measuring
+    ) {
+      this.layersControl_measuring.update(this.state.overlays_measuring);
     }
     if (prevState.drawMode !== this.state.drawMode) {
       // Get the image layer
-      console.log("draw mode is changed");
     }
   }
 

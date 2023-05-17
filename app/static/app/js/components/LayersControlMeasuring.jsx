@@ -3,12 +3,11 @@ import ReactDOM from "react-dom";
 import L from "leaflet";
 import PropTypes from "prop-types";
 import "../css/LayersControl.scss";
-import LayersControlPanel from "./LayersControlPanel";
+import LayersControlPanelMeasuring from "./LayersControlPanelMeasuring";
 
-class LayersControlButton extends React.Component {
+class LayersControlButtonMeasuring extends React.Component {
   static propTypes = {
-    layers: PropTypes.array.isRequired,
-    overlays: PropTypes.array.isRequired,
+    overlays_measuring: PropTypes.array.isRequired,
     map: PropTypes.object.isRequired,
   };
 
@@ -39,10 +38,9 @@ class LayersControlButton extends React.Component {
           onClick={this.handleOpen}
           className="leaflet-control-layers-control-button leaflet-bar-part theme-secondary"
         ></a>
-        <LayersControlPanel
+        <LayersControlPanelMeasuring
           map={this.props.map}
-          layers={this.props.layers}
-          overlays={this.props.overlays}
+          overlays_measuring={this.props.overlays_measuring}
           onClose={this.handleClose}
         />
       </div>
@@ -63,17 +61,16 @@ export default L.Control.extend({
     this.map = map;
 
     L.DomEvent.disableClickPropagation(this.container);
-    this.update(this.options.layers, []);
+    this.update([]);
 
     return this.container;
   },
 
-  update: function (layers, overlays) {
+  update: function (overlays_measuring) {
     ReactDOM.render(
-      <LayersControlButton
+      <LayersControlButtonMeasuring
         map={this.map}
-        layers={layers}
-        overlays={overlays}
+        overlays_measuring={overlays_measuring}
       />,
       this.container
     );
