@@ -709,9 +709,7 @@ class Map extends React.Component {
         { id: 2, category: "Lake" },
       ];
 
-      // Function to generate the form
-      // Function to generate the form
-      // Function to generate the form
+     
       function generateForm() {
         const form = document.createElement("form");
 
@@ -786,14 +784,7 @@ class Map extends React.Component {
         const selectedCategory = document.querySelector(
           'input[name="selectedCategory"]:checked'
         );
-
-        if (selectedCategory) {
-          const categoryId = selectedCategory.value;
-          // Perform the delete operation with the categoryId
-          console.log("Category deleted:", categoryId);
-        } else {
-          console.log("Please select a category to delete.");
-        }
+        editableLayers.clearLayers();
       }
 
       // Function to handle edit button click
