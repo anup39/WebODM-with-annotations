@@ -107,7 +107,7 @@ class Map extends React.Component {
     this.addedCameraShots = false;
 
     this.loadImageryLayers = this.loadImageryLayers.bind(this);
-    // this.loadOverlayMeasuringLayers = this.loadOverlayMeasuringLayers(this);
+    this.loadOverlayMeasuringLayers = this.loadOverlayMeasuringLayers(this);
     this.updatePopupFor = this.updatePopupFor.bind(this);
     this.handleMapMouseDown = this.handleMapMouseDown.bind(this);
   }
@@ -137,14 +137,33 @@ class Map extends React.Component {
     return "";
   };
 
-  // loadOverlayMeasuringLayers(forceAddLayers = false) {
-  //   const geojsonLayer = L.geoJSON(geojson_grass_api);
-  //   this.setState(
-  //     update(this.state, {
-  //       overlays_measuring: { $push: [layer] },
-  //     })
-  //   );
-  // }
+  loadOverlayMeasuringLayers(forceAddLayers = false) {
+    // Anup:Api for Measuring Category Grass
+    const geojsonLayer_grass = L.geoJSON(geojson_grass_api);
+    geojsonLayer_grass[Symbol.for("meta")] = {
+      name: "Grass",
+      icon: "fa fa-camera fa-fw",
+    };
+
+    this.setState(
+      update(this.state, {
+        overlays_measuring: { $push: [geojsonLayer_grass] },
+      })
+    );
+
+    // Anup:Api for Measuring Category Lake
+    const geojsonLayer_lake = L.geoJSON(geojson_lake_api);
+    geojsonLayer_lake[Symbol.for("meta")] = {
+      name: "Lake",
+      icon: "fa fa-camera fa-fw",
+    };
+
+    this.setState(
+      update(this.state, {
+        overlays_measuring: { $push: [geojsonLayer_lake] },
+      })
+    );
+  }
 
   loadImageryLayers(forceAddLayers = false) {
     // Cancel previous requests
@@ -711,7 +730,7 @@ class Map extends React.Component {
       }
     );
 
-    // Now add a draw button here
+    //Anup: Now add a draw button here
     const editableLayers = new Leaflet.FeatureGroup();
     this.map.addLayer(editableLayers);
 
