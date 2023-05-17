@@ -15,7 +15,7 @@ class CategoryGeometry(models.Model):
     geom = PolygonField(srid=4326)
 
     def __str__(self):
-        return self.measuring_category
+        return self.measuring_category.project.name + " - " + self.measuring_category.name
 
     class Meta:
         verbose_name = _("CategoryGeometry")
