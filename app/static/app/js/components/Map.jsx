@@ -714,44 +714,103 @@ class Map extends React.Component {
 
       editableLayers.addLayer(layer);
 
-      const popupContent = `
-      <form id="popup-form" >
-        <div>
-          <input type="checkbox" id="grass-checkbox" name="grass" />
-          <label for="grass-checkbox">Grass</label>
-        </div>
-        <div>
-          <input type="checkbox" id="tanks-checkbox" name="tanks" />
-          <label for="tanks-checkbox">Tanks</label>
-        </div>
-        <div>
-          <input type="checkbox" id="herbs-checkbox" name="herbs" />
-          <label for="herbs-checkbox">Herbs</label>
-        </div>
-        <div >
-          <button type="button" id="save-button" disabled>Save</button>
-          <button type="button" id="delete-button">Delete</button>
-        </div>
-      </form>
-    `;
+      // Assuming you have the categories array
+      const categories = [
+        { id: 1, category: "Grass" },
+        { id: 2, category: "Lake" },
+      ];
 
-      function handleSaveButtonClick() {
-        console.log("Save button is clicked");
+      // Function to generate the form
+      function generateForm() {
+        const form = document.createElement("form");
+
+        categories.forEach((category) => {
+          const label = document.createElement("label");
+          label.textContent = category.category;
+
+          const checkbox = document.createElement("input");
+          checkbox.type = "checkbox";
+          checkbox.name = "selectedCategory";
+          checkbox.value = category.id;
+
+          label.appendChild(checkbox);
+          form.appendChild(label);
+          form.appendChild(document.createElement("br"));
+        });
+
+        const saveButton = document.createElement("button");
+        saveButton.textContent = "Save";
+        saveButton.type = "submit";
+
+        const deleteButton = document.createElement("button");
+        deleteButton.textContent = "Delete";
+        deleteButton.type = "button";
+        deleteButton.addEventListener("click", deleteSelectedCategory);
+
+        const editButton = document.createElement("button");
+        editButton.textContent = "Edit";
+        editButton.type = "button";
+        editButton.addEventListener("click", editSelectedCategory);
+
+        form.appendChild(saveButton);
+        form.appendChild(deleteButton);
+        form.appendChild(editButton);
+
+        // Submit event listener for the form
+        form.addEventListener("submit", saveSelectedCategory);
+
+        return form;
       }
-      function handleCheckboxChange() {
-        console.log("changd");
+
+      // Function to handle form submission
+      function saveSelectedCategory(event) {
+        event.preventDefault();
+        const selectedCategory = document.querySelector(
+          'input[name="selectedCategory"]:checked'
+        );
+
+        if (selectedCategory) {
+          const categoryId = selectedCategory.value;
+          // Perform the save operation with the categoryId
+          console.log("Category saved:", categoryId);
+        } else {
+          console.log("Please select a category.");
+        }
       }
 
-      layer.bindPopup(popupContent).openPopup();
-      const popup = layer.getPopup();
-      const form = popup.getElement().querySelector("#popup-form");
-      const saveButton = form.querySelector("#save-button");
-      const checkboxes = form.querySelectorAll('input[type="checkbox"]');
-      checkboxes.forEach((checkbox) => {
-        checkbox.addEventListener("change", handleCheckboxChange);
-      });
+      // Function to handle delete button click
+      function deleteSelectedCategory() {
+        const selectedCategory = document.querySelector(
+          'input[name="selectedCategory"]:checked'
+        );
 
-      saveButton.addEventListener("click", handleSaveButtonClick);
+        if (selectedCategory) {
+          const categoryId = selectedCategory.value;
+          // Perform the delete operation with the categoryId
+          console.log("Category deleted:", categoryId);
+        } else {
+          console.log("Please select a category to delete.");
+        }
+      }
+
+      // Function to handle edit button click
+      function editSelectedCategory() {
+        const selectedCategory = document.querySelector(
+          'input[name="selectedCategory"]:checked'
+        );
+
+        if (selectedCategory) {
+          const categoryId = selectedCategory.value;
+          // Perform the edit operation with the categoryId
+          console.log("Category edited:", categoryId);
+        } else {
+          console.log("Please select a category to edit.");
+        }
+      }
+
+      // layer.bindPopup(popupContent).openPopup();
+      layer.bindPopup(generateForm());
+      layer.openPopup();
     });
 
     this.map.on(Leaflet.Draw.Event.DRAWSTART, (e) => {
