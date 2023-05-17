@@ -5,6 +5,8 @@ from .theme import Theme
 from .setting import Setting
 from .plugin_datum import PluginDatum
 from .plugin import Plugin
+from .measuring_category import MeasuringCategory
+from .category_geometry import CategoryGeometry
 
 # deprecated
 
