@@ -100,8 +100,6 @@ class Map extends React.Component {
   };
 
   loadImageryLayers(forceAddLayers = false) {
-    console.log(forceAddLayers, "forceAddLayers");
-    console.log(this.tileJsonRequests, "tile json request");
     // Cancel previous requests
     if (this.tileJsonRequests) {
       this.tileJsonRequests.forEach((tileJsonRequest) =>
@@ -110,20 +108,15 @@ class Map extends React.Component {
       this.tileJsonRequests = [];
     }
 
-    console.log(this.props.tiles, "tiles");
-
     const { tiles } = this.props;
     const layerId = (layer) => {
       const meta = layer[Symbol.for("meta")];
       return meta.task.project + "_" + meta.task.id;
     };
 
-    console.log(tiles, "tiles");
-
     // Remove all previous imagery layers
     // and keep track of which ones were selected
 
-    console.log(this.state.imageryLayers, "state imagery layers ");
     const prevSelectedLayers = [];
 
     this.state.imageryLayers.forEach((layer) => {
@@ -431,14 +424,11 @@ class Map extends React.Component {
     $(this.container).addClass("leaflet-touch");
 
     // This controls is for countours and measurements, map and tiles is necessary props
-    // console.log(window.PluginsAPI, "plygin api");
 
     PluginsAPI.Map.triggerWillAddControls({
       map: this.map,
       tiles,
     });
-
-    console.log(PluginsAPI.Map, "plugin api map");
 
     let scaleControl = Leaflet.control
       .scale({
@@ -586,7 +576,6 @@ class Map extends React.Component {
 
         this.map
           .on("click", (e) => {
-            // console.log("clicked to get the popup");
             // Find first tile layer at the selected coordinates
             for (let layer of this.state.imageryLayers) {
               if (layer._map && layer.options.bounds.contains(e.latlng)) {
@@ -784,6 +773,8 @@ class Map extends React.Component {
 
           setTimeout(() => {
             this.setState({ showLoading: false });
+            layer.closePopup();
+            editableLayers.remove(layer);
           }, 3000);
         } else {
           console.log("Please select a category to save");
@@ -826,9 +817,10 @@ class Map extends React.Component {
     });
 
     this.map.on(Leaflet.Draw.Event.DRAWSTART, (e) => {
-      console.log(this.map, "map");
-      console.log("Draw has started");
       this.setState({ drawMode: true });
+    });
+    this.map.on(Leaflet.Draw.Event.DRAWSTOP, (e) => {
+      this.setState({ drawMode: false });
     });
 
     // I have to investigate on this
@@ -846,18 +838,12 @@ class Map extends React.Component {
   }
 
   componentDidUpdate(prevProps, prevState) {
-    console.log(
-      "Component is updated",
-      prevState.drawMode,
-      this.state.drawMode
-    );
     this.state.imageryLayers.forEach((imageryLayer) => {
       imageryLayer.setOpacity(this.state.opacity / 100);
       this.updatePopupFor(imageryLayer);
     });
 
     if (prevProps.tiles !== this.props.tiles) {
-      console.log("Tiles not similar");
       this.loadImageryLayers(true);
     }
 
@@ -866,12 +852,10 @@ class Map extends React.Component {
       (prevState.imageryLayers !== this.state.imageryLayers ||
         prevState.overlays !== this.state.overlays)
     ) {
-      console.log("layercontrol and imagelayers and overlayrs");
       this.layersControl.update(this.state.imageryLayers, this.state.overlays);
     }
     if (prevState.drawMode !== this.state.drawMode) {
       // Get the image layer
-      console.log("draw mode is changed");
     }
   }
 
