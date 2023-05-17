@@ -142,13 +142,13 @@ class Map extends React.Component {
     const geojsonLayer_grass = L.geoJSON(geojson_grass_api);
     geojsonLayer_grass[Symbol.for("meta")] = {
       name: "Grass",
-      icon: "fa fa-camera fa-fw",
+      icon: "fa fa-tree fa-fw",
     };
     // Anup:Api for Measuring Category Lake
     const geojsonLayer_lake = L.geoJSON(geojson_lake_api);
     geojsonLayer_lake[Symbol.for("meta")] = {
       name: "Lake",
-      icon: "fa fa-camera fa-fw",
+      icon: "fa fa-home fa-fw",
     };
 
     this.setState(
