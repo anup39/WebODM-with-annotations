@@ -140,18 +140,10 @@ class Map extends React.Component {
   loadOverlayaMeasuring = (forceAddLayers = false) => {
     // Anup:Api for Measuring Category Grass
     const geojsonLayer_grass = L.geoJSON(geojson_grass_api);
-
     geojsonLayer_grass[Symbol.for("meta")] = {
       name: "Grass",
       icon: "fa fa-camera fa-fw",
     };
-
-    this.setState(
-      update(this.state, {
-        overlays_measuring: { $push: [geojsonLayer_grass] },
-      })
-    );
-
     // Anup:Api for Measuring Category Lake
     const geojsonLayer_lake = L.geoJSON(geojson_lake_api);
     geojsonLayer_lake[Symbol.for("meta")] = {
@@ -161,7 +153,7 @@ class Map extends React.Component {
 
     this.setState(
       update(this.state, {
-        overlays_measuring: { $push: [geojsonLayer_lake] },
+        overlays_measuring: { $push: [geojsonLayer_grass, geojsonLayer_lake] },
       })
     );
   };
