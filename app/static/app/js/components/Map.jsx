@@ -691,18 +691,8 @@ class Map extends React.Component {
         marker: false,
         circlemarker: false,
       },
-
-      edit: {
-        featureGroup: editableLayers, //REQUIRED!!
-        remove: false,
-      },
     });
 
-    const polygonIcon = new L.Icon({
-      iconUrl: "path/to/your/polygon-icon.png",
-      iconSize: [32, 32],
-      iconAnchor: [16, 16],
-    });
     drawControl.setDrawingOptions({
       polygon: {
         icon: new Leaflet.DivIcon({
@@ -722,9 +712,46 @@ class Map extends React.Component {
       const type = e.layerType,
         layer = e.layer;
 
-      layer.bindPopup("A popup!");
       editableLayers.addLayer(layer);
-      layer.openPopup();
+
+      const popupContent = `
+      <form id="popup-form" >
+        <div>
+          <input type="checkbox" id="grass-checkbox" name="grass" />
+          <label for="grass-checkbox">Grass</label>
+        </div>
+        <div>
+          <input type="checkbox" id="tanks-checkbox" name="tanks" />
+          <label for="tanks-checkbox">Tanks</label>
+        </div>
+        <div>
+          <input type="checkbox" id="herbs-checkbox" name="herbs" />
+          <label for="herbs-checkbox">Herbs</label>
+        </div>
+        <div >
+          <button type="button" id="save-button" disabled>Save</button>
+          <button type="button" id="delete-button">Delete</button>
+        </div>
+      </form>
+    `;
+
+      function handleSaveButtonClick() {
+        console.log("Save button is clicked");
+      }
+      function handleCheckboxChange() {
+        console.log("changd");
+      }
+
+      layer.bindPopup(popupContent).openPopup();
+      const popup = layer.getPopup();
+      const form = popup.getElement().querySelector("#popup-form");
+      const saveButton = form.querySelector("#save-button");
+      const checkboxes = form.querySelectorAll('input[type="checkbox"]');
+      checkboxes.forEach((checkbox) => {
+        checkbox.addEventListener("change", handleCheckboxChange);
+      });
+
+      saveButton.addEventListener("click", handleSaveButtonClick);
     });
 
     this.map.on(Leaflet.Draw.Event.DRAWSTART, (e) => {
