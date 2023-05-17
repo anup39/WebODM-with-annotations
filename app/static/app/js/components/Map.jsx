@@ -107,7 +107,7 @@ class Map extends React.Component {
     this.addedCameraShots = false;
 
     this.loadImageryLayers = this.loadImageryLayers.bind(this);
-    this.loadOverlayMeasuringLayers = this.loadOverlayMeasuringLayers(this);
+    this.loadOverlayaMeasuring = this.loadOverlayaMeasuring.bind(this);
     this.updatePopupFor = this.updatePopupFor.bind(this);
     this.handleMapMouseDown = this.handleMapMouseDown.bind(this);
   }
@@ -137,9 +137,10 @@ class Map extends React.Component {
     return "";
   };
 
-  loadOverlayMeasuringLayers(forceAddLayers = false) {
+  loadOverlayaMeasuring = (forceAddLayers = false) => {
     // Anup:Api for Measuring Category Grass
     const geojsonLayer_grass = L.geoJSON(geojson_grass_api);
+
     geojsonLayer_grass[Symbol.for("meta")] = {
       name: "Grass",
       icon: "fa fa-camera fa-fw",
@@ -163,7 +164,7 @@ class Map extends React.Component {
         overlays_measuring: { $push: [geojsonLayer_lake] },
       })
     );
-  }
+  };
 
   loadImageryLayers(forceAddLayers = false) {
     // Cancel previous requests
@@ -730,6 +731,9 @@ class Map extends React.Component {
       }
     );
 
+    //Anup : Call the loadOverlaysMeasuring here
+    this.loadOverlayaMeasuring();
+
     //Anup: Now add a draw button here
     const editableLayers = new Leaflet.FeatureGroup();
     this.map.addLayer(editableLayers);
@@ -870,6 +874,7 @@ class Map extends React.Component {
   }
 
   componentDidUpdate(prevProps, prevState) {
+    console.log(this.state.overlays_measuring);
     this.state.imageryLayers.forEach((imageryLayer) => {
       imageryLayer.setOpacity(this.state.opacity / 100);
       this.updatePopupFor(imageryLayer);
