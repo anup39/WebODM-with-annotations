@@ -734,19 +734,21 @@ class Map extends React.Component {
             name: "Grass",
             icon: "fa fa-camera fa-fw",
           };
+
+          const drawn_geojson = layer.toGeoJSON();
+          console.log(drawn_geojson, "drawn geojson");
           this.setState(
             update(this.state, {
               overlays_measuring: { $push: [layer] },
             })
           );
 
-          // setTimeout(() => {
-          this.setState({ showLoading: false });
-          this.setState({ drawMode: false });
-          layer.closePopup();
-          editableLayers.clearLayers();
-
-          // }, 3000);
+          setTimeout(() => {
+            this.setState({ showLoading: false });
+            this.setState({ drawMode: false });
+            layer.closePopup();
+            editableLayers.clearLayers();
+          }, 3000);
         } else {
           console.log("Please select a category to save");
         }
