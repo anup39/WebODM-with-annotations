@@ -63,6 +63,10 @@ class Map extends React.Component {
       imageryLayers: [],
       overlays: [],
       drawMode: false,
+      overlays_measuring: [
+        { id: 1, type: "Grass" },
+        { id: 2, type: "Lake" },
+      ],
     };
 
     this.basemaps = {};
@@ -658,6 +662,13 @@ class Map extends React.Component {
       }
     );
 
+    // Adding a overlays for Measurings geometry
+    this.layersControl_measuring = new LayersControl({
+      position: "topleft",
+      // layers: this.state.imageryLayers,
+      overlays: this.state.overlays_measuring,
+    }).addTo(this.map);
+
     // Now add a draw button here
     const editableLayers = new Leaflet.FeatureGroup();
     this.map.addLayer(editableLayers);
@@ -787,6 +798,7 @@ class Map extends React.Component {
   }
 
   componentDidUpdate(prevProps, prevState) {
+    console.log(this.state.overlays, "overlays");
     this.state.imageryLayers.forEach((imageryLayer) => {
       imageryLayer.setOpacity(this.state.opacity / 100);
       this.updatePopupFor(imageryLayer);
