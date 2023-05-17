@@ -3,7 +3,7 @@ import ReactDOM from "react-dom";
 import L from "leaflet";
 import PropTypes from "prop-types";
 import "../css/LayersControl.scss";
-import LayersControlPanelMeasuring from "./LayersControlPanel";
+import LayersControlPanelMeasuring from "./LayersControlPanelMeasuring";
 
 class LayersControlButtonMeasuring extends React.Component {
   static propTypes = {

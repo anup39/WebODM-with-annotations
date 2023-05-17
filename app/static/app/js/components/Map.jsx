@@ -23,7 +23,7 @@ import PluginsAPI from "../classes/plugins/API";
 import Basemaps from "../classes/Basemaps";
 import Standby from "./Standby";
 import LayersControl from "./LayersControl";
-import LayerControlMeasuring from "./LayerControlMeasuring";
+import LayersControlMeasuring from "./LayersControlMeasuring";
 import update from "immutability-helper";
 import Utils from "../classes/Utils";
 import "../vendor/leaflet/Leaflet.Ajax";
@@ -503,10 +503,10 @@ class Map extends React.Component {
     }).addTo(this.map);
 
     // Adding a overlays for Measurings geometry
-    this.layersControl_measuring = new LayerControlMeasuring({
+    this.layersControl_measuring = new LayersControlMeasuring({
       position: "topleft",
       // layers: this.state.imageryLayers,
-      overlays: this.state.overlays_measuring,
+      overlays_measuring: this.state.overlays_measuring,
     }).addTo(this.map);
 
     this.autolayers = Leaflet.control
