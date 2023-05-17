@@ -36,7 +36,7 @@ import "leaflet-draw/dist/leaflet.draw.css";
 import "leaflet-draw";
 import mapPopupGenerator from "./MapPopupGenerator";
 
-const geojson_grass_api = {
+const geojson1 = {
   type: "Feature",
   properties: {},
   geometry: {
@@ -52,7 +52,26 @@ const geojson_grass_api = {
     ],
   },
 };
-const geojson_lake_api = {
+
+// GeoJSON object 2
+const geojson2 = {
+  type: "Feature",
+  properties: {},
+  geometry: {
+    type: "Polygon",
+    coordinates: [
+      [
+        [-4.663391, 36.523684],
+        [-4.663407, 36.523821],
+        [-4.663212, 36.52382],
+        [-4.663221, 36.523578],
+        [-4.663391, 36.523684],
+      ],
+    ],
+  },
+};
+
+const geojson3 = {
   type: "Feature",
   properties: {},
   geometry: {
@@ -68,6 +87,16 @@ const geojson_lake_api = {
       ],
     ],
   },
+};
+
+const geojson_lake_api = {
+  type: "FeatureCollection",
+  features: [geojson3],
+};
+
+const geojson_grass_api = {
+  type: "FeatureCollection",
+  features: [geojson1, geojson2],
 };
 
 class Map extends React.Component {
