@@ -1,6 +1,6 @@
 from .project import Project
-from django.contrib.gis.db.models.fields import GeometryField
 from django.db import models
+from django.contrib.gis.db.models.fields import GeometryField
 
 
 class MeasuringCategory(models.Model):
