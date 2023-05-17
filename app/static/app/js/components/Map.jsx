@@ -709,28 +709,31 @@ class Map extends React.Component {
         { id: 2, category: "Lake" },
       ];
 
-     
       function generateForm() {
         const form = document.createElement("form");
 
         const message = document.createElement("p");
         message.textContent = "Please select a category to save.";
-        message.classList.add("error-message"); // Add the 'error-message' class
+        message.classList.add("error-message");
         form.appendChild(message);
+
+        const categoryGroup = document.createElement("div");
 
         categories.forEach((category) => {
           const label = document.createElement("label");
           label.textContent = category.category;
 
-          const checkbox = document.createElement("input");
-          checkbox.type = "checkbox";
-          checkbox.name = "selectedCategory";
-          checkbox.value = category.id;
+          const radio = document.createElement("input");
+          radio.type = "radio";
+          radio.name = "selectedCategory";
+          radio.value = category.id;
 
-          label.appendChild(checkbox);
-          form.appendChild(label);
-          form.appendChild(document.createElement("br"));
+          label.appendChild(radio);
+          categoryGroup.appendChild(label);
+          categoryGroup.appendChild(document.createElement("br"));
         });
+
+        form.appendChild(categoryGroup);
 
         const saveButton = document.createElement("button");
         saveButton.textContent = "Save";
@@ -750,7 +753,6 @@ class Map extends React.Component {
         form.appendChild(deleteButton);
         form.appendChild(editButton);
 
-        // Submit event listener for the form
         form.addEventListener("submit", saveSelectedCategory);
 
         return form;
