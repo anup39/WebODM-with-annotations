@@ -805,8 +805,6 @@ class Map extends React.Component {
   }
 
   componentDidUpdate(prevProps, prevState) {
-    console.log(this.state.overlays, "overlays");
-    console.log(this.state.overlays_measuring, "overlayer measuring");
     this.state.imageryLayers.forEach((imageryLayer) => {
       imageryLayer.setOpacity(this.state.opacity / 100);
       this.updatePopupFor(imageryLayer);

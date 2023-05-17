@@ -24,7 +24,8 @@ export default class LayersControlPanelMeasuring extends React.Component {
     if (!this.props.overlays_measuring.length)
       content = (
         <span>
-          <i className="loading fa fa-circle-notch fa-spin"></i> {_("Loading…")}
+          <i className="loading fa fa-circle-notch fa-spin"></i>{" "}
+          {_("No any Measurings yet")}
         </span>
       );
     else {
