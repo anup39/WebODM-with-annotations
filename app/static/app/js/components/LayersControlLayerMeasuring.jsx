@@ -57,8 +57,6 @@ export default class LayersControlLayerMeasuring extends React.Component {
   render() {
     const { meta } = this;
 
-    console.log("here in the layer contorl");
-
     return (
       <div className="layers-control-layer">
         {!this.props.overlay ? null : (
