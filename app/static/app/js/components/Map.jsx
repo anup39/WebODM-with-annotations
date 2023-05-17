@@ -23,6 +23,7 @@ import PluginsAPI from "../classes/plugins/API";
 import Basemaps from "../classes/Basemaps";
 import Standby from "./Standby";
 import LayersControl from "./LayersControl";
+import LayerControlMeasuring from "./LayerControlMeasuring";
 import update from "immutability-helper";
 import Utils from "../classes/Utils";
 import "../vendor/leaflet/Leaflet.Ajax";
@@ -501,6 +502,13 @@ class Map extends React.Component {
       overlays: this.state.overlays,
     }).addTo(this.map);
 
+    // Adding a overlays for Measurings geometry
+    this.layersControl_measuring = new LayerControlMeasuring({
+      position: "topleft",
+      // layers: this.state.imageryLayers,
+      overlays: this.state.overlays_measuring,
+    }).addTo(this.map);
+
     this.autolayers = Leaflet.control
       .autolayers({
         overlays: {},
@@ -658,13 +666,6 @@ class Map extends React.Component {
         );
       }
     );
-
-    // Adding a overlays for Measurings geometry
-    this.layersControl_measuring = new LayersControl({
-      position: "topleft",
-      // layers: this.state.imageryLayers,
-      overlays: this.state.overlays_measuring,
-    }).addTo(this.map);
 
     // Now add a draw button here
     const editableLayers = new Leaflet.FeatureGroup();
