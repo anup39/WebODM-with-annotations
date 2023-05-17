@@ -773,6 +773,7 @@ class Map extends React.Component {
 
           setTimeout(() => {
             this.setState({ showLoading: false });
+            this.setState({ drawMode: false });
             layer.closePopup();
             editableLayers.clearLayers();
           }, 3000);
@@ -782,27 +783,23 @@ class Map extends React.Component {
       };
 
       // Function to handle delete button click
-      function deleteSelectedCategory() {
+      const deleteSelectedCategory = () => {
         const selectedCategory = document.querySelector(
           'input[name="selectedCategory"]:checked'
         );
+        this.setState({ drawMode: true });
         editableLayers.clearLayers();
-      }
+      };
 
       // Function to handle edit button click
-      function editSelectedCategory() {
+      const editSelectedCategory = () => {
         const selectedCategory = document.querySelector(
           'input[name="selectedCategory"]:checked'
         );
-
-        if (selectedCategory) {
-          const categoryId = selectedCategory.value;
-          // Perform the edit operation with the categoryId
-          console.log("Category edited:", categoryId);
-        } else {
-          console.log("Please select a category to edit.");
-        }
-      }
+        this.setState({ drawMode: true });
+        layer.editing.enable();
+        layer.closePopup();
+      };
 
       // layer.bindPopup(popupContent).openPopup();
       layer.bindPopup(generateForm());
@@ -818,7 +815,6 @@ class Map extends React.Component {
     });
 
     // I have to investigate on this
-
     PluginsAPI.Map.triggerDidAddControls({
       map: this.map,
       tiles: tiles,

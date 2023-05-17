@@ -7,8 +7,6 @@ import SharePopup from "./SharePopup";
 import SystemJS from "SystemJS";
 
 if (!window.PluginsAPI) {
-  // console.log("Not there in the window object");
-  console.log(Map, "Map from pulgin");
   const events = new EventEmitter();
   const factory = new ApiFactory(events);
 
