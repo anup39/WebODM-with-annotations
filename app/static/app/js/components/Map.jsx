@@ -63,10 +63,7 @@ class Map extends React.Component {
       imageryLayers: [],
       overlays: [],
       drawMode: false,
-      overlays_measuring: [
-        { id: 1, type: "Grass" },
-        { id: 2, type: "Lake" },
-      ],
+      overlays_measuring: [],
     };
 
     this.basemaps = {};
@@ -731,15 +728,24 @@ class Map extends React.Component {
         if (selectedCategory) {
           const categoryId = selectedCategory.value;
           // Perform the save operation with the categoryId
-          console.log("Category saved:", categoryId);
           this.setState({ showLoading: true });
+          layer[Symbol.for("meta")] = {
+            name: "Grass",
+            icon: "fa fa-camera fa-fw",
+          };
+          this.setState(
+            update(this.state, {
+              overlays_measuring: { $push: [layer] },
+            })
+          );
 
-          setTimeout(() => {
-            this.setState({ showLoading: false });
-            this.setState({ drawMode: false });
-            layer.closePopup();
-            editableLayers.clearLayers();
-          }, 3000);
+          // setTimeout(() => {
+          this.setState({ showLoading: false });
+          this.setState({ drawMode: false });
+          layer.closePopup();
+          editableLayers.clearLayers();
+
+          // }, 3000);
         } else {
           console.log("Please select a category to save");
         }
@@ -799,6 +805,7 @@ class Map extends React.Component {
 
   componentDidUpdate(prevProps, prevState) {
     console.log(this.state.overlays, "overlays");
+    console.log(this.state.overlays_measuring, "overlayer measuring");
     this.state.imageryLayers.forEach((imageryLayer) => {
       imageryLayer.setOpacity(this.state.opacity / 100);
       this.updatePopupFor(imageryLayer);
@@ -814,6 +821,12 @@ class Map extends React.Component {
         prevState.overlays !== this.state.overlays)
     ) {
       this.layersControl.update(this.state.imageryLayers, this.state.overlays);
+    }
+    if (
+      this.layersControl_measuring &&
+      prevState.overlays_measuring !== this.state.overlays_measuring
+    ) {
+      this.layersControl_measuring.update(this.state.overlays_measuring);
     }
     if (prevState.drawMode !== this.state.drawMode) {
       // Get the image layer
