@@ -2,6 +2,8 @@ from .measuring_category import MeasuringCategory
 from django.db import models
 from django.contrib.gis.db.models.fields import PolygonField
 from django.contrib.postgres import fields
+from django.utils.translation import gettext_lazy as _
+from django.utils import timezone
 
 
 class CategoryGeometry(models.Model):

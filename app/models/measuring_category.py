@@ -1,6 +1,8 @@
 from .project import Project
 from django.db import models
 from django.contrib.gis.db.models.fields import GeometryField
+from django.utils.translation import gettext_lazy as _
+from django.utils import timezone
 
 
 class MeasuringCategory(models.Model):
