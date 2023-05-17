@@ -22,6 +22,17 @@ from codemirror2.widgets import CodeMirrorEditor
 from webodm import settings
 from django.core.files.uploadedfile import InMemoryUploadedFile
 from django.utils.translation import gettext_lazy as _, gettext
+from .models import MeasuringCategory, CategoryGeometry
+
+
+admin.site.register(CategoryGeometry)
+
+
+class MeasuringCategoryAdmin(admin.ModelAdmin):
+    list_display = ('id', 'name', 'project', 'created_at')
+
+
+admin.site.register(MeasuringCategory, MeasuringCategoryAdmin)
 
 
 class ProjectAdmin(GuardedModelAdmin):
