@@ -774,7 +774,7 @@ class Map extends React.Component {
           setTimeout(() => {
             this.setState({ showLoading: false });
             layer.closePopup();
-            editableLayers.remove(layer);
+            editableLayers.clearLayers();
           }, 3000);
         } else {
           console.log("Please select a category to save");
@@ -817,6 +817,7 @@ class Map extends React.Component {
     });
 
     this.map.on(Leaflet.Draw.Event.DRAWSTART, (e) => {
+      editableLayers.clearLayers();
       this.setState({ drawMode: true });
     });
     this.map.on(Leaflet.Draw.Event.DRAWSTOP, (e) => {
