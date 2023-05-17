@@ -721,8 +721,15 @@ class Map extends React.Component {
       ];
 
       // Function to generate the form
+      // Function to generate the form
+      // Function to generate the form
       function generateForm() {
         const form = document.createElement("form");
+
+        const message = document.createElement("p");
+        message.textContent = "Please select a category to save.";
+        message.classList.add("error-message"); // Add the 'error-message' class
+        form.appendChild(message);
 
         categories.forEach((category) => {
           const label = document.createElement("label");
@@ -763,7 +770,7 @@ class Map extends React.Component {
       }
 
       // Function to handle form submission
-      function saveSelectedCategory(event) {
+      const saveSelectedCategory = (event) => {
         event.preventDefault();
         const selectedCategory = document.querySelector(
           'input[name="selectedCategory"]:checked'
@@ -773,10 +780,15 @@ class Map extends React.Component {
           const categoryId = selectedCategory.value;
           // Perform the save operation with the categoryId
           console.log("Category saved:", categoryId);
+          this.setState({ showLoading: true });
+
+          setTimeout(() => {
+            this.setState({ showLoading: false });
+          }, 3000);
         } else {
-          console.log("Please select a category.");
+          console.log("Please select a category to save");
         }
-      }
+      };
 
       // Function to handle delete button click
       function deleteSelectedCategory() {
