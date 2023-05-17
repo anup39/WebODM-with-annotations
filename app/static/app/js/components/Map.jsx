@@ -167,24 +167,56 @@ class Map extends React.Component {
   };
 
   loadOverlayaMeasuring = (forceAddLayers = false) => {
-    // Anup:Api for Measuring Category Grass
+    // Check if the name already exists in the state
+    const grassIndex = this.state.overlays_measuring.findIndex(
+      (layer) => layer[Symbol.for("meta")].name === "Grass"
+    );
+    const lakeIndex = this.state.overlays_measuring.findIndex(
+      (layer) => layer[Symbol.for("meta")].name === "Lake"
+    );
+
+    // Create new GeoJSON layers
     const geojsonLayer_grass = L.geoJSON(geojson_grass_api);
     geojsonLayer_grass[Symbol.for("meta")] = {
       name: "Grass",
       icon: "fa fa-tree fa-fw",
     };
-    // Anup:Api for Measuring Category Lake
+
     const geojsonLayer_lake = L.geoJSON(geojson_lake_api);
     geojsonLayer_lake[Symbol.for("meta")] = {
       name: "Lake",
       icon: "fa fa-home fa-fw",
     };
 
-    this.setState(
-      update(this.state, {
-        overlays_measuring: { $push: [geojsonLayer_grass, geojsonLayer_lake] },
-      })
-    );
+    // Remove existing layers from the map
+    if (grassIndex !== -1) {
+      const existingGrassLayer = this.state.overlays_measuring[grassIndex];
+      existingGrassLayer.removeFrom(this.map);
+    }
+    if (lakeIndex !== -1) {
+      const existingLakeLayer = this.state.overlays_measuring[lakeIndex];
+      existingLakeLayer.removeFrom(this.map);
+    }
+
+    // Update the state based on the name existence
+    if (grassIndex !== -1 && lakeIndex !== -1) {
+      this.setState(
+        update(this.state, {
+          overlays_measuring: {
+            [grassIndex]: { $set: geojsonLayer_grass },
+            [lakeIndex]: { $set: geojsonLayer_lake },
+          },
+        })
+      );
+    } else {
+      this.setState(
+        update(this.state, {
+          overlays_measuring: {
+            $push: [geojsonLayer_grass, geojsonLayer_lake],
+          },
+        })
+      );
+    }
   };
 
   loadImageryLayers(forceAddLayers = false) {
@@ -818,18 +850,23 @@ class Map extends React.Component {
           const categoryId = selectedCategory.value;
           // Perform the save operation with the categoryId
           this.setState({ showLoading: true });
-          layer[Symbol.for("meta")] = {
-            name: "Grass",
-            icon: "fa fa-camera fa-fw",
-          };
-
           const drawn_geojson = layer.toGeoJSON();
-          console.log(drawn_geojson, "drawn geojson");
-          this.setState(
-            update(this.state, {
-              overlays_measuring: { $push: [layer] },
-            })
-          );
+          geojson_grass_api.features.push(drawn_geojson);
+          // const geojsonLayer_grass_updated = L.geoJSON(geojson_grass_api);
+          // geojsonLayer_grass_updated[Symbol.for("meta")] = {
+          //   name: "Grass Updated",
+          //   icon: "fa fa-tree fa-fw",
+          // };
+
+          // this.setState(
+          //   update(this.state, {
+          //     overlays_measuring: {
+          //       $push: [...this.state.overlays_measuring],
+          //     },
+          //   })
+          // );
+
+          this.loadOverlayaMeasuring();
 
           setTimeout(() => {
             this.setState({ showLoading: false });
