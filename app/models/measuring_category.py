@@ -3,6 +3,7 @@ from django.db import models
 from django.contrib.gis.db.models.fields import GeometryField
 from django.utils.translation import gettext_lazy as _
 from django.utils import timezone
+from django.db.models import signals
 
 
 class MeasuringCategory(models.Model):
@@ -21,3 +22,13 @@ class MeasuringCategory(models.Model):
     class Meta:
         verbose_name = _("MeasuringCategory")
         verbose_name_plural = _("MeasuringCategories")
+
+
+# Added by me Anup
+@receiver(signals.post_save, sender=Project, dispatch_uid="project_post_save_measuring_category")
+def project_post_save(sender, instance, created, **kwargs):
+    """
+    """
+    if created:
+        MeasuringCategory.objects.create(
+            name="Grass", project=instance, description="Measures grass")
