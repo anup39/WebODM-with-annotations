@@ -17,11 +17,14 @@ from webodm import settings
 
 # Added by Anup
 from .measuring_category import MeasuringCategoryViewSet
+from .category_geometry import CategoryGeometryViewSet
 
 router = routers.DefaultRouter()
 router.register(r'projects', ProjectViewSet)
 # Added by Anup
 router.register(r'project-measuring-category', MeasuringCategoryViewSet)
+router.register(r'category-geometry', CategoryGeometryViewSet)
+
 router.register(r'processingnodes', ProcessingNodeViewSet)
 router.register(r'presets', PresetViewSet, basename='presets')
 
