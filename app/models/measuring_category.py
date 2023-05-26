@@ -4,6 +4,7 @@ from django.contrib.gis.db.models.fields import GeometryField
 from django.utils.translation import gettext_lazy as _
 from django.utils import timezone
 from django.db.models import signals
+from django.dispatch import receiver
 
 
 class MeasuringCategory(models.Model):
