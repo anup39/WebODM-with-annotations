@@ -33,3 +33,5 @@ def project_post_save(sender, instance, created, **kwargs):
     if created:
         MeasuringCategory.objects.create(
             name="Grass", project=instance, description="Measures grass")
+        MeasuringCategory.objects.create(
+            name="Garden", project=instance, description="Measure grass")
