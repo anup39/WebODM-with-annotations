@@ -15,8 +15,13 @@ from .workers import CheckTask, GetTaskResult
 from .users import UsersList
 from webodm import settings
 
+# Added by Anup
+from .measuring_category import MeasuringCategoryViewSet
+
 router = routers.DefaultRouter()
 router.register(r'projects', ProjectViewSet)
+# Added by Anup
+router.register(r'project-measuring-category', MeasuringCategoryViewSet)
 router.register(r'processingnodes', ProcessingNodeViewSet)
 router.register(r'presets', PresetViewSet, basename='presets')
 
