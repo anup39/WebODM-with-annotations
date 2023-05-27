@@ -8,7 +8,7 @@ from django.db import connection
 import requests
 
 
-geoserver_url = 'http://188.132.174.46:8600/geoserver'
+geoserver_url = 'http://localhost:8600/geoserver'
 username = 'admin'
 password = 'geoserver'
 
@@ -65,53 +65,69 @@ class MeasuringCategory(models.Model):
         verbose_name_plural = _("MeasuringCategories")
 
 
-# Added by me Anup
-@receiver(signals.post_save, sender=Project, dispatch_uid="project_post_save_measuring_category")
-def project_post_save_project_for_mc(sender, instance, created, **kwargs):
-    """
-    It will create two category by default Grass and Garden 
-    """
-    if created:
-        MeasuringCategory.objects.create(
-            name="Grass", project=instance, description="Measures grass")
-        MeasuringCategory.objects.create(
-            name="Garden", project=instance, description="Measure Garden")
+# # Added by me Anup
+# @receiver(signals.post_save, sender=Project, dispatch_uid="project_post_save_measuring_category")
+# def project_post_save_project_for_mc(sender, instance, created, **kwargs):
+#     """
+#     It will create two category by default Grass and Garden
+#     """
+#     if created:
+#         MeasuringCategory.objects.create(
+#             name="Grass", project=instance, description="Measures grass")
+#         MeasuringCategory.objects.create(
+#             name="Garden", project=instance, description="Measure Garden")
+
+# # Added by me Anup
+
+
+# @receiver(signals.post_save, sender=Project, dispatch_uid="project_post_save_creating_layer")
+# def project_post_save_for_creating_layer(sender, instance, created, **kwargs):
+#     """
+#     It will create a view
+#     """
+#     if created:
+#         print("*******************Signals started Project *************")
+#         with connection.cursor() as cursor:
+#             # Convert project name to view name
+#             view_name = instance.name.replace(" ", "_").lower()
+#             cursor.execute(
+#                 f"CREATE OR REPLACE VIEW {view_name} AS SELECT mc.*, cg.geom , cg.properties ,cg.measuring_category_id FROM public.app_measuringcategory mc JOIN public.app_categorygeometry cg ON mc.id = cg.measuring_category_id WHERE mc.project_id = %s", [instance.id])
+#             print("****************Congratulations the view is created***************")
+#             print(instance.owner.username, "workspace name")
+#             # create_geoserver_workspace(instance.owner.username)
+#             # create_geoserver_layer(instance.owner.username, view_name)
+
 
 # Added by me Anup
 
 
-@receiver(signals.post_save, sender=Project, dispatch_uid="project_post_save_creating_layer")
-def project_post_save_for_creating_layer(sender, instance, created, **kwargs):
+# @receiver(signals.post_save, sender=MeasuringCategory, dispatch_uid="measuring_category_post_save_creating_layer")
+# def measuring_category_post_save_for_creating_layer(sender, instance, created, **kwargs):
+#     """
+#     It will create a view
+#     """
+#     if created:
+#         print("*******************Signals started  MC *************")
+#         with connection.cursor() as cursor:
+#             # Convert project name to view name
+#             view_name = instance.project.name.replace(
+#                 " ", "_").lower() + "_" + instance.name.replace(" ", "_").lower()
+#             cursor.execute(
+#                 f"CREATE OR REPLACE VIEW {view_name} AS SELECT mc.*, cg.geom , cg.properties ,cg.measuring_category_id FROM public.app_measuringcategory mc JOIN public.app_categorygeometry cg ON mc.id = cg.measuring_category_id WHERE cg.measuring_category_id = %s", [instance.id])
+#             print("****************Congratulations the view is created***************")
+#             # create_geoserver_layer(instance.owner.username, view_name)
+
+
+@receiver(signals.post_save, sender=Project, dispatch_uid="project_geoserver_test")
+def project_post_save_for_creating_workspace(sender, instance, created, **kwargs):
     """
-    It will create a view
+    It will create a workspace
     """
     if created:
         print("*******************Signals started Project *************")
         with connection.cursor() as cursor:
             # Convert project name to view name
-            view_name = instance.name.replace(" ", "_").lower()
-            cursor.execute(
-                f"CREATE OR REPLACE VIEW {view_name} AS SELECT mc.*, cg.geom , cg.properties ,cg.measuring_category_id FROM public.app_measuringcategory mc JOIN public.app_categorygeometry cg ON mc.id = cg.measuring_category_id WHERE mc.project_id = %s", [instance.id])
             print("****************Congratulations the view is created***************")
             print(instance.owner.username, "workspace name")
-            # create_geoserver_workspace(instance.owner.username)
-            # create_geoserver_layer(instance.owner.username, view_name)
-
-
-# Added by me Anup
-
-@receiver(signals.post_save, sender=MeasuringCategory, dispatch_uid="measuring_category_post_save_creating_layer")
-def measuring_category_post_save_for_creating_layer(sender, instance, created, **kwargs):
-    """
-    It will create a view
-    """
-    if created:
-        print("*******************Signals started  MC *************")
-        with connection.cursor() as cursor:
-            # Convert project name to view name
-            view_name = instance.project.name.replace(
-                " ", "_").lower() + "_" + instance.name.replace(" ", "_").lower()
-            cursor.execute(
-                f"CREATE OR REPLACE VIEW {view_name} AS SELECT mc.*, cg.geom , cg.properties ,cg.measuring_category_id FROM public.app_measuringcategory mc JOIN public.app_categorygeometry cg ON mc.id = cg.measuring_category_id WHERE cg.measuring_category_id = %s", [instance.id])
-            print("****************Congratulations the view is created***************")
+            create_geoserver_workspace(instance.owner.username)
             # create_geoserver_layer(instance.owner.username, view_name)
