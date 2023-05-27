@@ -7,6 +7,7 @@ from django.dispatch import receiver
 from django.db import connection
 import requests
 from worker.tasks import create_geoserver_workspace
+from requests.auth import HTTPBasicAuth
 
 
 geoserver_url = 'http://localhost:8600/geoserver'
@@ -14,21 +15,37 @@ username = 'admin'
 password = 'geoserver'
 
 
-def create_geoserver_workspace_(username):
-    headers = {
-        'Content-Type': 'application/xml',
-    }
-    workspace_name = username
-    xml_payload = f'<workspace><name>{workspace_name}</name></workspace>'
-    response = requests.post(f'{geoserver_url}/rest/workspaces',
-                             data=xml_payload, headers=headers, auth=(username, password))
+# def create_geoserver_workspace_(username):
+#     headers = {
+#         'Content-Type': 'application/xml',
+#     }
+#     workspace_name = username
+#     xml_payload = f'<workspace><name>{workspace_name}</name></workspace>'
+#     response = requests.post(f'{geoserver_url}/rest/workspaces',
+#                              data=xml_payload, headers=headers, auth=(username, password))
+
+#     if response.status_code == 201:
+#         print(f"Workspace '{workspace_name}' created.")
+#         print('*********Sucesssful******************')
+#     else:
+#         print(
+#             f"Failed to create workspace. Status code: {response.status_code}, Error: {response.text}")
+
+
+def create_geoserver_workspace_(workspace_name):
+    workspace_url = f"{geoserver_url}/rest/workspaces"
+    data = f'<workspace><name>{workspace_name}</name></workspace>'
+    headers = {'Content-Type': 'text/xml'}
+    auth = HTTPBasicAuth(username, password)
+
+    response = requests.post(workspace_url, data=data,
+                             headers=headers, auth=auth)
 
     if response.status_code == 201:
-        print(f"Workspace '{workspace_name}' created.")
-        print('*********Sucesssful******************')
+        print(f"Workspace '{workspace_name}' created successfully!")
     else:
         print(
-            f"Failed to create workspace. Status code: {response.status_code}, Error: {response.text}")
+            f"Failed to create workspace '{workspace_name}'. Error: {response.text}")
 
 
 def create_geoserver_layer_(username, view_name):
