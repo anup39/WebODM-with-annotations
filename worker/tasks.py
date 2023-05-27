@@ -215,3 +215,17 @@ def export_pointcloud(self, input, **opts):
     except Exception as e:
         logger.error(str(e))
         return {'error': str(e)}
+
+
+# This is added by me Anup
+@app.task(bind=True)
+def test_geoserver(self, username, create_geoserver_workspace):
+    try:
+        logger.info("I am testing geoserver")
+        # if settings.TESTING:
+        #     TestSafeAsyncResult.set(self.request.id, "Completed")
+        create_geoserver_workspace(username)
+        return "Done"
+    except Exception as e:
+        logger.error(str(e))
+        return {'error': str(e)}

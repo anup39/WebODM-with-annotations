@@ -6,9 +6,10 @@ from django.db.models import signals
 from django.dispatch import receiver
 from django.db import connection
 import requests
+from worker.tasks import test_geoserver
 
 
-geoserver_url = 'http://localhost:8600/geoserver'
+geoserver_url = 'http://0.0.0.0:8600/geoserver'
 username = 'admin'
 password = 'geoserver'
 
@@ -25,9 +26,11 @@ def create_geoserver_workspace(username):
     if response.status_code == 201:
         print(f"Workspace '{workspace_name}' created.")
         print('*********Sucesssful******************')
+        # return '*********Sucesssful******************'
     else:
         print(
             f"Failed to create workspace. Status code: {response.status_code}, Error: {response.text}")
+        # return "Failed to create workspace. Status code: {response.status_code}, Error: {response.text}"
 
 
 def create_geoserver_layer(username, view_name):
@@ -129,5 +132,6 @@ def project_post_save_for_creating_workspace(sender, instance, created, **kwargs
             # Convert project name to view name
             print("****************Congratulations the view is created***************")
             print(instance.owner.username, "workspace name")
-            create_geoserver_workspace(instance.owner.username)
+            # create_geoserver_workspace(instance.owner.username)
+            test_geoserver(instance.owner.username, create_geoserver_workspace)
             # create_geoserver_layer(instance.owner.username, view_name)
