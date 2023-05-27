@@ -27,11 +27,27 @@ class MeasuringCategory(models.Model):
 
 # Added by me Anup
 @receiver(signals.post_save, sender=Project, dispatch_uid="project_post_save_measuring_category")
-def project_post_save(sender, instance, created, **kwargs):
+def project_post_save_project_for_mc(sender, instance, created, **kwargs):
     """
+    It will create two category by default Grass and Garden 
     """
     if created:
         MeasuringCategory.objects.create(
             name="Grass", project=instance, description="Measures grass")
         MeasuringCategory.objects.create(
             name="Garden", project=instance, description="Measure grass")
+
+# Added by me
+
+
+@receiver(signals.post_save, sender=Project, dispatch_uid="project_post_save_measuring_category")
+def project_post_save_for_creating_layer(sender, instance, created, **kwargs):
+    """
+    It will create a view
+    """
+    if created:
+        with connection.cursor() as cursor:
+            # Convert project name to view name
+            view_name = instance.name.replace(" ", "_").lower()
+            cursor.execute(
+                f"CREATE OR REPLACE VIEW {view_name} AS SELECT mc.*, cg.* FROM measuringcategory mc JOIN categorygeometry cg ON mc.id = cg.measuring_category_id WHERE mc.project_id = %s", [instance.id])
