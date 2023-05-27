@@ -41,14 +41,16 @@ def project_post_save_project_for_mc(sender, instance, created, **kwargs):
 # Added by me Anup
 
 
-@receiver(signals.post_save, sender=Project, dispatch_uid="project_post_save_measuring_category")
+@receiver(signals.post_save, sender=Project, dispatch_uid="project_post_save_creating_layer")
 def project_post_save_for_creating_layer(sender, instance, created, **kwargs):
     """
     It will create a view
     """
     if created:
+        print("*******************Signals started *************")
         with connection.cursor() as cursor:
             # Convert project name to view name
             view_name = instance.name.replace(" ", "_").lower()
             cursor.execute(
-                f"CREATE OR REPLACE VIEW {view_name} AS SELECT mc.*, cg.* FROM measuringcategory mc JOIN categorygeometry cg ON mc.id = cg.measuring_category_id WHERE mc.project_id = %s", [instance.id])
+                f"CREATE OR REPLACE VIEW {view_name} AS SELECT mc.*, cg.geom , cg.properties ,cg.measuring_category_id FROM public.app_measuringcategory mc JOIN public.app_categorygeometry cg ON mc.id = cg.measuring_category_id WHERE mc.project_id = %s", [instance.id])
+            print("****************Congratulations the view is created***************")

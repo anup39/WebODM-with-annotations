@@ -58,7 +58,7 @@ services:
     oom_score_adj: 250
 
   pgadmin:
-    image: dpage/pgadmin4
+    image: dpage/pgadmin4:5.0
     env_file: pg_env.txt
     ports:
       - "5051:80"
