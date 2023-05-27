@@ -10,7 +10,7 @@ import requests
 from requests.auth import HTTPBasicAuth
 
 
-geoserver_url = 'http://localhost:8080/geoserver'
+geoserver_url = 'http://localhost:8600/geoserver'
 username = 'admin'
 password = 'geoserver'
 
@@ -80,6 +80,3 @@ def project_post_save_for_creating_layer(sender, instance, created, **kwargs):
             print(instance.owner.username, "workspace name")
             create_workspace(instance.owner.username)
             print("****************Congratulations workspace is created***************")
-
-# Now create a workspace from the user information,
-# Layer related to the project in geoserver using rest api of geoserver
