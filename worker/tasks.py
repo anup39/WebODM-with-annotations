@@ -219,11 +219,9 @@ def export_pointcloud(self, input, **opts):
 
 # This is added by me Anup
 @app.task(bind=True)
-def test_geoserver(self, username, create_geoserver_workspace):
+def create_geoserver_workspace(self, username, create_geoserver_workspace):
     try:
         logger.info("I am testing geoserver")
-        # if settings.TESTING:
-        #     TestSafeAsyncResult.set(self.request.id, "Completed")
         create_geoserver_workspace(username)
         return "Done"
     except Exception as e:
