@@ -134,8 +134,6 @@ $(function () {
   $("[data-mapview]").each(function () {
     let props = $(this).data();
     delete props.mapview;
-    console.log(props, "props in map view");
-
     window.ReactDOM.render(<MapView {...props} />, $(this).get(0));
   });
 });
