@@ -30,6 +30,23 @@ def create_geoserver_workspace(username):
             f"Failed to create workspace. Status code: {response.status_code}, Error: {response.text}")
 
 
+def create_geoserver_layer(username, view_name):
+    headers = {
+        'Content-Type': 'application/xml',
+    }
+    layer_name = view_name
+    xml_payload = f'<layer><name>{layer_name}</name></layer>'
+    response = requests.post(f'{geoserver_url}/rest/layers',
+                             data=xml_payload, headers=headers, auth=(username, password))
+
+    if response.status_code == 201:
+        print(f"Layer '{layer_name}' created.")
+        print('*********Sucesssful******************')
+    else:
+        print(
+            f"Failed to create layer. Status code: {response.status_code}, Error: {response.text}")
+
+
 class MeasuringCategory(models.Model):
     name = models.CharField(max_length=255, help_text=_(
         "In which category you want to seperate your project layer"), verbose_name=_("Name"))
@@ -78,7 +95,7 @@ def project_post_save_for_creating_layer(sender, instance, created, **kwargs):
             print("****************Congratulations the view is created***************")
             print(instance.owner.username, "workspace name")
             create_geoserver_workspace(instance.owner.username)
-            create_geoserver_layer(view_name)
+            create_geoserver_layer(instance.owner.username, view_name)
 
 
 # Added by me Anup
@@ -96,6 +113,4 @@ def measuring_category_post_save_for_creating_layer(sender, instance, created, *
             cursor.execute(
                 f"CREATE OR REPLACE VIEW {view_name} AS SELECT mc.*, cg.geom , cg.properties ,cg.measuring_category_id FROM public.app_measuringcategory mc JOIN public.app_categorygeometry cg ON mc.id = cg.measuring_category_id WHERE cg.measuring_category_id = %s", [instance.id])
             print("****************Congratulations the view is created***************")
-            print(instance.name, "layer name name")
-            create_geoserver_workspace(instance.owner.username)
-            create_geoserver_layer(view_name)
+            create_geoserver_layer(instance.owner.username, view_name)
