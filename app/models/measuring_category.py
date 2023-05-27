@@ -75,7 +75,7 @@ def project_post_save_project_for_mc(sender, instance, created, **kwargs):
         MeasuringCategory.objects.create(
             name="Grass", project=instance, description="Measures grass")
         MeasuringCategory.objects.create(
-            name="Garden", project=instance, description="Measure grass")
+            name="Garden", project=instance, description="Measure Garden")
 
 # Added by me Anup
 
@@ -94,8 +94,8 @@ def project_post_save_for_creating_layer(sender, instance, created, **kwargs):
                 f"CREATE OR REPLACE VIEW {view_name} AS SELECT mc.*, cg.geom , cg.properties ,cg.measuring_category_id FROM public.app_measuringcategory mc JOIN public.app_categorygeometry cg ON mc.id = cg.measuring_category_id WHERE mc.project_id = %s", [instance.id])
             print("****************Congratulations the view is created***************")
             print(instance.owner.username, "workspace name")
-            create_geoserver_workspace(instance.owner.username)
-            create_geoserver_layer(instance.owner.username, view_name)
+            # create_geoserver_workspace(instance.owner.username)
+            # create_geoserver_layer(instance.owner.username, view_name)
 
 
 # Added by me Anup
@@ -113,4 +113,4 @@ def measuring_category_post_save_for_creating_layer(sender, instance, created, *
             cursor.execute(
                 f"CREATE OR REPLACE VIEW {view_name} AS SELECT mc.*, cg.geom , cg.properties ,cg.measuring_category_id FROM public.app_measuringcategory mc JOIN public.app_categorygeometry cg ON mc.id = cg.measuring_category_id WHERE cg.measuring_category_id = %s", [instance.id])
             print("****************Congratulations the view is created***************")
-            create_geoserver_layer(instance.owner.username, view_name)
+            # create_geoserver_layer(instance.owner.username, view_name)
