@@ -1,14 +1,11 @@
 from .project import Project
 from django.db import models
-from django.contrib.gis.db.models.fields import GeometryField
 from django.utils.translation import gettext_lazy as _
 from django.utils import timezone
 from django.db.models import signals
 from django.dispatch import receiver
 from django.db import connection
 import requests
-from requests.auth import HTTPBasicAuth
-from django.middleware.csrf import get_token
 
 
 geoserver_url = 'http://188.132.174.46:8600/geoserver'
@@ -17,32 +14,20 @@ password = 'geoserver'
 
 
 def create_geoserver_workspace(username):
-    # Get the CSRF token
-    # csrf_token = get_token(None)
-
-    # Create the headers with the CSRF token
     headers = {
         'Content-Type': 'application/xml',
-        # 'X-CSRFToken': csrf_token,
     }
-
-    # Construct the workspace name
     workspace_name = username
-
-    # Construct the XML payload for creating the workspace
     xml_payload = f'<workspace><name>{workspace_name}</name></workspace>'
-
-    # Make the POST request to create the workspace
-    response = requests.post('http://188.132.174.46:8600/geoserver/rest/workspaces',
-                             data=xml_payload, headers=headers, auth=('admin', 'geoserver'))
+    response = requests.post(f'{geoserver_url}/rest/workspaces',
+                             data=xml_payload, headers=headers, auth=(username, password))
 
     if response.status_code == 201:
-        print(f"Workspace '{workspace_name}' created successfully")
+        print(f"Workspace '{workspace_name}' created.")
+        print('*********Sucesssful******************')
     else:
         print(
             f"Failed to create workspace. Status code: {response.status_code}, Error: {response.text}")
-
-    print('*********Sucesssful******************')
 
 
 class MeasuringCategory(models.Model):
@@ -93,4 +78,3 @@ def project_post_save_for_creating_layer(sender, instance, created, **kwargs):
             print("****************Congratulations the view is created***************")
             print(instance.owner.username, "workspace name")
             create_geoserver_workspace(instance.owner.username)
-            print("****************Congratulations workspace is created***************")
