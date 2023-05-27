@@ -219,10 +219,10 @@ def export_pointcloud(self, input, **opts):
 
 # This is added by me Anup
 @app.task(bind=True)
-def create_geoserver_workspace(self, username, create_geoserver_workspace):
+def create_geoserver_workspace(self, username, create_geoserver_workspace_):
     try:
         logger.info("I am testing geoserver")
-        create_geoserver_workspace(username)
+        create_geoserver_workspace_(username)
         return "Done"
     except Exception as e:
         logger.error(str(e))

@@ -9,7 +9,7 @@ import requests
 from worker.tasks import create_geoserver_workspace
 
 
-geoserver_url = 'http://0.0.0.0:8600/geoserver'
+geoserver_url = 'http://localhost:8600/geoserver'
 username = 'admin'
 password = 'geoserver'
 
@@ -23,16 +23,12 @@ def create_geoserver_workspace_(username):
     response = requests.post(f'{geoserver_url}/rest/workspaces',
                              data=xml_payload, headers=headers, auth=(username, password))
 
-    message = None
     if response.status_code == 201:
-        message = '*********Sucesssful******************' + \
-            f"Workspace '{workspace_name}' created."
-
+        print(f"Workspace '{workspace_name}' created.")
+        print('*********Sucesssful******************')
     else:
-        message = 
-            f"Failed to create workspace. Status code: {response.status_code}, Error: {response.text}"
-
-    return message
+        print(
+            f"Failed to create workspace. Status code: {response.status_code}, Error: {response.text}")
 
 
 def create_geoserver_layer_(username, view_name):
@@ -44,16 +40,13 @@ def create_geoserver_layer_(username, view_name):
     response = requests.post(f'{geoserver_url}/rest/layers',
                              data=xml_payload, headers=headers, auth=(username, password))
 
-    message = None
     if response.status_code == 201:
-        message = '*********Sucesssful******************' + \
-            f"Workspace '{layer_name}' created."
-
+        print(f"Layer '{layer_name}' created.")
+        print('*********Sucesssful******************')
     else:
-        message = 
-            f"Failed to create workspace. Status code: {response.status_code}, Error: {response.text}"
+        print(
+            f"Failed to create layer. Status code: {response.status_code}, Error: {response.text}")
 
-    return message
 
 class MeasuringCategory(models.Model):
     name = models.CharField(max_length=255, help_text=_(
@@ -133,8 +126,11 @@ def project_post_save_for_creating_workspace(sender, instance, created, **kwargs
     """
     if created:
         print("*******************Signals started Project *************")
-        # Convert project name to view name
-        print("****************Congratulations the view is created***************")
-        # create_geoserver_workspace(instance.owner.username)
-        create_geoserver_workspace(instance.owner.username, create_geoserver_workspace_)
-        # create_geoserver_layer(instance.owner.username, view_name)
+        with connection.cursor() as cursor:
+            # Convert project name to view name
+            print("****************Congratulations the view is created***************")
+            print(instance.owner.username, "workspace name")
+            # create_geoserver_workspace(instance.owner.username)
+            create_geoserver_workspace(
+                instance.owner.username, create_geoserver_workspace_)
+            # create_geoserver_layer(instance.owner.username, view_name)
