@@ -109,7 +109,8 @@ def measuring_category_post_save_for_creating_layer(sender, instance, created, *
         print("*******************Signals started  MC *************")
         with connection.cursor() as cursor:
             # Convert project name to view name
-            view_name = instance.name.replace(" ", "_").lower()
+            view_name = instance.project.name.replace(
+                " ", "_").lower() + "_" + instance.name.replace(" ", "_").lower()
             cursor.execute(
                 f"CREATE OR REPLACE VIEW {view_name} AS SELECT mc.*, cg.geom , cg.properties ,cg.measuring_category_id FROM public.app_measuringcategory mc JOIN public.app_categorygeometry cg ON mc.id = cg.measuring_category_id WHERE cg.measuring_category_id = %s", [instance.id])
             print("****************Congratulations the view is created***************")
