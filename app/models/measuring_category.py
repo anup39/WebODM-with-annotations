@@ -7,6 +7,28 @@ from django.db.models import signals
 from django.dispatch import receiver
 from django.db import connection
 import requests
+from requests.auth import HTTPBasicAuth
+
+
+geoserver_url = 'http://localhost:8080/geoserver'
+username = 'admin'
+password = 'geoserver'
+
+
+def create_workspace(workspace_name):
+    workspace_url = f"{geoserver_url}/rest/workspaces"
+    data = f'<workspace><name>{workspace_name}</name></workspace>'
+    headers = {'Content-Type': 'text/xml'}
+    auth = HTTPBasicAuth(username, password)
+
+    response = requests.post(workspace_url, data=data,
+                             headers=headers, auth=auth)
+
+    if response.status_code == 201:
+        print(f"Workspace '{workspace_name}' created successfully!")
+    else:
+        print(
+            f"Failed to create workspace '{workspace_name}'. Error: {response.text}")
 
 
 class MeasuringCategory(models.Model):
@@ -55,6 +77,10 @@ def project_post_save_for_creating_layer(sender, instance, created, **kwargs):
             cursor.execute(
                 f"CREATE OR REPLACE VIEW {view_name} AS SELECT mc.*, cg.geom , cg.properties ,cg.measuring_category_id FROM public.app_measuringcategory mc JOIN public.app_categorygeometry cg ON mc.id = cg.measuring_category_id WHERE mc.project_id = %s", [instance.id])
             print("****************Congratulations the view is created***************")
+
+            print(instance.owner.username, "instance")
+            create_workspace(instance.owner.username)
+            print("****************Congratulations workspace is created***************")
 
 # Now create a workspace from the user information,
 # Layer related to the project in geoserver using rest api of geoserver
