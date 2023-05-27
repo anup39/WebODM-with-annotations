@@ -6,6 +6,7 @@ from django.utils import timezone
 from django.db.models import signals
 from django.dispatch import receiver
 from django.db import connection
+import requests
 
 
 class MeasuringCategory(models.Model):
@@ -54,3 +55,6 @@ def project_post_save_for_creating_layer(sender, instance, created, **kwargs):
             cursor.execute(
                 f"CREATE OR REPLACE VIEW {view_name} AS SELECT mc.*, cg.geom , cg.properties ,cg.measuring_category_id FROM public.app_measuringcategory mc JOIN public.app_categorygeometry cg ON mc.id = cg.measuring_category_id WHERE mc.project_id = %s", [instance.id])
             print("****************Congratulations the view is created***************")
+
+# Now create a workspace from the user information,
+# Layer related to the project in geoserver using rest api of geoserver
