@@ -23,6 +23,8 @@ from .celery import app
 from app.raster_utils import export_raster as export_raster_sync, extension_for_export_format
 from app.pointcloud_utils import export_pointcloud as export_pointcloud_sync
 import redis
+import subprocess
+
 
 logger = get_task_logger("app.logger")
 redis_client = redis.Redis.from_url(settings.CELERY_BROKER_URL)
@@ -212,6 +214,20 @@ def export_pointcloud(self, input, **opts):
             TestSafeAsyncResult.set(self.request.id, result)
 
         return result
+    except Exception as e:
+        logger.error(str(e))
+        return {'error': str(e)}
+
+
+# This is added by me Anup
+@app.task(bind=True)
+def create_geoserver_workspace(self, username, create_geoserver_workspace_):
+    try:
+        logger.info("I am testing geoserver")
+        # create_geoserver_workspace_(username)
+        command = "curl -u username:password -X POST -H \"Content-Type: application/xml\" -d '<workspace><name>test</name></workspace>' http://localhost:8600/geoserver/rest/workspaces"
+        subprocess.run(command, shell=True)
+        return "Done"
     except Exception as e:
         logger.error(str(e))
         return {'error': str(e)}

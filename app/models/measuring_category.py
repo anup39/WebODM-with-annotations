@@ -1,8 +1,68 @@
 from .project import Project
 from django.db import models
-from django.contrib.gis.db.models.fields import GeometryField
 from django.utils.translation import gettext_lazy as _
 from django.utils import timezone
+from django.db.models import signals
+from django.dispatch import receiver
+from django.db import connection
+import requests
+from worker.tasks import create_geoserver_workspace
+from requests.auth import HTTPBasicAuth
+
+
+geoserver_url = 'http://localhost:8600/geoserver'
+username = 'admin'
+password = 'geoserver'
+
+
+# def create_geoserver_workspace_(username):
+#     headers = {
+#         'Content-Type': 'application/xml',
+#     }
+#     workspace_name = username
+#     xml_payload = f'<workspace><name>{workspace_name}</name></workspace>'
+#     response = requests.post(f'{geoserver_url}/rest/workspaces',
+#                              data=xml_payload, headers=headers, auth=(username, password))
+
+#     if response.status_code == 201:
+#         print(f"Workspace '{workspace_name}' created.")
+#         print('*********Sucesssful******************')
+#     else:
+#         print(
+#             f"Failed to create workspace. Status code: {response.status_code}, Error: {response.text}")
+
+
+def create_geoserver_workspace_(workspace_name):
+    workspace_url = f"{geoserver_url}/rest/workspaces"
+    data = f'<workspace><name>{workspace_name}</name></workspace>'
+    headers = {'Content-Type': 'text/xml'}
+    auth = HTTPBasicAuth(username, password)
+
+    response = requests.post(workspace_url, data=data,
+                             headers=headers, auth=auth)
+
+    if response.status_code == 201:
+        print(f"Workspace '{workspace_name}' created successfully!")
+    else:
+        print(
+            f"Failed to create workspace '{workspace_name}'. Error: {response.text}")
+
+
+def create_geoserver_layer_(username, view_name):
+    headers = {
+        'Content-Type': 'application/xml',
+    }
+    layer_name = view_name
+    xml_payload = f'<layer><name>{layer_name}</name></layer>'
+    response = requests.post(f'{geoserver_url}/rest/layers',
+                             data=xml_payload, headers=headers, auth=(username, password))
+
+    if response.status_code == 201:
+        print(f"Layer '{layer_name}' created.")
+        print('*********Sucesssful******************')
+    else:
+        print(
+            f"Failed to create layer. Status code: {response.status_code}, Error: {response.text}")
 
 
 class MeasuringCategory(models.Model):
@@ -21,3 +81,73 @@ class MeasuringCategory(models.Model):
     class Meta:
         verbose_name = _("MeasuringCategory")
         verbose_name_plural = _("MeasuringCategories")
+
+
+# # Added by me Anup
+# @receiver(signals.post_save, sender=Project, dispatch_uid="project_post_save_measuring_category")
+# def project_post_save_project_for_mc(sender, instance, created, **kwargs):
+#     """
+#     It will create two category by default Grass and Garden
+#     """
+#     if created:
+#         MeasuringCategory.objects.create(
+#             name="Grass", project=instance, description="Measures grass")
+#         MeasuringCategory.objects.create(
+#             name="Garden", project=instance, description="Measure Garden")
+
+# # Added by me Anup
+
+
+# @receiver(signals.post_save, sender=Project, dispatch_uid="project_post_save_creating_layer")
+# def project_post_save_for_creating_layer(sender, instance, created, **kwargs):
+#     """
+#     It will create a view
+#     """
+#     if created:
+#         print("*******************Signals started Project *************")
+#         with connection.cursor() as cursor:
+#             # Convert project name to view name
+#             view_name = instance.name.replace(" ", "_").lower()
+#             cursor.execute(
+#                 f"CREATE OR REPLACE VIEW {view_name} AS SELECT mc.*, cg.geom , cg.properties ,cg.measuring_category_id FROM public.app_measuringcategory mc JOIN public.app_categorygeometry cg ON mc.id = cg.measuring_category_id WHERE mc.project_id = %s", [instance.id])
+#             print("****************Congratulations the view is created***************")
+#             print(instance.owner.username, "workspace name")
+#             # create_geoserver_workspace_(instance.owner.username)
+#             # create_geoserver_layer_(instance.owner.username, view_name)
+
+
+# Added by me Anup
+
+
+# @receiver(signals.post_save, sender=MeasuringCategory, dispatch_uid="measuring_category_post_save_creating_layer")
+# def measuring_category_post_save_for_creating_layer(sender, instance, created, **kwargs):
+#     """
+#     It will create a view
+#     """
+#     if created:
+#         print("*******************Signals started  MC *************")
+#         with connection.cursor() as cursor:
+#             # Convert project name to view name
+#             view_name = instance.project.name.replace(
+#                 " ", "_").lower() + "_" + instance.name.replace(" ", "_").lower()
+#             cursor.execute(
+#                 f"CREATE OR REPLACE VIEW {view_name} AS SELECT mc.*, cg.geom , cg.properties ,cg.measuring_category_id FROM public.app_measuringcategory mc JOIN public.app_categorygeometry cg ON mc.id = cg.measuring_category_id WHERE cg.measuring_category_id = %s", [instance.id])
+#             print("****************Congratulations the view is created***************")
+#             # create_geoserver_layer_(instance.owner.username, view_name)
+
+
+@receiver(signals.post_save, sender=Project, dispatch_uid="project_geoserver_test")
+def project_post_save_for_creating_workspace(sender, instance, created, **kwargs):
+    """
+    It will create a workspace
+    """
+    if created:
+        print("*******************Signals started Project *************")
+        with connection.cursor() as cursor:
+            # Convert project name to view name
+            print("****************Congratulations the view is created***************")
+            print(instance.owner.username, "workspace name")
+            # create_geoserver_workspace(instance.owner.username)
+            create_geoserver_workspace(
+                instance.owner.username, create_geoserver_workspace_)
+            # create_geoserver_layer(instance.owner.username, view_name)

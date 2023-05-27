@@ -23,7 +23,7 @@ class Project(models.Model):
     owner = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT, help_text=_(
         "The person who created the project"), verbose_name=_("Owner"))
     name = models.CharField(max_length=255, help_text=_(
-        "A label used to describe the project"), verbose_name=_("Name"))
+        "A label used to describe the project"), verbose_name=_("Name"), unique=True)
     description = models.TextField(default="", blank=True, help_text=_(
         "More in-depth description of the project"), verbose_name=_("Description"))
     created_at = models.DateTimeField(default=timezone.now, help_text=_(

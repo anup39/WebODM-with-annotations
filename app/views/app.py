@@ -15,6 +15,7 @@ from django.utils.translation import ugettext as _
 from django import forms
 from webodm import settings
 
+
 def index(request):
     # Check first access
     if User.objects.filter(is_superuser=True).count() == 0:
@@ -26,10 +27,12 @@ def index(request):
             return redirect('welcome')
 
     if settings.SINGLE_USER_MODE and not request.user.is_authenticated:
-        login(request, User.objects.get(username="admin"), 'django.contrib.auth.backends.ModelBackend')
+        login(request, User.objects.get(username="admin"),
+              'django.contrib.auth.backends.ModelBackend')
 
     return redirect(settings.LOGIN_REDIRECT_URL if request.user.is_authenticated
                     else settings.LOGIN_URL)
+
 
 @login_required
 def dashboard(request):
@@ -44,9 +47,9 @@ def dashboard(request):
         Project.objects.create(owner=request.user, name=_("First Project"))
 
     return render(request, 'app/dashboard.html', {'title': _('Dashboard'),
-        'no_processingnodes': no_processingnodes,
-        'no_tasks': no_tasks
-    })
+                                                  'no_processingnodes': no_processingnodes,
+                                                  'no_tasks': no_tasks
+                                                  })
 
 
 @login_required
@@ -57,24 +60,28 @@ def map(request, project_pk=None, task_pk=None):
         project = get_object_or_404(Project, pk=project_pk)
         if not request.user.has_perm('app.view_project', project):
             raise Http404()
-        
+
         if task_pk is not None:
-            task = get_object_or_404(Task.objects.defer('orthophoto_extent', 'dsm_extent', 'dtm_extent'), pk=task_pk, project=project)
+            task = get_object_or_404(Task.objects.defer(
+                'orthophoto_extent', 'dsm_extent', 'dtm_extent'), pk=task_pk, project=project)
             title = task.name or task.id
             mapItems = [task.get_map_items()]
         else:
             title = project.name or project.id
             mapItems = project.get_map_items()
 
+    # Added by me Anup the project id is send in order to get the categories
+
     return render(request, 'app/map.html', {
+        'title': title,
+        'params': {
+            'project_id': project.id,
+            'map-items': json.dumps(mapItems),
             'title': title,
-            'params': {
-                'map-items': json.dumps(mapItems),
-                'title': title,
-                'public': 'false',
-                'share-buttons': 'false' if settings.DESKTOP_MODE else 'true'
-            }.items()
-        })
+            'public': 'false',
+            'share-buttons': 'false' if settings.DESKTOP_MODE else 'true'
+        }.items()
+    })
 
 
 @login_required
@@ -87,35 +94,40 @@ def model_display(request, project_pk=None, task_pk=None):
             raise Http404()
 
         if task_pk is not None:
-            task = get_object_or_404(Task.objects.defer('orthophoto_extent', 'dsm_extent', 'dtm_extent'), pk=task_pk, project=project)
+            task = get_object_or_404(Task.objects.defer(
+                'orthophoto_extent', 'dsm_extent', 'dtm_extent'), pk=task_pk, project=project)
             title = task.name or task.id
         else:
             raise Http404()
 
     return render(request, 'app/3d_model_display.html', {
-            'title': title,
-            'params': {
-                'task': json.dumps(task.get_model_display_params()),
-                'public': 'false',
-                'share-buttons': 'false' if settings.DESKTOP_MODE else 'true'
-            }.items()
-        })
+        'title': title,
+        'params': {
+            'task': json.dumps(task.get_model_display_params()),
+            'public': 'false',
+            'share-buttons': 'false' if settings.DESKTOP_MODE else 'true'
+        }.items()
+    })
+
 
 def about(request):
     return render(request, 'app/about.html', {'title': _('About'), 'version': settings.VERSION})
+
 
 @login_required
 def processing_node(request, processing_node_id):
     pn = get_object_or_404(ProcessingNode, pk=processing_node_id)
     if not pn.update_node_info():
-        messages.add_message(request, messages.constants.WARNING, '{} seems to be offline.'.format(pn))
+        messages.add_message(request, messages.constants.WARNING,
+                             '{} seems to be offline.'.format(pn))
 
-    return render(request, 'app/processing_node.html', 
-            {
-                'title': _('Processing Node'), 
-                'processing_node': pn,
-                'available_options_json': pn.get_available_options_json(pretty=True)
-            })
+    return render(request, 'app/processing_node.html',
+                  {
+                      'title': _('Processing Node'),
+                      'processing_node': pn,
+                      'available_options_json': pn.get_available_options_json(pretty=True)
+                  })
+
 
 class FirstUserForm(forms.ModelForm):
     class Meta:
@@ -153,6 +165,7 @@ def welcome(request):
 
 def handler404(request, exception):
     return render(request, '404.html', status=404)
+
 
 def handler500(request):
     return render(request, '500.html', status=500)
