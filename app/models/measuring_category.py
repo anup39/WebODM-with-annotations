@@ -8,27 +8,41 @@ from django.dispatch import receiver
 from django.db import connection
 import requests
 from requests.auth import HTTPBasicAuth
+from django.middleware.csrf import get_token
 
 
-geoserver_url = 'http://localhost:8600/geoserver'
+geoserver_url = 'http://188.132.174.46:8600/geoserver'
 username = 'admin'
 password = 'geoserver'
 
 
-def create_workspace(workspace_name):
-    workspace_url = f"{geoserver_url}/rest/workspaces"
-    data = f'<workspace><name>{workspace_name}</name></workspace>'
-    headers = {'Content-Type': 'text/xml'}
-    auth = HTTPBasicAuth(username, password)
+def create_geoserver_workspace(username):
+    # Get the CSRF token
+    # csrf_token = get_token(None)
 
-    response = requests.post(workspace_url, data=data,
-                             headers=headers, auth=auth)
+    # Create the headers with the CSRF token
+    headers = {
+        'Content-Type': 'application/xml',
+        # 'X-CSRFToken': csrf_token,
+    }
+
+    # Construct the workspace name
+    workspace_name = username
+
+    # Construct the XML payload for creating the workspace
+    xml_payload = f'<workspace><name>{workspace_name}</name></workspace>'
+
+    # Make the POST request to create the workspace
+    response = requests.post('http://188.132.174.46:8600/geoserver/rest/workspaces',
+                             data=xml_payload, headers=headers, auth=('admin', 'geoserver'))
 
     if response.status_code == 201:
-        print(f"Workspace '{workspace_name}' created successfully!")
+        print(f"Workspace '{workspace_name}' created successfully")
     else:
         print(
-            f"Failed to create workspace '{workspace_name}'. Error: {response.text}")
+            f"Failed to create workspace. Status code: {response.status_code}, Error: {response.text}")
+
+    print('*********Sucesssful******************')
 
 
 class MeasuringCategory(models.Model):
@@ -78,5 +92,5 @@ def project_post_save_for_creating_layer(sender, instance, created, **kwargs):
                 f"CREATE OR REPLACE VIEW {view_name} AS SELECT mc.*, cg.geom , cg.properties ,cg.measuring_category_id FROM public.app_measuringcategory mc JOIN public.app_categorygeometry cg ON mc.id = cg.measuring_category_id WHERE mc.project_id = %s", [instance.id])
             print("****************Congratulations the view is created***************")
             print(instance.owner.username, "workspace name")
-            create_workspace(instance.owner.username)
+            create_geoserver_workspace(instance.owner.username)
             print("****************Congratulations workspace is created***************")

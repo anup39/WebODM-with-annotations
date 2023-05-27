@@ -17,6 +17,7 @@ import json
 import datetime
 
 import tzlocal
+from corsheaders.defaults import default_headers
 from django.contrib.messages import constants as messages
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
@@ -272,6 +273,9 @@ LOGIN_URL = '/login/'
 # CORS (very relaxed settings, users might want to change this in production)
 CORS_ORIGIN_ALLOW_ALL = True
 CORS_ALLOW_CREDENTIALS = True
+CORS_ALLOW_HEADERS = default_headers + (
+    'Access-Control-Allow-Origin',
+)
 SESSION_COOKIE_SAMESITE = None
 
 # File uploads
