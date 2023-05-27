@@ -5,6 +5,7 @@ from django.utils.translation import gettext_lazy as _
 from django.utils import timezone
 from django.db.models import signals
 from django.dispatch import receiver
+from django.db import connection
 
 
 class MeasuringCategory(models.Model):
@@ -37,7 +38,7 @@ def project_post_save_project_for_mc(sender, instance, created, **kwargs):
         MeasuringCategory.objects.create(
             name="Garden", project=instance, description="Measure grass")
 
-# Added by me
+# Added by me Anup
 
 
 @receiver(signals.post_save, sender=Project, dispatch_uid="project_post_save_measuring_category")
