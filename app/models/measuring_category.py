@@ -15,7 +15,7 @@ from urllib.error import HTTPError
 from base64 import b64encode
 
 
-geoserver_url = 'http://example.com/geoserver'
+geoserver_url = 'http://188.132.174.46:8600/geoserver'
 username = 'admin'
 password = 'geoserver'
 
