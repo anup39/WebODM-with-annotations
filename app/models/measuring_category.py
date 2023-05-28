@@ -154,7 +154,7 @@ class MeasuringCategory(models.Model):
 def project_post_save_for_creating_workspace(sender, instance, created, **kwargs):
     """
     It will create a workspace
-    """
+    # """
     if created:
         print("*******************Signals started Project *************")
         with connection.cursor() as cursor:
