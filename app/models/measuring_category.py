@@ -51,9 +51,9 @@ def check_workspace_exists(workspace_name):
 
 
 def publish_table_to_geoserver(workspace_name, table_name):
-
-    # Set the table URL
-    table_url = f"{geoserver_url}/rest/workspaces/{workspace_name}/datastores/{table_name}/featuretypes"
+ 
+    # Set the table URL with the correct data store name
+    table_url = f"{geoserver_url}/rest/workspaces/{workspace_name}/datastores/database/featuretypes"
 
     # Create the XML payload to publish the table
     data = f'<featureType><name>{table_name}</name></featureType>'
@@ -121,7 +121,7 @@ def project_post_save_for_creating_layer(sender, instance, created, **kwargs):
             print(exists, "exists")
             if not exists:
                create_geoserver_workspace(instance.owner.username , create_geoserver_workspace_)
-            # create_geoserver_layer_(instance.owner.username, view_name)
+            create_geoserver_layer(instance.owner.username, view_name , publish_table_to_geoserver)
 
 
 # Added by me Anup
