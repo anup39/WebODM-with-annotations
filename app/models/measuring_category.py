@@ -9,8 +9,13 @@ import requests
 from worker.tasks import create_geoserver_workspace
 from requests.auth import HTTPBasicAuth
 
+import urllib.request
+import urllib.parse
+from urllib.error import HTTPError
+from base64 import b64encode
 
-geoserver_url = 'http://localhost:8600/geoserver'
+
+geoserver_url = 'http://example.com/geoserver'
 username = 'admin'
 password = 'geoserver'
 
@@ -34,18 +39,27 @@ password = 'geoserver'
 
 def create_geoserver_workspace_(workspace_name):
     workspace_url = f"{geoserver_url}/rest/workspaces"
-    data = f'<workspace><name>{workspace_name}</name></workspace>'
+    data = f'<workspace><name>{workspace_name}</name></workspace>'.encode(
+        'utf-8')
     headers = {'Content-Type': 'text/xml'}
-    auth = HTTPBasicAuth(username, password)
+    credentials = f"{username}:{password}"
+    encoded_credentials = b64encode(
+        credentials.encode('utf-8')).decode('utf-8')
+    auth_header = f"Basic {encoded_credentials}"
+    headers['Authorization'] = auth_header
 
-    response = requests.post(workspace_url, data=data,
-                             headers=headers, auth=auth)
-
-    if response.status_code == 201:
-        print(f"Workspace '{workspace_name}' created successfully!")
-    else:
+    try:
+        req = urllib.request.Request(
+            workspace_url, data=data, headers=headers, method='POST')
+        with urllib.request.urlopen(req) as response:
+            if response.status == 201:
+                print(f"Workspace '{workspace_name}' created successfully!")
+            else:
+                print(
+                    f"Failed to create workspace '{workspace_name}'. Error: {response.read().decode('utf-8')}")
+    except HTTPError as e:
         print(
-            f"Failed to create workspace '{workspace_name}'. Error: {response.text}")
+            f"Failed to create workspace '{workspace_name}'. Error: {e.code}, {e.reason}")
 
 
 def create_geoserver_layer_(username, view_name):
@@ -148,6 +162,7 @@ def project_post_save_for_creating_workspace(sender, instance, created, **kwargs
             print("****************Congratulations the view is created***************")
             print(instance.owner.username, "workspace name")
             # create_geoserver_workspace(instance.owner.username)
+
             create_geoserver_workspace(
-                instance.owner.username, create_geoserver_workspace_)
+                instance.owner.username)
             # create_geoserver_layer(instance.owner.username, view_name)
