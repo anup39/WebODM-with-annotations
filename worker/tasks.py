@@ -223,9 +223,20 @@ def export_pointcloud(self, input, **opts):
 @app.task()
 def create_geoserver_workspace(username, create_geoserver_workspace_):
     try:
-        logger.info("I am testing geoserver")
+        logger.info("I am testing geoserver for creating workspace")
 
         create_geoserver_workspace_(username)
+        return "Done"
+    except Exception as e:
+        logger.error(str(e))
+        return {'error': str(e)}
+
+# This is added by me Anup
+@app.task()
+def create_geoserver_layer(username, table_name ,  publish_table_to_geoserver):
+    try:
+        logger.info("I am testing geoserver for creating layer") 
+        publish_table_to_geoserver(username,table_name)
         return "Done"
     except Exception as e:
         logger.error(str(e))
