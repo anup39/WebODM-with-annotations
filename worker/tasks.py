@@ -23,7 +23,7 @@ from .celery import app
 from app.raster_utils import export_raster as export_raster_sync, extension_for_export_format
 from app.pointcloud_utils import export_pointcloud as export_pointcloud_sync
 import redis
-import subprocess
+
 
 
 logger = get_task_logger("app.logger")
@@ -220,13 +220,23 @@ def export_pointcloud(self, input, **opts):
 
 
 # This is added by me Anup
-@app.task(bind=True)
-def create_geoserver_workspace(self, username, create_geoserver_workspace_):
+@app.task()
+def create_geoserver_workspace(username, create_geoserver_workspace_):
     try:
-        logger.info("I am testing geoserver")
-        # create_geoserver_workspace_(username)
-        command = "curl -u username:password -X POST -H \"Content-Type: application/xml\" -d '<workspace><name>test</name></workspace>' http://localhost:8600/geoserver/rest/workspaces"
-        subprocess.run(command, shell=True)
+        logger.info("I am testing geoserver for creating workspace")
+
+        create_geoserver_workspace_(username)
+        return "Done"
+    except Exception as e:
+        logger.error(str(e))
+        return {'error': str(e)}
+
+# This is added by me Anup
+@app.task()
+def create_geoserver_layer(username, table_name ,  publish_table_to_geoserver):
+    try:
+        logger.info("I am testing geoserver for creating layer") 
+        publish_table_to_geoserver(username,table_name)
         return "Done"
     except Exception as e:
         logger.error(str(e))
