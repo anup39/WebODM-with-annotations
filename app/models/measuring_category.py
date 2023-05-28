@@ -32,6 +32,24 @@ def create_geoserver_workspace_(workspace_name):
             f"Failed to create workspace '{workspace_name}'. Error: {response.text}")
 
 
+def check_workspace_exists(workspace_name):
+    # Set the workspace URL
+    workspace_url = f"{geoserver_url}/rest/workspaces/{workspace_name}.xml"
+
+    # Send a GET request to check if the workspace exists
+    response = requests.get(workspace_url, auth=HTTPBasicAuth(username, password))
+
+    if response.status_code == 200:
+        print(f"Workspace '{workspace_name}' exists!")
+        return True
+    elif response.status_code == 404:
+        print(f"Workspace '{workspace_name}' does not exist.")
+        return False
+    else:
+        print(f"Failed to check workspace '{workspace_name}'. Error: {response.text}")
+        return False
+
+
 def publish_table_to_geoserver(workspace_name, table_name):
 
     # Set the table URL
@@ -99,7 +117,10 @@ def project_post_save_for_creating_layer(sender, instance, created, **kwargs):
                 f"CREATE OR REPLACE VIEW {view_name} AS SELECT mc.*, cg.geom , cg.properties ,cg.measuring_category_id FROM public.app_measuringcategory mc JOIN public.app_categorygeometry cg ON mc.id = cg.measuring_category_id WHERE mc.project_id = %s", [instance.id])
             print("****************Congratulations the view is created***************")
             print(instance.owner.username, "workspace name")
-            create_geoserver_workspace(instance.owner.username , create_geoserver_workspace_)
+            exists = check_workspace_exists(instance.owner.username)
+            print(exists, "exists")
+            if not exists:
+               create_geoserver_workspace(instance.owner.username , create_geoserver_workspace_)
             # create_geoserver_layer_(instance.owner.username, view_name)
 
 
@@ -120,7 +141,7 @@ def measuring_category_post_save_for_creating_layer(sender, instance, created, *
             cursor.execute(
                 f"CREATE OR REPLACE VIEW {view_name} AS SELECT mc.*, cg.geom , cg.properties ,cg.measuring_category_id FROM public.app_measuringcategory mc JOIN public.app_categorygeometry cg ON mc.id = cg.measuring_category_id WHERE cg.measuring_category_id = %s", [instance.id])
             print("****************Congratulations the view is created***************")
-            create_geoserver_layer(instance.owner.username, view_name , publish_table_to_geoserver)
+            create_geoserver_layer(instance.project.owner.username, view_name , publish_table_to_geoserver)
 
 
 
