@@ -220,12 +220,11 @@ def export_pointcloud(self, input, **opts):
 
 
 # This is added by me Anup
-@app.task(bind=True)
-def create_geoserver_workspace(self, username, create_geoserver_workspace_):
+@app.task()
+def create_geoserver_workspace(username):
     try:
         logger.info("I am testing geoserver")
-        # create_geoserver_workspace_(username)
-        command = "curl -u username:password -X POST -H \"Content-Type: application/xml\" -d '<workspace><name>test</name></workspace>' http://localhost:8600/geoserver/rest/workspaces"
+        command = 'curl -u admin:geoserver -X POST -H "Content-Type: application/xml" -d \'<workspace><name>test</name></workspace>\' http://example.com/geoserver/rest/workspaces'
         subprocess.run(command, shell=True)
         return "Done"
     except Exception as e:
