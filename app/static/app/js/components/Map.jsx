@@ -167,6 +167,8 @@ class Map extends React.Component {
   };
 
   loadOverlayaMeasuring = (forceAddLayers = false) => {
+    const project_id = this.props.project_id
+    console.log(project_id, "project id")
     // Check if the name already exists in the state
     const grassIndex = this.state.overlays_measuring.findIndex(
       (layer) => layer[Symbol.for("meta")].name === "Grass"
@@ -345,21 +347,19 @@ class Map extends React.Component {
                 popup.innerHTML = `<div class="title">
                                     ${name}
                                 </div>
-                                <div class="popup-opacity-slider">Opacity: <input id="layerOpacity" type="range" value="${
-                                  layer.options.opacity
-                                }" min="0" max="1" step="0.01" /></div>
+                                <div class="popup-opacity-slider">Opacity: <input id="layerOpacity" type="range" value="${layer.options.opacity
+                  }" min="0" max="1" step="0.01" /></div>
                                 <div>Bounds: [${layer.options.bounds
-                                  .toBBoxString()
-                                  .split(",")
-                                  .join(", ")}]</div>
+                    .toBBoxString()
+                    .split(",")
+                    .join(", ")}]</div>
                                 <ul class="asset-links loading">
                                     <li><i class="fa fa-spin fa-sync fa-spin fa-fw"></i></li>
                                 </ul>
 
                                 <button
-                                    onclick="location.href='/3d/project/${
-                                      meta.task.project
-                                    }/task/${meta.task.id}/';"
+                                    onclick="location.href='/3d/project/${meta.task.project
+                  }/task/${meta.task.id}/';"
                                     type="button"
                                     class="switchModeButton btn btn-sm btn-secondary">
                                     <i class="fa fa-cube"></i> 3D
@@ -999,8 +999,8 @@ class Map extends React.Component {
             <div key={i}>{button}</div>
           ))}
           {this.props.shareButtons &&
-          !this.props.public &&
-          this.state.singleTask !== null ? (
+            !this.props.public &&
+            this.state.singleTask !== null ? (
             <ShareButton
               ref={(ref) => {
                 this.shareButton = ref;
