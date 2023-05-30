@@ -10,7 +10,7 @@ from worker.tasks import create_geoserver_workspace ,create_geoserver_layer
 from requests.auth import HTTPBasicAuth
 
 
-geoserver_url = 'http://188.132.174.46:8600/geoserver'
+geoserver_url = 'http://137.135.165.161:8600/geoserver'
 username = 'admin'
 password = 'geoserver'
 
