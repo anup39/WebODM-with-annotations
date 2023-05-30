@@ -14,7 +14,7 @@ geoserver_url = 'http://137.135.165.161:8600/geoserver'
 username = 'admin'
 password = 'geoserver'
 
-#testing the server from here for git hub
+
 
 def create_geoserver_workspace_(workspace_name):
     workspace_url = f"{geoserver_url}/rest/workspaces"
