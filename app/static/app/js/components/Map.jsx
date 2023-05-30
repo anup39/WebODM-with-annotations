@@ -142,7 +142,7 @@ class Map extends React.Component {
             });
             wmsLayer[Symbol.for("meta")] = {
               name: layerName.name_db,
-              icon: "fa fa-tree fa-fw",
+              // icon: "fa fa-tree fa-fw",
             };
             allLayers.push(wmsLayer);
 
