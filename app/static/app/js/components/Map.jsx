@@ -117,7 +117,7 @@ class Map extends React.Component {
       .get(`/api/projects/${project_id}`)
       .then((res) => {
         const project_name_final = res.data.name.replace(/ /g, "_").toLowerCase();
-        allLayersNames.push({ name_db: res.data.name, name_final: project_name_final });
+        allLayersNames.push({ name_db: "All", name_final: project_name_final });
 
         return axios.get(`/api/project-measuring-category/?project=${project_id}`).then((res) => {
           const data = res.data.results;
@@ -144,6 +144,29 @@ class Map extends React.Component {
               name: layerName.name_db,
               // icon: "fa fa-tree fa-fw",
             };
+            const capabilitiesUrl = wmsUrl + '?request=GetCapabilities';
+            fetch(capabilitiesUrl)
+              .then(function (response) {
+                return response.text();
+              })
+              .then(function (data) {
+                var parser = new DOMParser();
+                var xmlDoc = parser.parseFromString(data, 'text/xml');
+                var layer = xmlDoc.querySelector('Layer[queryable="1"][name="' + wmsLayer_ + '"]');
+                var extent = layer.querySelector('EX_GeographicBoundingBox');
+                var minx = parseFloat(extent.querySelector('westBoundLongitude').textContent);
+                var miny = parseFloat(extent.querySelector('southBoundLatitude').textContent);
+                var maxx = parseFloat(extent.querySelector('eastBoundLongitude').textContent);
+                var maxy = parseFloat(extent.querySelector('northBoundLatitude').textContent);
+
+                // Set the map's view to the extent of the layer
+                var bounds = L.latLngBounds([[miny, minx], [maxy, maxx]]);
+                wmsLayer.extent = bounds
+              })
+              .catch(function (error) {
+                console.error('Error fetching GetCapabilities: ', error);
+              });
+
             allLayers.push(wmsLayer);
 
             if (forceAddLayers) {
