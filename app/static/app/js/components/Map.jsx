@@ -35,6 +35,7 @@ import { _ } from "../classes/gettext";
 import "leaflet-draw/dist/leaflet.draw.css";
 import "leaflet-draw";
 import mapPopupGenerator from "./MapPopupGenerator";
+import axios from "axios"
 
 const geojson1 = {
   type: "Feature",
@@ -169,6 +170,11 @@ class Map extends React.Component {
   loadOverlayaMeasuring = (forceAddLayers = false) => {
     const project_id = this.props.project_id
     console.log(project_id, "project id")
+    axios.get(`/api/projects/${project_id}`).then((res) => {
+      console.log(res.data, "project data");
+    }).catch((err) => {
+      console.log(err, "error");
+    });
     // Check if the name already exists in the state
     const grassIndex = this.state.overlays_measuring.findIndex(
       (layer) => layer[Symbol.for("meta")].name === "Grass"
