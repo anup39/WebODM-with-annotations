@@ -64,7 +64,7 @@ export default class LayersControlLayerMeasuring extends React.Component {
             <i className={meta.icon || "fa fa-vector-square fa-fw"}></i>
           </div>
         )}
-        <Checkbox bind={[this, "visible"]} />
+        <Checkbox layer={this.props.layer} map={this.map} bind={[this, "visible"]} />
         <a
           title={meta.name}
           className="layer-label"
