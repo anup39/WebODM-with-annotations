@@ -169,7 +169,6 @@ class Map extends React.Component {
 
   loadOverlayaMeasuring = (forceAddLayers = false) => {
     const project_id = this.props.project_id
-    this.setState({ showLoading: true });
     axios.get(`/api/projects/${project_id}`).then((res) => {
       const project_name_final = res.data.name.replace(/ /g, "_").toLowerCase();
       console.log(project_name_final, "project name final")
@@ -177,7 +176,7 @@ class Map extends React.Component {
         const data = res.data.results
         data.map((category) => {
           const category_name = category.name.replace(/ /g, "_").toLowerCase()
-          const category_name_final = project_name_final + category_name
+          const category_name_final = project_name_final + "_" + category_name
           console.log(category_name_final, "category name final")
         })
       })
