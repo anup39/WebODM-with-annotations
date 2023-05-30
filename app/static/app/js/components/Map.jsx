@@ -169,15 +169,49 @@ class Map extends React.Component {
 
   loadOverlayaMeasuring = (forceAddLayers = false) => {
     const project_id = this.props.project_id
+    const allLayersNames = []
     axios.get(`/api/projects/${project_id}`).then((res) => {
       const project_name_final = res.data.name.replace(/ /g, "_").toLowerCase();
-      console.log(project_name_final, "project name final")
+      allLayersNames.push(project_name_final);
       axios.get(`/api/project-measuring-category/?project=${project_id}`).then((res) => {
         const data = res.data.results
         data.map((category) => {
           const category_name = category.name.replace(/ /g, "_").toLowerCase()
           const category_name_final = project_name_final + "_" + category_name
-          console.log(category_name_final, "category name final")
+          allLayersNames.push(category_name_final)
+          console.log(allLayersNames, "all layers name")
+          // Create new GeoJSON layers
+          const geojsonLayer_grass = L.geoJSON(geojson_grass_api);
+          geojsonLayer_grass[Symbol.for("meta")] = {
+            name: "Grass",
+            icon: "fa fa-tree fa-fw",
+          };
+
+          const geojsonLayer_lake = L.geoJSON(geojson_lake_api);
+          geojsonLayer_lake[Symbol.for("meta")] = {
+            name: "Lake",
+            icon: "fa fa-home fa-fw",
+          };
+          // Define your GeoServer WMS layer URL and parameters
+          var wmsUrl = 'http://137.135.165.161:8600/geoserver/super_admin/wms';
+          var wmsLayers = 'super_admin:second_project_garden';
+          var wmsParams = {
+            layers: wmsLayers,
+            format: 'image/png',
+            transparent: true
+          };
+
+          // Add the WMS layer to the map
+          var wmsLayer = L.tileLayer.wms(wmsUrl, wmsParams)
+          this.setState(
+            update(this.state, {
+              overlays_measuring: {
+                $push: [geojsonLayer_grass, geojsonLayer_lake],
+              },
+            })
+          );
+
+
         })
       })
 
@@ -185,56 +219,31 @@ class Map extends React.Component {
       console.log(err, "error");
 
     });
-    // Check if the name already exists in the state
-    const grassIndex = this.state.overlays_measuring.findIndex(
-      (layer) => layer[Symbol.for("meta")].name === "Grass"
-    );
-    const lakeIndex = this.state.overlays_measuring.findIndex(
-      (layer) => layer[Symbol.for("meta")].name === "Lake"
-    );
 
-    // Create new GeoJSON layers
-    const geojsonLayer_grass = L.geoJSON(geojson_grass_api);
-    geojsonLayer_grass[Symbol.for("meta")] = {
-      name: "Grass",
-      icon: "fa fa-tree fa-fw",
-    };
 
-    const geojsonLayer_lake = L.geoJSON(geojson_lake_api);
-    geojsonLayer_lake[Symbol.for("meta")] = {
-      name: "Lake",
-      icon: "fa fa-home fa-fw",
-    };
 
-    // Remove existing layers from the map
-    if (grassIndex !== -1) {
-      const existingGrassLayer = this.state.overlays_measuring[grassIndex];
-      existingGrassLayer.removeFrom(this.map);
-    }
-    if (lakeIndex !== -1) {
-      const existingLakeLayer = this.state.overlays_measuring[lakeIndex];
-      existingLakeLayer.removeFrom(this.map);
-    }
+    // // Check if the name already exists in the state
+    // const grassIndex = this.state.overlays_measuring.findIndex(
+    //   (layer) => layer[Symbol.for("meta")].name === "Grass"
+    // );
+    // const lakeIndex = this.state.overlays_measuring.findIndex(
+    //   (layer) => layer[Symbol.for("meta")].name === "Lake"
+    // );
+
+
+
+    // // Remove existing layers from the map
+    // if (grassIndex !== -1) {
+    //   const existingGrassLayer = this.state.overlays_measuring[grassIndex];
+    //   existingGrassLayer.removeFrom(this.map);
+    // }
+    // if (lakeIndex !== -1) {
+    //   const existingLakeLayer = this.state.overlays_measuring[lakeIndex];
+    //   existingLakeLayer.removeFrom(this.map);
+    // }
 
     // Update the state based on the name existence
-    if (grassIndex !== -1 && lakeIndex !== -1) {
-      this.setState(
-        update(this.state, {
-          overlays_measuring: {
-            [grassIndex]: { $set: geojsonLayer_grass },
-            [lakeIndex]: { $set: geojsonLayer_lake },
-          },
-        })
-      );
-    } else {
-      this.setState(
-        update(this.state, {
-          overlays_measuring: {
-            $push: [geojsonLayer_grass, geojsonLayer_lake],
-          },
-        })
-      );
-    }
+
   };
 
   loadImageryLayers(forceAddLayers = false) {
