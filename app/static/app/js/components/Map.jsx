@@ -269,14 +269,14 @@ class Map extends React.Component {
       .get(`/api/projects/${project_id}`)
       .then((res) => {
         const project_name_final = res.data.name.replace(/ /g, "_").toLowerCase();
-        allLayersNames.push(project_name_final);
+        allLayersNames.push({ name_db: res.data.name, name_final: project_name_final });
 
         return axios.get(`/api/project-measuring-category/?project=${project_id}`).then((res) => {
           const data = res.data.results;
           data.forEach((category) => {
             const category_name = category.name.replace(/ /g, "_").toLowerCase();
             const category_name_final = project_name_final + "_" + category_name;
-            allLayersNames.push(category_name_final);
+            allLayersNames.push({ name_db: category.name, name_final: category_name_final });
           });
 
           const wmsUrl = "http://137.135.165.161:8600/geoserver/super_admin/wms";
@@ -286,13 +286,13 @@ class Map extends React.Component {
           };
 
           allLayersNames.forEach((layerName) => {
-            const wmsLayer_ = layerName;
+            const wmsLayer_ = layerName.name_final;
             const wmsLayer = Leaflet.tileLayer.wms(wmsUrl, {
               ...wmsParams,
               layers: wmsLayer_,
             });
             wmsLayer[Symbol.for("meta")] = {
-              name: layerName,
+              name: layerName.name_db,
               icon: "fa fa-tree fa-fw",
             };
             allLayers.push(wmsLayer);
