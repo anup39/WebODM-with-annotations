@@ -68,6 +68,7 @@ class Map extends React.Component {
       overlays: [],
       drawMode: false,
       overlays_measuring: [],
+      categories_measuring: [],
     };
 
     this.basemaps = {};
@@ -117,7 +118,7 @@ class Map extends React.Component {
       .get(`/api/projects/${project_id}`)
       .then((res) => {
         const project_name_final = res.data.name.replace(/ /g, "_").toLowerCase();
-        allLayersNames.push({ name_db: res.data.name, name_final: project_name_final });
+        allLayersNames.push({ name_db: "All", name_final: project_name_final });
 
         return axios.get(`/api/project-measuring-category/?project=${project_id}`).then((res) => {
           const data = res.data.results;
@@ -144,14 +145,14 @@ class Map extends React.Component {
               name: layerName.name_db,
               // icon: "fa fa-tree fa-fw",
             };
+
+
             allLayers.push(wmsLayer);
 
-            if (forceAddLayers) {
-              this.map.addLayer(wmsLayer);
-            }
+
           });
 
-          this.setState({ overlays_measuring: allLayers });
+          this.setState({ overlays_measuring: allLayers, categories_measuring: allLayersNames });
         });
       })
       .catch((err) => {
