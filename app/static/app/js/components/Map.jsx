@@ -168,97 +168,150 @@ class Map extends React.Component {
     return "";
   };
 
+  // loadOverlayaMeasuring = (forceAddLayers = false) => {
+  //   const project_id = this.props.project_id
+  //   const allLayersNames = []
+  //   const allLayers = []
+  //   axios.get(`/api/projects/${project_id}`).then((res) => {
+  //     const project_name_final = res.data.name.replace(/ /g, "_").toLowerCase();
+  //     allLayersNames.push(project_name_final);
+  //     axios.get(`/api/project-measuring-category/?project=${project_id}`).then((res) => {
+  //       const data = res.data.results
+  //       data.map((category) => {
+  //         const category_name = category.name.replace(/ /g, "_").toLowerCase()
+  //         const category_name_final = project_name_final + "_" + category_name
+  //         allLayersNames.push(category_name_final)
+  //         console.log(allLayersNames, "all layers name")
+
+  //         allLayersNames.map((layerName) => {
+  //           console.log(category.name, "category name")
+  //           // Define your GeoServer WMS layer URL and parameters
+  //           const wmsUrl = 'http://137.135.165.161:8600/geoserver/super_admin/wms';
+  //           const wmsLayer_ = `${layerName}`;
+
+  //           const wmsParams = {
+  //             layers: wmsLayer_,
+  //             format: 'image/png',
+  //             transparent: true
+  //           };
+
+  //           // Add the WMS layer to the map
+  //           const wmsLayer = Leaflet.tileLayer.wms(wmsUrl, wmsParams)
+  //           wmsLayer[Symbol.for("meta")] = {
+  //             name: category.name,
+  //             icon: "fa fa-tree fa-fw",
+  //           };
+  //           allLayers.push(wmsLayer)
+  //           this.setState(
+  //             // update(this.state, {
+  //             overlays_measuring: {
+  //             $push: allLayers,
+  //           },
+  //             // })
+  //           );
+
+  //         })
+  //         // // Create new GeoJSON layers
+  //         // const geojsonLayer_grass = L.geoJSON(geojson_grass_api);
+  //         // geojsonLayer_grass[Symbol.for("meta")] = {
+  //         //   name: "Grass",
+  //         //   icon: "fa fa-tree fa-fw",
+  //         // };
+
+  //         // const geojsonLayer_lake = L.geoJSON(geojson_lake_api);
+  //         // geojsonLayer_lake[Symbol.for("meta")] = {
+  //         //   name: "Lake",
+  //         //   icon: "fa fa-home fa-fw",
+  //         // };
+
+
+
+  //       })
+  //     })
+
+  //   }).catch((err) => {
+  //     console.log(err, "error");
+
+  //   });
+
+
+
+  //   // // Check if the name already exists in the state
+  //   // const grassIndex = this.state.overlays_measuring.findIndex(
+  //   //   (layer) => layer[Symbol.for("meta")].name === "Grass"
+  //   // );
+  //   // const lakeIndex = this.state.overlays_measuring.findIndex(
+  //   //   (layer) => layer[Symbol.for("meta")].name === "Lake"
+  //   // );
+
+
+
+  //   // // Remove existing layers from the map
+  //   // if (grassIndex !== -1) {
+  //   //   const existingGrassLayer = this.state.overlays_measuring[grassIndex];
+  //   //   existingGrassLayer.removeFrom(this.map);
+  //   // }
+  //   // if (lakeIndex !== -1) {
+  //   //   const existingLakeLayer = this.state.overlays_measuring[lakeIndex];
+  //   //   existingLakeLayer.removeFrom(this.map);
+  //   // }
+
+  //   // Update the state based on the name existence
+
+  // };
+
   loadOverlayaMeasuring = (forceAddLayers = false) => {
-    const project_id = this.props.project_id
-    const allLayersNames = []
-    const allLayers = []
-    axios.get(`/api/projects/${project_id}`).then((res) => {
-      const project_name_final = res.data.name.replace(/ /g, "_").toLowerCase();
-      allLayersNames.push(project_name_final);
-      axios.get(`/api/project-measuring-category/?project=${project_id}`).then((res) => {
-        const data = res.data.results
-        data.map((category) => {
-          const category_name = category.name.replace(/ /g, "_").toLowerCase()
-          const category_name_final = project_name_final + "_" + category_name
-          allLayersNames.push(category_name_final)
-          console.log(allLayersNames, "all layers name")
+    const project_id = this.props.project_id;
+    const allLayersNames = [];
+    const allLayers = [];
 
-          allLayersNames.map((layerName) => {
-            console.log(category.name, "category name")
-            // Define your GeoServer WMS layer URL and parameters
-            const wmsUrl = 'http://137.135.165.161:8600/geoserver/super_admin/wms';
-            const wmsLayer_ = `${layerName}`;
+    axios
+      .get(`/api/projects/${project_id}`)
+      .then((res) => {
+        const project_name_final = res.data.name.replace(/ /g, "_").toLowerCase();
+        allLayersNames.push(project_name_final);
 
-            const wmsParams = {
+        return axios.get(`/api/project-measuring-category/?project=${project_id}`).then((res) => {
+          const data = res.data.results;
+          data.forEach((category) => {
+            const category_name = category.name.replace(/ /g, "_").toLowerCase();
+            const category_name_final = project_name_final + "_" + category_name;
+            allLayersNames.push(category_name_final);
+          });
+
+          const wmsUrl = "http://137.135.165.161:8600/geoserver/super_admin/wms";
+          const wmsParams = {
+            format: "image/png",
+            transparent: true,
+          };
+
+          allLayersNames.forEach((layerName) => {
+            const wmsLayer_ = layerName;
+            const wmsLayer = Leaflet.tileLayer.wms(wmsUrl, {
+              ...wmsParams,
               layers: wmsLayer_,
-              format: 'image/png',
-              transparent: true
-            };
-
-            // Add the WMS layer to the map
-            const wmsLayer = Leaflet.tileLayer.wms(wmsUrl, wmsParams)
+            });
             wmsLayer[Symbol.for("meta")] = {
-              name: category.name,
+              name: layerName,
               icon: "fa fa-tree fa-fw",
             };
-            allLayers.push(wmsLayer)
-            this.setState(
-              update(this.state, {
-                overlays_measuring: {
-                  $push: allLayers,
-                },
-              })
-            );
+            allLayers.push(wmsLayer);
 
-          })
-          // // Create new GeoJSON layers
-          // const geojsonLayer_grass = L.geoJSON(geojson_grass_api);
-          // geojsonLayer_grass[Symbol.for("meta")] = {
-          //   name: "Grass",
-          //   icon: "fa fa-tree fa-fw",
-          // };
+            if (forceAddLayers) {
+              this.map.addLayer(wmsLayer);
+            }
+          });
 
-          // const geojsonLayer_lake = L.geoJSON(geojson_lake_api);
-          // geojsonLayer_lake[Symbol.for("meta")] = {
-          //   name: "Lake",
-          //   icon: "fa fa-home fa-fw",
-          // };
-
-
-
-        })
+          this.setState({ overlays_measuring: allLayers });
+        });
       })
-
-    }).catch((err) => {
-      console.log(err, "error");
-
-    });
-
-
-
-    // // Check if the name already exists in the state
-    // const grassIndex = this.state.overlays_measuring.findIndex(
-    //   (layer) => layer[Symbol.for("meta")].name === "Grass"
-    // );
-    // const lakeIndex = this.state.overlays_measuring.findIndex(
-    //   (layer) => layer[Symbol.for("meta")].name === "Lake"
-    // );
-
-
-
-    // // Remove existing layers from the map
-    // if (grassIndex !== -1) {
-    //   const existingGrassLayer = this.state.overlays_measuring[grassIndex];
-    //   existingGrassLayer.removeFrom(this.map);
-    // }
-    // if (lakeIndex !== -1) {
-    //   const existingLakeLayer = this.state.overlays_measuring[lakeIndex];
-    //   existingLakeLayer.removeFrom(this.map);
-    // }
-
-    // Update the state based on the name existence
-
+      .catch((err) => {
+        console.log(err, "error");
+      });
   };
+
+
+
 
   loadImageryLayers(forceAddLayers = false) {
     // Cancel previous requests
