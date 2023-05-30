@@ -1,6 +1,8 @@
 import React from "react";
 import PropTypes from "prop-types";
 import "../css/Toggle.scss";
+import Leaflet from "leaflet"
+
 
 class Toggle extends React.Component {
   static defaultProps = {};
@@ -18,6 +20,17 @@ class Toggle extends React.Component {
   }
 
   handleClick = () => {
+
+    console.log("it is clicked")
+    console.log(this.props.map, 'this')
+    // Define the bounding box coordinates
+    const southWest = L.latLng(40.7128, -74.0060); // Example: New York City
+    const northEast = L.latLng(40.7740, -73.9657); // Example: New York City
+    const bounds = L.latLngBounds(southWest, northEast);
+
+    // Zoom the map to the specified extent
+    this.props.map.fitBounds(bounds);
+
     const [parent, prop] = this.props.bind;
     parent.setState({ [prop]: !parent.state[prop] });
   };
