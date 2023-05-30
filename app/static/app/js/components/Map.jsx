@@ -169,11 +169,22 @@ class Map extends React.Component {
 
   loadOverlayaMeasuring = (forceAddLayers = false) => {
     const project_id = this.props.project_id
-    console.log(project_id, "project id")
+    this.setState({ showLoading: true });
     axios.get(`/api/projects/${project_id}`).then((res) => {
-      console.log(res.data, "project data");
+      const project_name_final = res.data.name.replace(/ /g, "_").toLowerCase();
+      console.log(project_name_final, "project name final")
+      axios.get(`/api/project-measuring-category/?project=${project_id}`).then((res) => {
+        const data = res.data.results
+        data.map((category) => {
+          const category_name = category.name.replace(/ /g, "_").toLowerCase()
+          const category_name_final = project_name_final + category_name
+          console.log(category_name_final, "category name final")
+        })
+      })
+
     }).catch((err) => {
       console.log(err, "error");
+
     });
     // Check if the name already exists in the state
     const grassIndex = this.state.overlays_measuring.findIndex(
