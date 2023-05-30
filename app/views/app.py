@@ -75,6 +75,7 @@ def map(request, project_pk=None, task_pk=None):
     return render(request, 'app/map.html', {
         'title': title,
         'params': {
+            'user':project.id,
             'project_id': project.id,
             'map-items': json.dumps(mapItems),
             'title': title,
