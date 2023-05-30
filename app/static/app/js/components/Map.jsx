@@ -37,6 +37,7 @@ import "leaflet-draw";
 import mapPopupGenerator from "./MapPopupGenerator";
 import axios from "axios"
 
+
 const geojson1 = {
   type: "Feature",
   properties: {},
@@ -185,9 +186,9 @@ class Map extends React.Component {
           allLayersNames.map((layerName) => {
             // Define your GeoServer WMS layer URL and parameters
             const wmsUrl = 'http://137.135.165.161:8600/geoserver/super_admin/wms';
-            const wmsLayer = `${layerName}`;
+            const wmsLayer_ = `${layerName}`;
             const wmsParams = {
-              layers: wmsLayer,
+              layers: wmsLayer_,
               format: 'image/png',
               transparent: true
             };
@@ -195,6 +196,14 @@ class Map extends React.Component {
             // Add the WMS layer to the map
             const wmsLayer = Leaflet.tileLayer.wms(wmsUrl, wmsParams)
             allLayers.push(wmsLayer)
+            this.setState(
+              update(this.state, {
+                overlays_measuring: {
+                  $push: allLayers,
+                },
+              })
+            );
+
           })
           // // Create new GeoJSON layers
           // const geojsonLayer_grass = L.geoJSON(geojson_grass_api);
@@ -209,13 +218,6 @@ class Map extends React.Component {
           //   icon: "fa fa-home fa-fw",
           // };
 
-          this.setState(
-            update(this.state, {
-              overlays_measuring: {
-                $push: allLayers,
-              },
-            })
-          );
 
 
         })
