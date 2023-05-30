@@ -184,9 +184,11 @@ class Map extends React.Component {
           console.log(allLayersNames, "all layers name")
 
           allLayersNames.map((layerName) => {
+            console.log(category.name, "category name")
             // Define your GeoServer WMS layer URL and parameters
             const wmsUrl = 'http://137.135.165.161:8600/geoserver/super_admin/wms';
             const wmsLayer_ = `${layerName}`;
+
             const wmsParams = {
               layers: wmsLayer_,
               format: 'image/png',
@@ -195,6 +197,10 @@ class Map extends React.Component {
 
             // Add the WMS layer to the map
             const wmsLayer = Leaflet.tileLayer.wms(wmsUrl, wmsParams)
+            wmsLayer[Symbol.for("meta")] = {
+              name: category.name,
+              icon: "fa fa-tree fa-fw",
+            };
             allLayers.push(wmsLayer)
             this.setState(
               update(this.state, {
