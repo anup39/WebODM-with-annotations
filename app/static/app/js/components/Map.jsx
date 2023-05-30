@@ -37,7 +37,7 @@ import "leaflet-draw";
 import mapPopupGenerator from "./MapPopupGenerator";
 import axios from "axios"
 
-
+const geoserver_url = "http://137.135.165.161:8600/geoserver"
 
 class Map extends React.Component {
   static defaultProps = {
@@ -110,7 +110,6 @@ class Map extends React.Component {
   loadOverlayaMeasuring = (forceAddLayers = false) => {
     const project_id = this.props.project_id;
     const user = this.props.user;
-    console.log(user, "user")
     const allLayersNames = [];
     const allLayers = [];
 
@@ -129,7 +128,7 @@ class Map extends React.Component {
           });
 
           // Here make the env for the geoserver url
-          const wmsUrl = "http://137.135.165.161:8600/geoserver/super_admin/wms";
+          const wmsUrl = `${geoserver_url}/${user}/wms`;
           const wmsParams = {
             format: "image/png",
             transparent: true,
