@@ -170,6 +170,7 @@ class Map extends React.Component {
   loadOverlayaMeasuring = (forceAddLayers = false) => {
     const project_id = this.props.project_id
     const allLayersNames = []
+    const allLayers = []
     axios.get(`/api/projects/${project_id}`).then((res) => {
       const project_name_final = res.data.name.replace(/ /g, "_").toLowerCase();
       allLayersNames.push(project_name_final);
@@ -180,33 +181,38 @@ class Map extends React.Component {
           const category_name_final = project_name_final + "_" + category_name
           allLayersNames.push(category_name_final)
           console.log(allLayersNames, "all layers name")
-          // Create new GeoJSON layers
-          const geojsonLayer_grass = L.geoJSON(geojson_grass_api);
-          geojsonLayer_grass[Symbol.for("meta")] = {
-            name: "Grass",
-            icon: "fa fa-tree fa-fw",
-          };
 
-          const geojsonLayer_lake = L.geoJSON(geojson_lake_api);
-          geojsonLayer_lake[Symbol.for("meta")] = {
-            name: "Lake",
-            icon: "fa fa-home fa-fw",
-          };
-          // Define your GeoServer WMS layer URL and parameters
-          var wmsUrl = 'http://137.135.165.161:8600/geoserver/super_admin/wms';
-          var wmsLayers = 'super_admin:second_project_garden';
-          var wmsParams = {
-            layers: wmsLayers,
-            format: 'image/png',
-            transparent: true
-          };
+          allLayersNames.map((layerName) => {
+            // Define your GeoServer WMS layer URL and parameters
+            const wmsUrl = 'http://137.135.165.161:8600/geoserver/super_admin/wms';
+            const wmsLayer = `${layerName}`;
+            const wmsParams = {
+              layers: wmsLayer,
+              format: 'image/png',
+              transparent: true
+            };
 
-          // Add the WMS layer to the map
-          var wmsLayer = L.tileLayer.wms(wmsUrl, wmsParams)
+            // Add the WMS layer to the map
+            const wmsLayer = Leaflet.tileLayer.wms(wmsUrl, wmsParams)
+            allLayers.push(wmsLayer)
+          })
+          // // Create new GeoJSON layers
+          // const geojsonLayer_grass = L.geoJSON(geojson_grass_api);
+          // geojsonLayer_grass[Symbol.for("meta")] = {
+          //   name: "Grass",
+          //   icon: "fa fa-tree fa-fw",
+          // };
+
+          // const geojsonLayer_lake = L.geoJSON(geojson_lake_api);
+          // geojsonLayer_lake[Symbol.for("meta")] = {
+          //   name: "Lake",
+          //   icon: "fa fa-home fa-fw",
+          // };
+
           this.setState(
             update(this.state, {
               overlays_measuring: {
-                $push: [geojsonLayer_grass, geojsonLayer_lake],
+                $push: allLayers,
               },
             })
           );
