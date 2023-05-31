@@ -895,21 +895,22 @@ class Map extends React.Component {
       onAdd: function () {
         this.container = Leaflet.DomUtil.create(
           "div",
-          "leaflet-control-add-overlay leaflet-bar leaflet-control"
+          "leaflet-control-add-overlay leaflet-bar leaflet-control "
         );
         Leaflet.DomEvent.disableClickPropagation(this.container);
         const btn = Leaflet.DomUtil.create(
           "a",
           "leaflet-control-add-overlay-button"
+
         );
         btn.setAttribute(
           "title",
-          _("Add a temporary GeoJSON (.json) or ShapeFile (.zip) overlay")
+          _("Export from here")
         );
 
         btn.onclick = function () {
           // Open another div or perform any desired action
-          const otherDiv = document.getElementById("other-div");
+          const otherDiv = document.getElementById("export-container");
           otherDiv.style.display = "block"; // Show the other div
         };
 
@@ -1035,7 +1036,7 @@ class Map extends React.Component {
           />
         </div>
         {/* Added by me  */}
-        <div id="export-container" style={{ position: "absolute", top: "50%", left: "50%", transform: "translate(-50%, -50%)", zIndex: "9999", backgroundColor: "#fff", boxShadow: "0 2px 4px rgba(0, 0, 0, 0.2)", padding: "10px" }}>
+        <div id="export-container" style={{ display: "none", position: "absolute", top: "50%", left: "50%", transform: "translate(-50%, -50%)", zIndex: "9999", backgroundColor: "#fff", boxShadow: "0 2px 4px rgba(0, 0, 0, 0.2)", padding: "10px" }}>
           <h3>Export</h3>
           <p>You can export from here</p>
           <button onClick={this.handleSubmitExport} >Export</button>
