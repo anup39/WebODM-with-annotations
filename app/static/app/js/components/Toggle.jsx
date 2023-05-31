@@ -28,7 +28,7 @@ class Toggle extends React.Component {
     const bounds = L.latLngBounds(southWest, northEast);
 
     // Zoom the map to the specified extent
-    this.props.map.fitBounds(bounds);
+    // this.props.map.fitBounds(bounds);
 
     const [parent, prop] = this.props.bind;
     parent.setState({ [prop]: !parent.state[prop] });

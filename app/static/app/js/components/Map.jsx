@@ -55,6 +55,11 @@ function convertCoordinatesToWKT(coordinates) {
   return wkt;
 }
 
+function getCookie(name) {
+  const cookieValue = document.cookie.match('(^|;)\\s*' + name + '\\s*=\\s*([^;]+)');
+  return cookieValue ? cookieValue.pop() : '';
+}
+
 class Map extends React.Component {
   static defaultProps = {
     showBackground: false,
@@ -813,10 +818,15 @@ class Map extends React.Component {
 
           this.setState({ showLoading: true });
 
-          axios.post('/api/category-geometry', {
+          axios.post('/api/category-geometry/', {
             geom: wkt_,
             measuring_category: categoryId
-          }).then((res) => {
+          }, {
+            headers: {
+              'X-CSRFToken': getCookie('csrftoken') // Replace 'csrftoken' with the actual name of your CSRF token cookie
+            }
+          }
+          ).then((res) => {
             this.setState({ showLoading: false });
             this.setState({ drawMode: false });
             layer.closePopup();
