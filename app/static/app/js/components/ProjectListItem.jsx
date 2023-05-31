@@ -47,6 +47,11 @@ class ProjectListItem extends React.Component {
       filterTags: [],
       selectedTags: [],
       filterText: "",
+      // Added by me Anup
+      showWMS: false,
+      wmsLink: '',
+      showWFS: false,
+      wfsLink: '',
     };
 
     this.sortItems = [
@@ -621,16 +626,44 @@ class ProjectListItem extends React.Component {
     }
   };
 
+
+  // Added by me Anup
   handleAddCategory = () => {
-    console.log(this.state.data, "data")
     location.href = `/admin/app/measuringcategory/`;
   };
+
+  // Added by me Anup
+
+  handleShowWMS = () => {
+    // Generate the WMS link based on your requirements
+    const wmsLink = 'https://example.com/wms'; // Replace with your actual WMS link
+
+    // Update the state to show the WMS input field
+    this.setState({
+      showWMS: true,
+      wmsLink: wmsLink,
+    });
+  };
+  // Added by me Anup
+
+  handleCopyWMSLink = () => {
+    // Copy the WMS link to the clipboard
+    const { wmsLink } = this.state;
+    const input = document.createElement('input');
+    input.setAttribute('value', wmsLink);
+    document.body.appendChild(input);
+    input.select();
+    document.execCommand('copy');
+    document.body.removeChild(input);
+  };
+
 
   render() {
     const { refreshing, data, filterTags } = this.state;
     const numTasks = data.tasks.length;
     const canEdit = this.hasPermission("change");
     const userTags = Tags.userTags(data.tags);
+    const { showWMS, wmsLink } = this.state;
     let deleteWarning = _(
       "All tasks, images and models associated with this project will be permanently deleted. Are you sure you want to continue?"
     );
@@ -656,18 +689,8 @@ class ProjectListItem extends React.Component {
           Add Category
         </button>
 
-        <button
-          style={{ backgroundColor: "#2c3d4f", color: "white" }}
-        // onClick={this.handleShowWMS}
-        >
-          WMS
-        </button>
-        <button
-          style={{ backgroundColor: "#2c3d4f", color: "white" }}
-        // onClick={this.handleShowWFS}
-        >
-          WFS
-        </button>
+
+
 
         {canEdit ? (
           <EditProjectDialog
@@ -958,6 +981,34 @@ class ProjectListItem extends React.Component {
             ""
           )}
         </div>
+
+
+
+
+        {/* Added by me Anup
+           */}
+        <div>
+          <button
+            style={{ backgroundColor: '#2c3d4f', color: 'white' }}
+            onClick={this.handleShowWMS}
+          >
+            Get WMS
+          </button>
+
+          {showWMS && (
+            <div>
+              <input type="text" value={wmsLink} readOnly />
+              <button onClick={this.handleCopyWMSLink}>Copy</button>
+            </div>
+          )}
+        </div>
+        <button
+          style={{ backgroundColor: "#2c3d4f", color: "white" }}
+        // onClick={this.handleShowWFS}
+        >
+          Get WFS
+        </button>
+
       </li>
     );
   }
