@@ -982,7 +982,6 @@ class Map extends React.Component {
     if (this.shareButton) this.shareButton.hidePopup();
   }
   handleCloseExport() {
-    console.log("Close is clicked")
     // Anup change this to ref or state 
     const otherDiv = document.getElementById("export-container");
     otherDiv.style.display = "none"; // Show the other div
