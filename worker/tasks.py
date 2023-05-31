@@ -26,9 +26,6 @@ from app.pointcloud_utils import export_pointcloud as export_pointcloud_sync
 import redis
 
 
-
-
-
 logger = get_task_logger("app.logger")
 redis_client = redis.Redis.from_url(settings.CELERY_BROKER_URL)
 

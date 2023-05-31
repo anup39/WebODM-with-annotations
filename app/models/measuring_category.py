@@ -19,7 +19,6 @@ username = 'admin'
 password = 'geoserver'
 
 
-#Testing again
 
 def create_geoserver_workspace_(workspace_name):
     workspace_url = f"{geoserver_url}/rest/workspaces"
@@ -75,27 +74,6 @@ def publish_table_to_geoserver(workspace_name, table_name):
     else:
         print(f"Failed to publish table '{table_name}'. Error: {response.text}")
 
-# def publish_table_to_geoserver(workspace_name, table_name):
-#     # Set the table URL with the correct data store name
-#     table_url = f"{geoserver_url}/rest/workspaces/{workspace_name}/datastores/database/featuretypes"
-
-#     # Create the XML payload to publish the table
-#     data = f'<featureType><name>{table_name}</name>' \
-#            f'<nativeName>{table_name}</nativeName>' \
-#            f'<title>{table_name}</title>' \
-#            f'</featureType>'
-#     headers = {'Content-Type': 'text/xml'}
-#     auth = HTTPBasicAuth(username, password)
-
-#     # Send the request to publish the table
-#     response = requests.post(table_url, data=data, headers=headers, auth=auth)
-
-#     if response.status_code == 201:
-#         print(f"Table '{table_name}' published successfully!")
-#     else:
-#         print(f"Failed to publish table '{table_name}'. Error: {response.text}")
-
-
 
 
 class MeasuringCategory(models.Model):
@@ -143,7 +121,6 @@ class CategoryStyle(models.Model):
 
 
 # Added by me Anup
-
 @receiver(signals.post_save, sender=Project, dispatch_uid="project_post_save_creating_layer")
 def project_post_save_for_creating_layer(sender, instance, created, **kwargs):
     """
@@ -177,9 +154,9 @@ def project_post_save_project_for_mc(sender, instance, created, **kwargs):
             name="Grass", project=instance, description="Measures grass")
         MeasuringCategory.objects.create(
             name="Garden", project=instance, description="Measure Garden")
+
+
 # Added by me Anup
-
-
 @receiver(signals.post_save, sender=MeasuringCategory, dispatch_uid="measuring_category_post_save_creating_layer")
 def measuring_category_post_save_for_creating_layer(sender, instance, created, **kwargs):
     """
@@ -199,9 +176,9 @@ def measuring_category_post_save_for_creating_layer(sender, instance, created, *
             category.view_name = view_name
             category.save()
 
+            category_style = CategoryStyle.objects.create(measuring_category=category)
+            category_style.save()
 
-            # create_geoserver_layer(instance.project.owner.username, view_name , publish_table_to_geoserver)
-            # publish_table_to_geoserver(instance.project.owner.username, view_name)
 
 
 
