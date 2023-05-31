@@ -796,12 +796,11 @@ class Map extends React.Component {
 
       editableLayers.addLayer(layer);
 
-      console.log(this.state.categories_measuring, "measuring categories")
-      // Assuming you have the categories array
-      const categories = [
-        { id: 1, category: "Grass" },
-        { id: 2, category: "Lake" },
-      ];
+      // // Assuming you have the categories array
+      // const categories = [
+      //   { id: 1, category: "Grass" },
+      //   { id: 2, category: "Lake" },
+      // ];
 
       // Function to handle form submission
       const saveSelectedCategory = (event) => {
@@ -812,10 +811,7 @@ class Map extends React.Component {
 
         if (selectedCategory) {
           const categoryId = selectedCategory.value;
-          console.log(categoryId, "categoryId")
           const wkt_ = convertCoordinatesToWKT(layer.getLatLngs())
-          console.log(wkt_, 'layer drawn')
-
           this.setState({ showLoading: true });
 
           axios.post('/api/category-geometry/', {
@@ -831,36 +827,13 @@ class Map extends React.Component {
             this.setState({ drawMode: false });
             layer.closePopup();
             editableLayers.clearLayers();
-            console.log("Success");
+
           }).catch((err) => {
             console.log(err);
           });
 
-          // Perform the save operation with the categoryId
-          // const drawn_geojson = layer.toGeoJSON();
-
-          // const geojsonLayer_grass_updated = L.geoJSON(geojson_grass_api);
-          // geojsonLayer_grass_updated[Symbol.for("meta")] = {
-          //   name: "Grass Updated",
-          //   icon: "fa fa-tree fa-fw",
-          // };
-
-          // this.setState(
-          //   update(this.state, {
-          //     overlays_measuring: {
-          //       $push: [...this.state.overlays_measuring],
-          //     },
-          //   })
-          // );
-
           this.loadOverlayaMeasuring();
 
-          // setTimeout(() => {
-          // this.setState({ showLoading: false });
-          // this.setState({ drawMode: false });
-          // layer.closePopup();
-          // editableLayers.clearLayers();
-          // }, 3000);
         } else {
           console.log("Please select a category to save");
         }
