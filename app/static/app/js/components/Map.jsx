@@ -811,10 +811,24 @@ class Map extends React.Component {
           const wkt_ = convertCoordinatesToWKT(layer.getLatLngs())
           console.log(wkt_, 'layer drawn')
 
-          // Perform the save operation with the categoryId
           this.setState({ showLoading: true });
-          const drawn_geojson = layer.toGeoJSON();
-          geojson_grass_api.features.push(drawn_geojson);
+
+          axios.post('/api/category-geometry', {
+            geom: wkt_,
+            measuring_category: categoryId
+          }).then((res) => {
+            this.setState({ showLoading: false });
+            this.setState({ drawMode: false });
+            layer.closePopup();
+            editableLayers.clearLayers();
+            console.log("Success");
+          }).catch((err) => {
+            console.log(err);
+          });
+
+          // Perform the save operation with the categoryId
+          // const drawn_geojson = layer.toGeoJSON();
+
           // const geojsonLayer_grass_updated = L.geoJSON(geojson_grass_api);
           // geojsonLayer_grass_updated[Symbol.for("meta")] = {
           //   name: "Grass Updated",
@@ -831,12 +845,12 @@ class Map extends React.Component {
 
           this.loadOverlayaMeasuring();
 
-          setTimeout(() => {
-            this.setState({ showLoading: false });
-            this.setState({ drawMode: false });
-            layer.closePopup();
-            editableLayers.clearLayers();
-          }, 3000);
+          // setTimeout(() => {
+          // this.setState({ showLoading: false });
+          // this.setState({ drawMode: false });
+          // layer.closePopup();
+          // editableLayers.clearLayers();
+          // }, 3000);
         } else {
           console.log("Please select a category to save");
         }
