@@ -791,6 +791,8 @@ class Map extends React.Component {
 
         if (selectedCategory) {
           const categoryId = selectedCategory.value;
+          console.log(categoryId, "categoryId")
+          console.log(layer.getLatLngs(), 'layer drawn')
           // Perform the save operation with the categoryId
           this.setState({ showLoading: true });
           const drawn_geojson = layer.toGeoJSON();
