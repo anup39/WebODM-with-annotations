@@ -635,8 +635,9 @@ class ProjectListItem extends React.Component {
   // Added by me Anup
 
   handleShowWMS = () => {
+    console.log(this.state.data, 'data')
     // Generate the WMS link based on your requirements
-    const wmsLink = 'https://example.com/wms'; // Replace with your actual WMS link
+    const wmsLink = 'http://137.135.165.161:8600/geoserver/wms'; // Replace with your actual WMS link
 
     // Update the state to show the WMS input field
     this.setState({
@@ -660,7 +661,7 @@ class ProjectListItem extends React.Component {
   // Added by me Anup
   handleShowWFS = () => {
     // Generate the WMS link based on your requirements
-    const wfsLink = 'https://example.com/wfs'; // Replace with your actual WMS link
+    const wfsLink = 'http://137.135.165.161:8600/geoserver/wfs'; // Replace with your actual WMS link
 
     // Update the state to show the WMS input field
     this.setState({
@@ -1013,37 +1014,39 @@ class ProjectListItem extends React.Component {
 
         {/* Added by me Anup
            */}
-        <div>
-          <button
-            style={{ backgroundColor: '#2c3d4f', color: 'white' }}
-            onClick={this.handleShowWMS}
-          >
-            Get WMS
-          </button>
+        <div style={{ display: "flex" }}>
+          <div>
+            <button
+              style={{ backgroundColor: '#2c3d4f', color: 'white' }}
+              onClick={this.handleShowWMS}
+            >
+              Get WMS
+            </button>
 
-          {showWMS && (
-            <div>
-              <input type="text" value={wmsLink} readOnly />
-              <button onClick={this.handleCopyWMSLink}>Copy</button>
-            </div>
-          )}
-        </div>
+            {showWMS && (
+              <div>
+                <input type="text" value={wmsLink} readOnly />
+                <button onClick={this.handleCopyWMSLink}>Copy</button>
+              </div>
+            )}
+          </div>
 
 
-        <div>
-          <button
-            style={{ backgroundColor: '#2c3d4f', color: 'white' }}
-            onClick={this.handleShowWFS}
-          >
-            Get WFS
-          </button>
+          <div>
+            <button
+              style={{ backgroundColor: '#2c3d4f', color: 'white' }}
+              onClick={this.handleShowWFS}
+            >
+              Get WFS
+            </button>
 
-          {showWFS && (
-            <div>
-              <input type="text" value={wfsLink} readOnly />
-              <button onClick={this.handleCopyWFSLink}>Copy</button>
-            </div>
-          )}
+            {showWFS && (
+              <div>
+                <input type="text" value={wfsLink} readOnly />
+                <button onClick={this.handleCopyWFSLink}>Copy</button>
+              </div>
+            )}
+          </div>
         </div>
 
 
