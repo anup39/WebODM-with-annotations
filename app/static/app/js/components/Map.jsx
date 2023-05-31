@@ -33,11 +33,33 @@ import { _ } from "../classes/gettext";
 
 // # ADDED BY ME
 import "leaflet-draw/dist/leaflet.draw.css";
+import "leaflet.browser.print/dist/leaflet.browser.print"
 import "leaflet-draw";
 import mapPopupGenerator from "./MapPopupGenerator";
 import axios from "axios"
 
 const geoserver_url = "http://137.135.165.161:8600/geoserver"
+
+function convertCoordinatesToWKT(coordinates) {
+  const srid = 3857;
+
+  const wktCoords = coordinates[0].map(coord => {
+    const x = coord.lng * 20037508.34 / 180;
+    const y = Math.log(Math.tan((90 + coord.lat) * Math.PI / 360)) / (Math.PI / 180);
+    const yConverted = y * 20037508.34 / 180;
+    return `${x} ${yConverted}`;
+  });
+
+  const polygon = `POLYGON ((${wktCoords.join(', ')}, ${wktCoords[0]}))`;
+  const wkt = `SRID=${srid};${polygon}`;
+
+  return wkt;
+}
+
+function getCookie(name) {
+  const cookieValue = document.cookie.match('(^|;)\\s*' + name + '\\s*=\\s*([^;]+)');
+  return cookieValue ? cookieValue.pop() : '';
+}
 
 class Map extends React.Component {
   static defaultProps = {
@@ -68,6 +90,7 @@ class Map extends React.Component {
       overlays: [],
       drawMode: false,
       overlays_measuring: [],
+      categories_measuring: [],
     };
 
     this.basemaps = {};
@@ -79,6 +102,9 @@ class Map extends React.Component {
     this.loadOverlayaMeasuring = this.loadOverlayaMeasuring.bind(this);
     this.updatePopupFor = this.updatePopupFor.bind(this);
     this.handleMapMouseDown = this.handleMapMouseDown.bind(this);
+    this.handleCloseExport = this.handleCloseExport.bind(this);
+    this.handleSubmitExport = this.handleSubmitExport.bind(this);
+
   }
 
   updateOpacity = (evt) => {
@@ -112,12 +138,13 @@ class Map extends React.Component {
     const user = this.props.user;
     const allLayersNames = [];
     const allLayers = [];
+    const allCategoryNames = []
 
     axios
       .get(`/api/projects/${project_id}`)
       .then((res) => {
         const project_name_final = res.data.name.replace(/ /g, "_").toLowerCase();
-        allLayersNames.push({ name_db: res.data.name, name_final: project_name_final });
+        allLayersNames.push({ name_db: "All", name_final: project_name_final });
 
         return axios.get(`/api/project-measuring-category/?project=${project_id}`).then((res) => {
           const data = res.data.results;
@@ -125,6 +152,7 @@ class Map extends React.Component {
             const category_name = category.name.replace(/ /g, "_").toLowerCase();
             const category_name_final = project_name_final + "_" + category_name;
             allLayersNames.push({ name_db: category.name, name_final: category_name_final });
+            allCategoryNames.push({ id: category.id, category: category.name })
           });
 
           // Here make the env for the geoserver url
@@ -144,14 +172,14 @@ class Map extends React.Component {
               name: layerName.name_db,
               // icon: "fa fa-tree fa-fw",
             };
+
+
             allLayers.push(wmsLayer);
 
-            if (forceAddLayers) {
-              this.map.addLayer(wmsLayer);
-            }
+
           });
 
-          this.setState({ overlays_measuring: allLayers });
+          this.setState({ overlays_measuring: allLayers, categories_measuring: allCategoryNames });
         });
       })
       .catch((err) => {
@@ -631,6 +659,9 @@ class Map extends React.Component {
     });
     new AddOverlayCtrl().addTo(this.map);
 
+
+    // Export map
+
     this.map.fitWorld();
     this.map.attributionControl.setPrefix("");
 
@@ -772,11 +803,11 @@ class Map extends React.Component {
 
       editableLayers.addLayer(layer);
 
-      // Assuming you have the categories array
-      const categories = [
-        { id: 1, category: "Grass" },
-        { id: 2, category: "Lake" },
-      ];
+      // // Assuming you have the categories array
+      // const categories = [
+      //   { id: 1, category: "Grass" },
+      //   { id: 2, category: "Lake" },
+      // ];
 
       // Function to handle form submission
       const saveSelectedCategory = (event) => {
@@ -787,32 +818,29 @@ class Map extends React.Component {
 
         if (selectedCategory) {
           const categoryId = selectedCategory.value;
-          // Perform the save operation with the categoryId
+          const wkt_ = convertCoordinatesToWKT(layer.getLatLngs())
           this.setState({ showLoading: true });
-          const drawn_geojson = layer.toGeoJSON();
-          geojson_grass_api.features.push(drawn_geojson);
-          // const geojsonLayer_grass_updated = L.geoJSON(geojson_grass_api);
-          // geojsonLayer_grass_updated[Symbol.for("meta")] = {
-          //   name: "Grass Updated",
-          //   icon: "fa fa-tree fa-fw",
-          // };
 
-          // this.setState(
-          //   update(this.state, {
-          //     overlays_measuring: {
-          //       $push: [...this.state.overlays_measuring],
-          //     },
-          //   })
-          // );
-
-          this.loadOverlayaMeasuring();
-
-          setTimeout(() => {
+          axios.post('/api/category-geometry/', {
+            geom: wkt_,
+            measuring_category: categoryId
+          }, {
+            headers: {
+              'X-CSRFToken': getCookie('csrftoken') // Replace 'csrftoken' with the actual name of your CSRF token cookie
+            }
+          }
+          ).then((res) => {
             this.setState({ showLoading: false });
             this.setState({ drawMode: false });
             layer.closePopup();
             editableLayers.clearLayers();
-          }, 3000);
+
+          }).catch((err) => {
+            console.log(err);
+          });
+
+          this.loadOverlayaMeasuring();
+
         } else {
           console.log("Please select a category to save");
         }
@@ -840,7 +868,7 @@ class Map extends React.Component {
       // layer.bindPopup(popupContent).openPopup();
       layer.bindPopup(
         mapPopupGenerator(
-          categories,
+          this.state.categories_measuring,
           deleteSelectedCategory,
           editSelectedCategory,
           saveSelectedCategory
@@ -856,6 +884,54 @@ class Map extends React.Component {
     this.map.on(Leaflet.Draw.Event.DRAWSTOP, (e) => {
       this.setState({ drawMode: false });
     });
+
+
+    // Export map Added by me Anup
+
+    // const AddOverlayCtrlExport = Leaflet.Control.extend({
+    //   options: {
+    //     position: "topleft",
+    //   },
+
+    //   onAdd: function () {
+    //     this.container = Leaflet.DomUtil.create(
+    //       "div",
+    //       "leaflet-control-add-overlay leaflet-bar leaflet-control "
+    //     );
+    //     Leaflet.DomEvent.disableClickPropagation(this.container);
+    //     const btn = Leaflet.DomUtil.create(
+    //       "a",
+    //       "leaflet-control-add-overlay-button"
+
+    //     );
+    //     btn.setAttribute(
+    //       "title",
+    //       _("Export from here")
+    //     );
+
+    //     btn.onclick = function () {
+    //       // Open another div or perform any desired action
+    //       const otherDiv = document.getElementById("export-container");
+    //       otherDiv.style.display = "block"; // Show the other div
+    //     };
+
+    //     this.container.append(btn);
+
+    //     return this.container;
+    //   },
+    // });
+
+    // Adding Export Button
+    // new AddOverlayCtrlExport().addTo(this.map);
+
+
+
+    // Plugin export 
+    const options = { position: 'topleft', title: 'Export Map', printModes: ["Custom"] }
+
+    Leaflet.control.browserPrint(options).addTo(this.map);
+
+
 
     // I have to investigate on this
     PluginsAPI.Map.triggerDidAddControls({
@@ -913,10 +989,36 @@ class Map extends React.Component {
     // Make sure the share popup closes
     if (this.shareButton) this.shareButton.hidePopup();
   }
+  handleCloseExport() {
+    // Anup change this to ref or state 
+    const otherDiv = document.getElementById("export-container");
+    otherDiv.style.display = "none"; // Show the other div
+  }
+
+  handleSubmitExport() {
+    console.log("Export  is clicked ")
+    const mapContainer = document.getElementById('map');
+
+    // Convert the map container to an image using html2canvas
+    html2canvas(mapContainer).then(canvas => {
+      const imgData = canvas.toDataURL('image/png');
+
+      // Generate PDF using html2pdf
+      const pdfOptions = {
+        margin: [0, 0, 0, 0],
+        filename: 'map.pdf',
+        image: { type: 'png', data: imgData },
+        jsPDF: { unit: 'px', format: 'letter', orientation: 'portrait' }
+      };
+
+      html2pdf().set(pdfOptions).from(mapContainer).save();
+    });
+
+  }
 
   render() {
     return (
-      <div style={{ height: "100%" }} className="map">
+      <div id="map" style={{ height: "100%" }} className="map">
         <ErrorMessage bind={[this, "error"]} />
         <div className="opacity-slider theme-secondary hidden-xs">
           {_("Opacity:")}{" "}
@@ -956,7 +1058,17 @@ class Map extends React.Component {
             public={this.props.public}
           />
         </div>
-      </div>
+        {/* Added by me  */}
+        <div id="export-container" style={{ display: "none", position: "absolute", top: "50%", left: "50%", transform: "translate(-50%, -50%)", zIndex: "9999", backgroundColor: "#fff", boxShadow: "0 2px 4px rgba(0, 0, 0, 0.2)", padding: "10px" }}>
+          <h3>Export</h3>
+          <p>You can export from here</p>
+          <button onClick={this.handleSubmitExport} >Export</button>
+          <button style={{ cursor: "pointer" }} onClick={this.handleCloseExport}>
+            Close
+          </button>
+        </div>
+
+      </div >
     );
   }
 }

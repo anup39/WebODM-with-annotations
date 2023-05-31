@@ -8,7 +8,10 @@ from django.db import connection
 import requests
 from worker.tasks import create_geoserver_workspace ,create_geoserver_layer
 from requests.auth import HTTPBasicAuth
+from worker.celery import app
+from celery.utils.log import get_task_logger
 
+logger = get_task_logger("app.logger")
 
 geoserver_url = 'http://137.135.165.161:8600/geoserver'
 username = 'admin'
@@ -52,12 +55,14 @@ def check_workspace_exists(workspace_name):
 
 
 def publish_table_to_geoserver(workspace_name, table_name):
+    print(workspace_name, table_name , "table name","workspace name")
  
     # Set the table URL with the correct data store name
     table_url = f"{geoserver_url}/rest/workspaces/{workspace_name}/datastores/database/featuretypes"
 
     # Create the XML payload to publish the table
     data = f'<featureType><name>{table_name}</name></featureType>'
+
     headers = {'Content-Type': 'text/xml'}
     auth = HTTPBasicAuth(username, password)
 
@@ -68,6 +73,26 @@ def publish_table_to_geoserver(workspace_name, table_name):
         print(f"Table '{table_name}' published successfully!")
     else:
         print(f"Failed to publish table '{table_name}'. Error: {response.text}")
+
+# def publish_table_to_geoserver(workspace_name, table_name):
+#     # Set the table URL with the correct data store name
+#     table_url = f"{geoserver_url}/rest/workspaces/{workspace_name}/datastores/database/featuretypes"
+
+#     # Create the XML payload to publish the table
+#     data = f'<featureType><name>{table_name}</name>' \
+#            f'<nativeName>{table_name}</nativeName>' \
+#            f'<title>{table_name}</title>' \
+#            f'</featureType>'
+#     headers = {'Content-Type': 'text/xml'}
+#     auth = HTTPBasicAuth(username, password)
+
+#     # Send the request to publish the table
+#     response = requests.post(table_url, data=data, headers=headers, auth=auth)
+
+#     if response.status_code == 201:
+#         print(f"Table '{table_name}' published successfully!")
+#     else:
+#         print(f"Failed to publish table '{table_name}'. Error: {response.text}")
 
 
 
@@ -81,6 +106,9 @@ class MeasuringCategory(models.Model):
         "Description about this category"), verbose_name=_("Description"))
     created_at = models.DateTimeField(default=timezone.now, help_text=_(
         "Creation date"), verbose_name=_("Created at"))
+    publised = models.BooleanField(default=False)
+    view_name = models.CharField(max_length=255, blank=True, null=True, unique=True)
+    
 
     def __str__(self):
         return self.project.name + " - " + self.name
@@ -90,17 +118,7 @@ class MeasuringCategory(models.Model):
         verbose_name_plural = _("MeasuringCategories")
 
 
-# Added by me Anup
-@receiver(signals.post_save, sender=Project, dispatch_uid="project_post_save_measuring_category")
-def project_post_save_project_for_mc(sender, instance, created, **kwargs):
-    """
-    It will create two category by default Grass and Garden
-    """
-    if created:
-        MeasuringCategory.objects.create(
-            name="Grass", project=instance, description="Measures grass")
-        MeasuringCategory.objects.create(
-            name="Garden", project=instance, description="Measure Garden")
+
 
 # Added by me Anup
 
@@ -125,6 +143,18 @@ def project_post_save_for_creating_layer(sender, instance, created, **kwargs):
             create_geoserver_layer(instance.owner.username, view_name , publish_table_to_geoserver)
 
 
+
+# Added by me Anup
+@receiver(signals.post_save, sender=Project, dispatch_uid="project_post_save_measuring_category")
+def project_post_save_project_for_mc(sender, instance, created, **kwargs):
+    """
+    It will create two category by default Grass and Garden
+    """
+    if created:
+        MeasuringCategory.objects.create(
+            name="Grass", project=instance, description="Measures grass")
+        MeasuringCategory.objects.create(
+            name="Garden", project=instance, description="Measure Garden")
 # Added by me Anup
 
 
@@ -142,7 +172,30 @@ def measuring_category_post_save_for_creating_layer(sender, instance, created, *
             cursor.execute(
                 f"CREATE OR REPLACE VIEW {view_name} AS SELECT mc.*, cg.geom , cg.properties ,cg.measuring_category_id FROM public.app_measuringcategory mc JOIN public.app_categorygeometry cg ON mc.id = cg.measuring_category_id WHERE cg.measuring_category_id = %s", [instance.id])
             print("****************Congratulations the view is created***************")
-            create_geoserver_layer(instance.project.owner.username, view_name , publish_table_to_geoserver)
+            instance.view_name = view_name
+            category = MeasuringCategory.objects.get(id=instance.id)
+            category.view_name = view_name
+            category.save()
+
+            # create_geoserver_layer(instance.project.owner.username, view_name , publish_table_to_geoserver)
+            # publish_table_to_geoserver(instance.project.owner.username, view_name)
 
 
 
+@app.task
+def publish_views_to_geoserver():
+    logger.info(f"****************Started Publishing************Published ") 
+
+    categories = MeasuringCategory.objects.filter(published=False)
+
+    for category in categories:
+        workspace_name = category.project.owner.username
+        table_name = category.view_name
+
+        # Call the publish_table_to_geoserver function
+        publish_table_to_geoserver(workspace_name, table_name)
+
+        logger.info(f"****************{table_name}************Published ") 
+
+        category.publised = True
+        category.save()

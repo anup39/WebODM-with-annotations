@@ -1,5 +1,6 @@
 from celery import Celery
 import os
+from celery.schedules import crontab
 
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'webodm.settings')
 
@@ -44,6 +45,13 @@ app.conf.beat_schedule = {
                 'retry': False
         }
     },
+    'publish_views_to_geoserver': {
+        'task': 'app.measuring_category.publish_views_to_geoserver',
+        'schedule': crontab(minute='*/1'),
+        'options': {
+                'expires': 2,
+                'retry': False
+        }}
 }
 
 # Mock class for handling async results during testing
