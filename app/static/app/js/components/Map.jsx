@@ -113,6 +113,7 @@ class Map extends React.Component {
     const user = this.props.user;
     const allLayersNames = [];
     const allLayers = [];
+    const allCategoryNames = []
 
     axios
       .get(`/api/projects/${project_id}`)
@@ -126,6 +127,7 @@ class Map extends React.Component {
             const category_name = category.name.replace(/ /g, "_").toLowerCase();
             const category_name_final = project_name_final + "_" + category_name;
             allLayersNames.push({ name_db: category.name, name_final: category_name_final });
+            allCategoryNames.push({ id: category.id, name: category.name })
           });
 
           // Here make the env for the geoserver url
@@ -152,7 +154,7 @@ class Map extends React.Component {
 
           });
 
-          this.setState({ overlays_measuring: allLayers, categories_measuring: allLayersNames });
+          this.setState({ overlays_measuring: allLayers, categories_measuring: allCategoryNames });
         });
       })
       .catch((err) => {
@@ -773,6 +775,7 @@ class Map extends React.Component {
 
       editableLayers.addLayer(layer);
 
+      console.log(this.state.categories_measuring, "measuring categories")
       // Assuming you have the categories array
       const categories = [
         { id: 1, category: "Grass" },
