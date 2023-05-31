@@ -6,7 +6,7 @@ from django.db.models import signals
 from django.dispatch import receiver
 from django.db import connection
 import requests
-from worker.tasks import create_geoserver_workspace ,create_geoserver_layer, create_geoserver_style
+from worker.tasks import create_geoserver_workspace ,create_geoserver_layer
 from requests.auth import HTTPBasicAuth
 
 
@@ -51,32 +51,23 @@ def check_workspace_exists(workspace_name):
         return False
 
 
-def create_style(workspace_name, style_name, sld_xml):
-    # Set the style URL with the correct workspace and style name
-    style_url = f"{geoserver_url}/rest/workspaces/{workspace_name}/styles"
+def publish_table_to_geoserver(workspace_name, table_name):
+ 
+    # Set the table URL with the correct data store name
+    table_url = f"{geoserver_url}/rest/workspaces/{workspace_name}/datastores/database/featuretypes"
 
-    # Create the XML payload to create the style
-    data = f'<style><name>{style_name}</name><filename>{style_name}.sld</filename></style>'
+    # Create the XML payload to publish the table
+    data = f'<featureType><name>{table_name}</name></featureType>'
     headers = {'Content-Type': 'text/xml'}
     auth = HTTPBasicAuth(username, password)
 
-    # Send the request to create the style
-    response = requests.post(style_url, data=data, headers=headers, auth=auth)
+    # Send the request to publish the table
+    response = requests.post(table_url, data=data, headers=headers, auth=auth)
 
     if response.status_code == 201:
-        print(f"Style '{style_name}' created successfully!")
-
-        # Upload the SLD content for the style
-        sld_url = f"{geoserver_url}/rest/workspaces/{workspace_name}/styles/{style_name}"
-        headers = {'Content-Type': 'application/vnd.ogc.sld+xml'}
-        response = requests.put(sld_url, data=sld_xml, headers=headers, auth=auth)
-
-        if response.status_code == 200:
-            print(f"SLD content uploaded for style '{style_name}'!")
-        else:
-            print(f"Failed to upload SLD content for style '{style_name}'. Error: {response.text}")
+        print(f"Table '{table_name}' published successfully!")
     else:
-        print(f"Failed to create style '{style_name}'. Error: {response.text}")
+        print(f"Failed to publish table '{table_name}'. Error: {response.text}")
 
 
 
@@ -137,49 +128,6 @@ def project_post_save_for_creating_layer(sender, instance, created, **kwargs):
 # Added by me Anup
 
 
-
-sld_xml = f"""<StyledLayerDescriptor version="1.0.0"
-    xsi:schemaLocation="http://www.opengis.net/sld StyledLayerDescriptor.xsd"
-    xmlns="http://www.opengis.net/sld"
-    xmlns:ogc="http://www.opengis.net/ogc"
-    xmlns:xlink="http://www.w3.org/1999/xlink"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-    <!-- a named layer is the basic building block of an sld document -->
-
-  <NamedLayer>
-    <Name>{"second_project_grass"}</Name>
-    <UserStyle>
-        <!-- they have names, titles and abstracts -->
-
-      <Title>Grey Polygon</Title>
-      <Abstract>A sample style that just prints out a grey interior with a black outline</Abstract>
-      <!-- FeatureTypeStyles describe how to render different features -->
-      <!-- a feature type for polygons -->
-
-      <FeatureTypeStyle>
-        <!--FeatureTypeName>Feature</FeatureTypeName-->
-        <Rule>
-          <Name>Rule 1</Name>
-          <Title>Grey Fill and Black Outline</Title>
-          <Abstract>Grey fill with a black outline 1 pixel in width</Abstract>
-
-          <!-- like a linesymbolizer but with a fill too -->
-          <PolygonSymbolizer>
-            <Fill>
-              <CssParameter name="fill">#AAAAAA</CssParameter>
-            </Fill>
-            <Stroke>
-              <CssParameter name="stroke">#000000</CssParameter>
-              <CssParameter name="stroke-width">5</CssParameter>
-            </Stroke>
-          </PolygonSymbolizer>
-        </Rule>
-
-        </FeatureTypeStyle>
-    </UserStyle>
-  </NamedLayer>
-</StyledLayerDescriptor>""" 
-
 @receiver(signals.post_save, sender=MeasuringCategory, dispatch_uid="measuring_category_post_save_creating_layer")
 def measuring_category_post_save_for_creating_layer(sender, instance, created, **kwargs):
     """
@@ -195,7 +143,5 @@ def measuring_category_post_save_for_creating_layer(sender, instance, created, *
                 f"CREATE OR REPLACE VIEW {view_name} AS SELECT mc.*, cg.geom , cg.properties ,cg.measuring_category_id FROM public.app_measuringcategory mc JOIN public.app_categorygeometry cg ON mc.id = cg.measuring_category_id WHERE cg.measuring_category_id = %s", [instance.id])
             print("****************Congratulations the view is created***************")
             create_geoserver_layer(instance.project.owner.username, view_name , publish_table_to_geoserver)
-            create_geoserver_style(instance.project.owner.username. view_name, sld_xml, create_style)
-
 
 
