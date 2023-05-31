@@ -622,6 +622,7 @@ class ProjectListItem extends React.Component {
   };
 
   handleAddCategory = () => {
+    console.log(this.state.data, "data")
     location.href = `/admin/app/measuringcategory/`;
   };
 
@@ -653,6 +654,19 @@ class ProjectListItem extends React.Component {
           onClick={this.handleAddCategory}
         >
           Add Category
+        </button>
+
+        <button
+          style={{ backgroundColor: "#2c3d4f", color: "white" }}
+        // onClick={this.handleShowWMS}
+        >
+          WMS
+        </button>
+        <button
+          style={{ backgroundColor: "#2c3d4f", color: "white" }}
+        // onClick={this.handleShowWFS}
+        >
+          WFS
         </button>
 
         {canEdit ? (
@@ -733,14 +747,14 @@ class ProjectListItem extends React.Component {
             {data.name}
             {userTags.length > 0
               ? userTags.map((t, i) => (
-                  <div
-                    key={i}
-                    className="tag-badge small-badge"
-                    onClick={this.handleTagClick(t)}
-                  >
-                    {t}
-                  </div>
-                ))
+                <div
+                  key={i}
+                  className="tag-badge small-badge"
+                  onClick={this.handleTagClick(t)}
+                >
+                  {t}
+                </div>
+              ))
               : ""}
           </div>
           <div className="project-description">{data.description}</div>
@@ -766,7 +780,7 @@ class ProjectListItem extends React.Component {
               <div className="task-filters">
                 <div className="btn-group">
                   {this.state.selectedTags.length ||
-                  this.state.filterText !== "" ? (
+                    this.state.filterText !== "" ? (
                     <a
                       className="quick-clear-filter"
                       href="javascript:void(0)"
@@ -856,29 +870,29 @@ class ProjectListItem extends React.Component {
 
             {numTasks > 0
               ? [
-                  <i key="edit-icon" className="fa fa-globe"></i>,
-                  <a
-                    key="edit-text"
-                    href="javascript:void(0);"
-                    onClick={this.viewMap}
-                  >
-                    {_("View Map")}
-                  </a>,
-                ]
+                <i key="edit-icon" className="fa fa-globe"></i>,
+                <a
+                  key="edit-text"
+                  href="javascript:void(0);"
+                  onClick={this.viewMap}
+                >
+                  {_("View Map")}
+                </a>,
+              ]
               : ""}
 
             {canEdit
               ? [
-                  <i key="edit-icon" className="far fa-edit"></i>,
-                  <a
-                    key="edit-text"
-                    href="javascript:void(0);"
-                    onClick={this.handleEditProject}
-                  >
-                    {" "}
-                    {_("Edit")}
-                  </a>,
-                ]
+                <i key="edit-icon" className="far fa-edit"></i>,
+                <a
+                  key="edit-text"
+                  href="javascript:void(0);"
+                  onClick={this.handleEditProject}
+                >
+                  {" "}
+                  {_("Edit")}
+                </a>,
+              ]
               : ""}
           </div>
         </div>
