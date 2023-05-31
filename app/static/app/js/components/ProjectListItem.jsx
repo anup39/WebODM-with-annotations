@@ -47,6 +47,11 @@ class ProjectListItem extends React.Component {
       filterTags: [],
       selectedTags: [],
       filterText: "",
+      // Added by me Anup
+      showWMS: false,
+      wmsLink: '',
+      showWFS: false,
+      wfsLink: '',
     };
 
     this.sortItems = [
@@ -621,15 +626,71 @@ class ProjectListItem extends React.Component {
     }
   };
 
+
+  // Added by me Anup
   handleAddCategory = () => {
     location.href = `/admin/app/measuringcategory/`;
   };
+
+  // Added by me Anup
+
+  handleShowWMS = () => {
+    // console.log(this.state.data, 'data')
+    // Generate the WMS link based on your requirements
+    const wmsLink = 'http://137.135.165.161:8600/geoserver/wms'; // Replace with your actual WMS link
+
+    // Update the state to show the WMS input field
+    this.setState({
+      showWMS: true,
+      wmsLink: wmsLink,
+    });
+  };
+  // Added by me Anup
+
+  handleCopyWMSLink = () => {
+    // Copy the WMS link to the clipboard
+    const { wmsLink } = this.state;
+    const input = document.createElement('input');
+    input.setAttribute('value', wmsLink);
+    document.body.appendChild(input);
+    input.select();
+    document.execCommand('copy');
+    document.body.removeChild(input);
+  };
+
+  // Added by me Anup
+  handleShowWFS = () => {
+    // Generate the WMS link based on your requirements
+    const wfsLink = 'http://137.135.165.161:8600/geoserver/wfs'; // Replace with your actual WMS link
+
+    // Update the state to show the WMS input field
+    this.setState({
+      showWFS: true,
+      wfsLink: wfsLink,
+    });
+  };
+  // Added by me Anup
+
+  handleCopyWFSLink = () => {
+    // Copy the WMS link to the clipboard
+    const { wfsLink } = this.state;
+    const input = document.createElement('input');
+    input.setAttribute('value', wfsLink);
+    document.body.appendChild(input);
+    input.select();
+    document.execCommand('copy');
+    document.body.removeChild(input);
+  };
+
 
   render() {
     const { refreshing, data, filterTags } = this.state;
     const numTasks = data.tasks.length;
     const canEdit = this.hasPermission("change");
     const userTags = Tags.userTags(data.tags);
+    const { showWMS, wmsLink } = this.state;
+    const { showWFS, wfsLink } = this.state;
+
     let deleteWarning = _(
       "All tasks, images and models associated with this project will be permanently deleted. Are you sure you want to continue?"
     );
@@ -654,6 +715,9 @@ class ProjectListItem extends React.Component {
         >
           Add Category
         </button>
+
+
+
 
         {canEdit ? (
           <EditProjectDialog
@@ -733,14 +797,14 @@ class ProjectListItem extends React.Component {
             {data.name}
             {userTags.length > 0
               ? userTags.map((t, i) => (
-                  <div
-                    key={i}
-                    className="tag-badge small-badge"
-                    onClick={this.handleTagClick(t)}
-                  >
-                    {t}
-                  </div>
-                ))
+                <div
+                  key={i}
+                  className="tag-badge small-badge"
+                  onClick={this.handleTagClick(t)}
+                >
+                  {t}
+                </div>
+              ))
               : ""}
           </div>
           <div className="project-description">{data.description}</div>
@@ -766,7 +830,7 @@ class ProjectListItem extends React.Component {
               <div className="task-filters">
                 <div className="btn-group">
                   {this.state.selectedTags.length ||
-                  this.state.filterText !== "" ? (
+                    this.state.filterText !== "" ? (
                     <a
                       className="quick-clear-filter"
                       href="javascript:void(0)"
@@ -856,29 +920,29 @@ class ProjectListItem extends React.Component {
 
             {numTasks > 0
               ? [
-                  <i key="edit-icon" className="fa fa-globe"></i>,
-                  <a
-                    key="edit-text"
-                    href="javascript:void(0);"
-                    onClick={this.viewMap}
-                  >
-                    {_("View Map")}
-                  </a>,
-                ]
+                <i key="edit-icon" className="fa fa-globe"></i>,
+                <a
+                  key="edit-text"
+                  href="javascript:void(0);"
+                  onClick={this.viewMap}
+                >
+                  {_("View Map")}
+                </a>,
+              ]
               : ""}
 
             {canEdit
               ? [
-                  <i key="edit-icon" className="far fa-edit"></i>,
-                  <a
-                    key="edit-text"
-                    href="javascript:void(0);"
-                    onClick={this.handleEditProject}
-                  >
-                    {" "}
-                    {_("Edit")}
-                  </a>,
-                ]
+                <i key="edit-icon" className="far fa-edit"></i>,
+                <a
+                  key="edit-text"
+                  href="javascript:void(0);"
+                  onClick={this.handleEditProject}
+                >
+                  {" "}
+                  {_("Edit")}
+                </a>,
+              ]
               : ""}
           </div>
         </div>
@@ -944,6 +1008,48 @@ class ProjectListItem extends React.Component {
             ""
           )}
         </div>
+
+
+
+
+        {/* Added by me Anup
+           */}
+        <div style={{ display: "flex" }}>
+          <div>
+            <button
+              style={{ backgroundColor: '#2c3d4f', color: 'white' }}
+              onClick={this.handleShowWMS}
+            >
+              Get WMS
+            </button>
+
+            {showWMS && (
+              <div>
+                <input type="text" value={wmsLink} readOnly />
+                <button onClick={this.handleCopyWMSLink}>Copy</button>
+              </div>
+            )}
+          </div>
+
+
+          <div>
+            <button
+              style={{ backgroundColor: '#2c3d4f', color: 'white' }}
+              onClick={this.handleShowWFS}
+            >
+              Get WFS
+            </button>
+
+            {showWFS && (
+              <div>
+                <input type="text" value={wfsLink} readOnly />
+                <button onClick={this.handleCopyWFSLink}>Copy</button>
+              </div>
+            )}
+          </div>
+        </div>
+
+
       </li>
     );
   }

@@ -6,6 +6,7 @@ from django.utils.translation import gettext_lazy as _
 from django.utils import timezone
 
 
+
 class CategoryGeometry(models.Model):
     measuring_category = models.ForeignKey(MeasuringCategory, on_delete=models.PROTECT, help_text=_(
         "Geometry related to this Category"), verbose_name=_("Measuring Category"))
@@ -20,3 +21,6 @@ class CategoryGeometry(models.Model):
     class Meta:
         verbose_name = _("CategoryGeometry")
         verbose_name_plural = _("CategoryGeometries")
+
+
+
