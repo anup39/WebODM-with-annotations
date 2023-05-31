@@ -46,7 +46,7 @@ app.conf.beat_schedule = {
         }
     },
     'publish-views-to-geoserver': {
-        'task': 'app.measuring_category.publish_views_to_geoserver',
+        'task': 'app.models.measuring_category.publish_views_to_geoserver',
         'schedule': crontab(minute='*/1'),
         'options': {
                 'expires': 2,

@@ -186,7 +186,7 @@ def measuring_category_post_save_for_creating_layer(sender, instance, created, *
 def publish_views_to_geoserver():
     logger.info(f"****************Started Publishing************Published ") 
 
-    categories = MeasuringCategory.objects.filter(published=False)
+    categories = MeasuringCategory.objects.filter(publised=False)
 
     for category in categories:
         workspace_name = category.project.owner.username
