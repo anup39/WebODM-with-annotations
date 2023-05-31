@@ -989,6 +989,22 @@ class Map extends React.Component {
 
   handleSubmitExport() {
     console.log("Export  is clicked ")
+    const mapContainer = document.getElementById('map');
+
+    // Convert the map container to an image using html2canvas
+    html2canvas(mapContainer).then(canvas => {
+      const imgData = canvas.toDataURL('image/png');
+
+      // Generate PDF using html2pdf
+      const pdfOptions = {
+        margin: [0, 0, 0, 0],
+        filename: 'map.pdf',
+        image: { type: 'png', data: imgData },
+        jsPDF: { unit: 'px', format: 'letter', orientation: 'portrait' }
+      };
+
+      html2pdf().set(pdfOptions).from(mapContainer).save();
+    });
 
   }
 
