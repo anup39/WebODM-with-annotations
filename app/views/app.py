@@ -48,7 +48,8 @@ def dashboard(request):
 
     return render(request, 'app/dashboard.html', {'title': _('Dashboard'),
                                                   'no_processingnodes': no_processingnodes,
-                                                  'no_tasks': no_tasks
+                                                  'no_tasks': no_tasks,
+                                                  
                                                   })
 
 

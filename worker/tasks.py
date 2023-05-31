@@ -241,3 +241,15 @@ def create_geoserver_layer(username, table_name ,  publish_table_to_geoserver):
     except Exception as e:
         logger.error(str(e))
         return {'error': str(e)}
+
+
+# This is added by me Anup
+@app.task()
+def create_geoserver_style(username, table_name , sld_xml, create_style):
+    try:
+        logger.info("I am testing geoserver for creating style") 
+        create_style(username,table_name,sld_xml)
+        return "Done"
+    except Exception as e:
+        logger.error(str(e))
+        return {'error': str(e)}
