@@ -39,6 +39,22 @@ import axios from "axios"
 
 const geoserver_url = "http://137.135.165.161:8600/geoserver"
 
+function convertCoordinatesToWKT(coordinates) {
+  const srid = 3857;
+
+  const wktCoords = coordinates[0].map(coord => {
+    const x = coord.lng * 20037508.34 / 180;
+    const y = Math.log(Math.tan((90 + coord.lat) * Math.PI / 360)) / (Math.PI / 180);
+    const yConverted = y * 20037508.34 / 180;
+    return `${x} ${yConverted}`;
+  });
+
+  const polygon = `POLYGON ((${wktCoords.join(', ')}, ${wktCoords[0]}))`;
+  const wkt = `SRID=${srid};${polygon}`;
+
+  return wkt;
+}
+
 class Map extends React.Component {
   static defaultProps = {
     showBackground: false,
@@ -792,7 +808,9 @@ class Map extends React.Component {
         if (selectedCategory) {
           const categoryId = selectedCategory.value;
           console.log(categoryId, "categoryId")
-          console.log(layer.getLatLngs(), 'layer drawn')
+          const wkt_ = convertCoordinatesToWKT(layer.getLatLngs())
+          console.log(wkt_, 'layer drawn')
+
           // Perform the save operation with the categoryId
           this.setState({ showLoading: true });
           const drawn_geojson = layer.toGeoJSON();
