@@ -7,7 +7,7 @@ from colorfield.fields import ColorField
 
 
 class CategoryStyle(models.Model):
-    measuring_category = models.ForeignKey(MeasuringCategory, on_delete=models.PROTECT, help_text=_(
+    measuring_category = models.OneToOneField(MeasuringCategory, on_delete=models.PROTECT, help_text=_(
         "Geometry related to this Category"), verbose_name=_("Measuring Category"))
     created_at = models.DateTimeField(default=timezone.now, help_text=_(
         "Creation date"), verbose_name=_("Created at"))
