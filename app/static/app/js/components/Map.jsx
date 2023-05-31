@@ -127,7 +127,7 @@ class Map extends React.Component {
             const category_name = category.name.replace(/ /g, "_").toLowerCase();
             const category_name_final = project_name_final + "_" + category_name;
             allLayersNames.push({ name_db: category.name, name_final: category_name_final });
-            allCategoryNames.push({ id: category.id, name: category.name })
+            allCategoryNames.push({ id: category.id, category: category.name })
           });
 
           // Here make the env for the geoserver url
@@ -844,7 +844,7 @@ class Map extends React.Component {
       // layer.bindPopup(popupContent).openPopup();
       layer.bindPopup(
         mapPopupGenerator(
-          categories,
+          this.state.categories_measuring,
           deleteSelectedCategory,
           editSelectedCategory,
           saveSelectedCategory
