@@ -13,10 +13,10 @@ class CategoryStyle(models.Model):
         "Creation date"), verbose_name=_("Created at"))
     fill = ColorField(default='#2c3e50', help_text=_(
         "Fill color for the polygon"), verbose_name=_("Fill Color"))
-    fill_opacity = models.DecimalField(decimal_places=1 , default=0.5 )
+    fill_opacity = models.DecimalField(decimal_places=2, max_digits=3, default=0.5)
     stroke = ColorField(default='#ffffff', help_text=_(
         "Stroke coloe for the polygon"), verbose_name=_("Stroke Color"))
-    stroke_width = models.PositiveBigIntegerField(default=1 )
+    stroke_width = models.PositiveIntegerField(default=1 )
     xml  = models.TextField(null=True, blank=True)
     
     
