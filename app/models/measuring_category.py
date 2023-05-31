@@ -10,6 +10,7 @@ from worker.tasks import create_geoserver_workspace ,create_geoserver_layer
 from requests.auth import HTTPBasicAuth
 from worker.celery import app
 from celery.utils.log import get_task_logger
+from colorfield.fields import ColorField
 
 logger = get_task_logger("app.logger")
 
@@ -119,6 +120,27 @@ class MeasuringCategory(models.Model):
 
 
 
+class CategoryStyle(models.Model):
+    measuring_category = models.OneToOneField(MeasuringCategory, on_delete=models.PROTECT, help_text=_(
+        "Geometry related to this Category"), verbose_name=_("Measuring Category"))
+    created_at = models.DateTimeField(default=timezone.now, help_text=_(
+        "Creation date"), verbose_name=_("Created at"))
+    fill = ColorField(default='#2c3e50', help_text=_(
+        "Fill color for the polygon"), verbose_name=_("Fill Color"))
+    fill_opacity = models.DecimalField(decimal_places=2, max_digits=3, default=0.5)
+    stroke = ColorField(default='#ffffff', help_text=_(
+        "Stroke coloe for the polygon"), verbose_name=_("Stroke Color"))
+    stroke_width = models.PositiveIntegerField(default=1 )
+    xml  = models.TextField(null=True, blank=True)
+    
+    
+    def __str__(self):
+        return self.measuring_category.project.name + " - " + self.measuring_category.name
+
+    class Meta:
+        verbose_name = _("CategoryStyle")
+        verbose_name_plural = _("CategoryStyles")
+
 
 # Added by me Anup
 
@@ -176,6 +198,7 @@ def measuring_category_post_save_for_creating_layer(sender, instance, created, *
             category = MeasuringCategory.objects.get(id=instance.id)
             category.view_name = view_name
             category.save()
+
 
             # create_geoserver_layer(instance.project.owner.username, view_name , publish_table_to_geoserver)
             # publish_table_to_geoserver(instance.project.owner.username, view_name)
