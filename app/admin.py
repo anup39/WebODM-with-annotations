@@ -23,9 +23,10 @@ from webodm import settings
 from django.core.files.uploadedfile import InMemoryUploadedFile
 from django.utils.translation import gettext_lazy as _, gettext
 from .models import MeasuringCategory, CategoryGeometry
-
+from .models.measuring_category import CategoryStyle
 
 admin.site.register(CategoryGeometry)
+admin.site.register(CategoryStyle)
 
 
 class MeasuringCategoryAdmin(admin.ModelAdmin):

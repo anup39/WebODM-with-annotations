@@ -8,6 +8,7 @@ from .plugin import Plugin
 from .measuring_category import MeasuringCategory
 from .category_geometry import CategoryGeometry
 
+
 # deprecated
 
 
