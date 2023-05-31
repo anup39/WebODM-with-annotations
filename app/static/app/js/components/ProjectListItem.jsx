@@ -635,7 +635,7 @@ class ProjectListItem extends React.Component {
   // Added by me Anup
 
   handleShowWMS = () => {
-    console.log(this.state.data, 'data')
+    // console.log(this.state.data, 'data')
     // Generate the WMS link based on your requirements
     const wmsLink = 'http://137.135.165.161:8600/geoserver/wms'; // Replace with your actual WMS link
 
