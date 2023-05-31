@@ -655,6 +655,9 @@ class Map extends React.Component {
     });
     new AddOverlayCtrl().addTo(this.map);
 
+
+    // Export map
+
     this.map.fitWorld();
     this.map.attributionControl.setPrefix("");
 
@@ -877,6 +880,71 @@ class Map extends React.Component {
     this.map.on(Leaflet.Draw.Event.DRAWSTOP, (e) => {
       this.setState({ drawMode: false });
     });
+
+
+    // Export map Added by me Anup
+
+    const addDnDZone = (container, opts) => {
+      const mapTempLayerDrop = new Dropzone(container, opts);
+      mapTempLayerDrop.on("addedfile", (file) => {
+        this.setState({ showLoading: true });
+        addTempLayer(file, (err, tempLayer, filename) => {
+          if (!err) {
+            tempLayer.addTo(this.map);
+            tempLayer[Symbol.for("meta")] = { name: filename };
+            this.setState(
+              update(this.state, {
+                overlays: { $push: [tempLayer] },
+              })
+            );
+            //zoom to all features
+            this.map.fitBounds(tempLayer.getBounds());
+          } else {
+            this.setState({ error: err.message || JSON.stringify(err) });
+          }
+
+          this.setState({ showLoading: false });
+        });
+      });
+      mapTempLayerDrop.on("error", (file) => {
+        mapTempLayerDrop.removeFile(file);
+      });
+    };
+
+
+    addDnDZone(this.container, { url: "/", clickable: false });
+
+    const AddOverlayCtrl = Leaflet.Control.extend({
+      options: {
+        position: "topleft",
+      },
+
+      onAdd: function () {
+        this.container = Leaflet.DomUtil.create(
+          "div",
+          "leaflet-control-add-overlay leaflet-bar leaflet-control"
+        );
+        Leaflet.DomEvent.disableClickPropagation(this.container);
+        const btn = Leaflet.DomUtil.create(
+          "a",
+          "leaflet-control-add-overlay-button"
+        );
+        btn.setAttribute(
+          "title",
+          _("Add a temporary GeoJSON (.json) or ShapeFile (.zip) overlay")
+        );
+
+        this.container.append(btn);
+        addDnDZone(btn, { url: "/", clickable: true });
+
+        return this.container;
+      },
+    });
+
+    // Adding Export Button
+    new AddOverlayCtrl().addTo(this.map);
+
+
 
     // I have to investigate on this
     PluginsAPI.Map.triggerDidAddControls({
