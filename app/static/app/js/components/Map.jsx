@@ -33,6 +33,7 @@ import { _ } from "../classes/gettext";
 
 // # ADDED BY ME
 import "leaflet-draw/dist/leaflet.draw.css";
+import "leaflet.browser.print/dist/leaflet.browser.print"
 import "leaflet-draw";
 import mapPopupGenerator from "./MapPopupGenerator";
 import axios from "axios"
@@ -887,41 +888,48 @@ class Map extends React.Component {
 
     // Export map Added by me Anup
 
-    const AddOverlayCtrlExport = Leaflet.Control.extend({
-      options: {
-        position: "topleft",
-      },
+    // const AddOverlayCtrlExport = Leaflet.Control.extend({
+    //   options: {
+    //     position: "topleft",
+    //   },
 
-      onAdd: function () {
-        this.container = Leaflet.DomUtil.create(
-          "div",
-          "leaflet-control-add-overlay leaflet-bar leaflet-control "
-        );
-        Leaflet.DomEvent.disableClickPropagation(this.container);
-        const btn = Leaflet.DomUtil.create(
-          "a",
-          "leaflet-control-add-overlay-button"
+    //   onAdd: function () {
+    //     this.container = Leaflet.DomUtil.create(
+    //       "div",
+    //       "leaflet-control-add-overlay leaflet-bar leaflet-control "
+    //     );
+    //     Leaflet.DomEvent.disableClickPropagation(this.container);
+    //     const btn = Leaflet.DomUtil.create(
+    //       "a",
+    //       "leaflet-control-add-overlay-button"
 
-        );
-        btn.setAttribute(
-          "title",
-          _("Export from here")
-        );
+    //     );
+    //     btn.setAttribute(
+    //       "title",
+    //       _("Export from here")
+    //     );
 
-        btn.onclick = function () {
-          // Open another div or perform any desired action
-          const otherDiv = document.getElementById("export-container");
-          otherDiv.style.display = "block"; // Show the other div
-        };
+    //     btn.onclick = function () {
+    //       // Open another div or perform any desired action
+    //       const otherDiv = document.getElementById("export-container");
+    //       otherDiv.style.display = "block"; // Show the other div
+    //     };
 
-        this.container.append(btn);
+    //     this.container.append(btn);
 
-        return this.container;
-      },
-    });
+    //     return this.container;
+    //   },
+    // });
 
     // Adding Export Button
-    new AddOverlayCtrlExport().addTo(this.map);
+    // new AddOverlayCtrlExport().addTo(this.map);
+
+
+
+    // Plugin export 
+    const options = { position: 'topleft', title: 'Export Map', printModes: ["Custom"] }
+
+    Leaflet.control.browserPrint(options).addTo(this.map);
 
 
 
@@ -1010,7 +1018,7 @@ class Map extends React.Component {
 
   render() {
     return (
-      <div style={{ height: "100%" }} className="map">
+      <div id="map" style={{ height: "100%" }} className="map">
         <ErrorMessage bind={[this, "error"]} />
         <div className="opacity-slider theme-secondary hidden-xs">
           {_("Opacity:")}{" "}
