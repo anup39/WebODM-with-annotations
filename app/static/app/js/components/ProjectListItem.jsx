@@ -657,6 +657,30 @@ class ProjectListItem extends React.Component {
     document.body.removeChild(input);
   };
 
+  // Added by me Anup
+  handleShowWFS = () => {
+    // Generate the WMS link based on your requirements
+    const wfsLink = 'https://example.com/wfs'; // Replace with your actual WMS link
+
+    // Update the state to show the WMS input field
+    this.setState({
+      showWFS: true,
+      wfsLink: wfsLink,
+    });
+  };
+  // Added by me Anup
+
+  handleCopyWFSLink = () => {
+    // Copy the WMS link to the clipboard
+    const { wfsLink } = this.state;
+    const input = document.createElement('input');
+    input.setAttribute('value', wfsLink);
+    document.body.appendChild(input);
+    input.select();
+    document.execCommand('copy');
+    document.body.removeChild(input);
+  };
+
 
   render() {
     const { refreshing, data, filterTags } = this.state;
@@ -664,6 +688,8 @@ class ProjectListItem extends React.Component {
     const canEdit = this.hasPermission("change");
     const userTags = Tags.userTags(data.tags);
     const { showWMS, wmsLink } = this.state;
+    const { showWFS, wfsLink } = this.state;
+
     let deleteWarning = _(
       "All tasks, images and models associated with this project will be permanently deleted. Are you sure you want to continue?"
     );
@@ -1002,12 +1028,24 @@ class ProjectListItem extends React.Component {
             </div>
           )}
         </div>
-        <button
-          style={{ backgroundColor: "#2c3d4f", color: "white" }}
-        // onClick={this.handleShowWFS}
-        >
-          Get WFS
-        </button>
+
+
+        <div>
+          <button
+            style={{ backgroundColor: '#2c3d4f', color: 'white' }}
+            onClick={this.handleShowWFS}
+          >
+            Get WFS
+          </button>
+
+          {showWFS && (
+            <div>
+              <input type="text" value={wfsLink} readOnly />
+              <button onClick={this.handleCopyWFSLink}>Copy</button>
+            </div>
+          )}
+        </div>
+
 
       </li>
     );
