@@ -321,6 +321,13 @@ def measuring_category_post_save_for_assiging_style(sender, instance, created, *
 
             if layer_response.status_code == 200 :
                 print(f"Style is assgined to Project layer {project_name}")
+                response_style_project = requests.get(style_url_project, auth=auth)  
+                if response_style_project.status_code == 200:
+                    sld_xml = response_style_project.content.decode("utf-8")
+                    print(sld_xml,"sld xml of the project ")
+                else:
+                    print("Failed to retrieve SLD:", response_style_project.status_code)    
+
             else:
                 print(f"Failed to assgin the style feor project {project_name}")
 
