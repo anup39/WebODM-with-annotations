@@ -348,3 +348,16 @@ def publish_views_to_geoserver():
 
         category.publised = True
         category.save()
+
+
+
+# Sql quries to delete all the view 
+
+# DO $$ 
+# DECLARE 
+#     view_name TEXT;
+# BEGIN 
+#     FOR view_name IN (SELECT table_name FROM information_schema.views WHERE table_schema = 'public' AND table_name NOT IN ('geography_columns', 'geometry_columns', 'raster_columns', 'raster_overviews')) LOOP
+#         EXECUTE 'DROP VIEW IF EXISTS public.' || quote_ident(view_name) || ' CASCADE;';
+#     END LOOP; 
+# END $$;
