@@ -272,6 +272,70 @@ def measuring_category_post_save_for_assiging_style(sender, instance, created, *
     It will create a view
     """
     print(f"{instance} Category Style is saved")
+    layer_url = f"{geoserver_url}/rest/workspaces/{'super_admin'}/layers/{instance.measuring_category.view_name}"
+    auth = HTTPBasicAuth(username, password)
+    response = requests.get(layer_url, auth=auth)
+    headers = {'Content-Type': 'text/xml'}
+    if response.status_code == 200:
+        layer_data = f'<layer> <defaultStyle><name>{instance.measuring_category.view_name}</name></defaultStyle></layer>'
+        layer_response = requests.put(layer_url, data=layer_data, headers=headers, auth=auth)
+        logger.info("Now assgining style complete")
+        if layer_response.status_code == 200:
+            print(f"Layer '{instance.measuring_category.view_name}' updated with the style '{instance.measuring_category.view_name}'!")
+        else:
+            print(f"Failed to update layer '{instance.measuring_category.view_name}' with the style '{instance.measuring_category.view_name}'. Error: {layer_response.text}")
+
+    style_url = f"{geoserver_url}/rest/workspaces/{'super_admin'}/styles/{instance.measuring_category.view_name}.sld"
+    response_style = requests.get(style_url, auth=auth)
+    if response_style.status_code == 200:
+        logger.info("There is the style ")
+        headers = {'Content-Type': 'application/vnd.ogc.sld+xml'}
+        sld_xml = f"""<StyledLayerDescriptor version="1.0.0"
+                xsi:schemaLocation="http://www.opengis.net/sld StyledLayerDescriptor.xsd"
+                xmlns="http://www.opengis.net/sld"
+                xmlns:ogc="http://www.opengis.net/ogc"
+                xmlns:xlink="http://www.w3.org/1999/xlink"
+                xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+                <!-- a named layer is the basic building block of an sld document -->
+                <NamedLayer>
+                    <Name>{instance.measuring_category.view_name}</Name>
+                    <UserStyle>
+                        <!-- they have names, titles and abstracts -->
+                        <Title>Grey Polygon</Title>
+                        <Abstract>A sample style that just prints out a grey interior with a black outline</Abstract>
+                        <!-- FeatureTypeStyles describe how to render different features -->
+                        <!-- a feature type for polygons -->
+                        <FeatureTypeStyle>
+                            <!--FeatureTypeName>Feature</FeatureTypeName-->
+                            <Rule>
+                                <Name>Rule 1</Name>
+                                <Title>Grey Fill and Black Outline</Title>
+                                <Abstract>Grey fill with a black outline 1 pixel in width</Abstract>
+                                <!-- like a linesymbolizer but with a fill too -->
+                                <PolygonSymbolizer>
+                                    <Fill>
+                                        <CssParameter name="fill">{instance.fill}</CssParameter>
+                                        <CssParameter name="fill-opacity">{instance.fill_opacity}</CssParameter>
+                                    </Fill>
+                                    <Stroke>
+                                        <CssParameter name="stroke">{instance.stroke}</CssParameter>
+                                        <CssParameter name="stroke-width">{instance.stroke_width}</CssParameter>
+                                    </Stroke>
+                                </PolygonSymbolizer>
+                            </Rule>
+                        </FeatureTypeStyle>
+                    </UserStyle>
+                </NamedLayer>
+            </StyledLayerDescriptor>"""
+
+
+        response = requests.put(style_url, data=sld_xml, headers=headers, auth=auth)
+
+        if response.status_code == 200:
+            print("*********Style is updated now****************")
+        else:
+            print(f"Failed to update SLD content for style '{instance.measuring_category.view_name}'. Error: {response.text}")
+        
 
 
 @app.task
