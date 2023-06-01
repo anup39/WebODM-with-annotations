@@ -196,6 +196,7 @@ class CategoryStyle(models.Model):
     xml  = models.TextField(null=True, blank=True)
     
     
+    
     def __str__(self):
         return self.measuring_category.project.name + " - " + self.measuring_category.name
 
@@ -264,9 +265,9 @@ def measuring_category_post_save_for_creating_layer(sender, instance, created, *
             category_style.save()
 
 
-# Added by me Anup
+# # Added by me Anup
 @receiver(signals.post_save, sender=CategoryStyle, dispatch_uid="category_style_post_save_assigning_style")
-def measuring_category_post_save_for_creating_layer(sender, instance, created, **kwargs):
+def measuring_category_post_save_for_assiging_style(sender, instance, created, **kwargs):
     """
     It will create a view
     """
