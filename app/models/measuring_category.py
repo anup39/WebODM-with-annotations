@@ -11,6 +11,90 @@ from requests.auth import HTTPBasicAuth
 from worker.celery import app
 from celery.utils.log import get_task_logger
 from colorfield.fields import ColorField
+import xml.etree.ElementTree as ET
+
+
+
+def modify_xml_for_project(sld_xml, measuring_category_id=3, fill_color = "#FF0000",fill_opacity = "0.5",stroke_color = "#000000",stroke_width = "2"):
+    # Parse the SLD XML
+    tree = ET.ElementTree(ET.fromstring(sld_xml))
+    root = tree.getroot()
+
+    # Find the FeatureTypeStyle element
+    feature_type_style = root.find(".//{http://www.opengis.net/sld}FeatureTypeStyle")
+
+    # Check if the measuring category is already included in the filter
+    filter_element = feature_type_style.find(".//{http://www.opengis.net/ogc}Filter")
+    if filter_element is not None:
+        property_is_not_equal = filter_element.find(".//{http://www.opengis.net/ogc}PropertyIsNotEqualTo")
+        if property_is_not_equal is not None:
+            property_name = property_is_not_equal.find(".//{http://www.opengis.net/ogc}PropertyName")
+            property_value = property_is_not_equal.find(".//{http://www.opengis.net/ogc}Literal")
+            if (
+                property_name is not None
+                and property_name.text == "measuring_category_id"
+                and property_value is not None
+                and property_value.text == str(measuring_category_id)
+            ):
+                # Measuring category already included in the filter, no action needed
+                pass
+            else:
+                # Measuring category not included in the filter, add it using OR operator
+                or_element = ET.Element("{http://www.opengis.net/ogc}Or")
+                property_is_not_equal_new = ET.SubElement(or_element, "{http://www.opengis.net/ogc}PropertyIsNotEqualTo")
+                property_name_new = ET.SubElement(property_is_not_equal_new, "{http://www.opengis.net/ogc}PropertyName")
+                property_name_new.text = "measuring_category_id"
+                property_value_new = ET.SubElement(property_is_not_equal_new, "{http://www.opengis.net/ogc}Literal")
+                property_value_new.text = str(measuring_category_id)
+                filter_element.append(or_element)
+        else:
+            # No PropertyIsNotEqualTo element found, add it
+            property_is_not_equal = ET.SubElement(filter_element, "{http://www.opengis.net/ogc}PropertyIsNotEqualTo")
+            property_name = ET.SubElement(property_is_not_equal, "{http://www.opengis.net/ogc}PropertyName")
+            property_name.text = "measuring_category_id"
+            property_value = ET.SubElement(property_is_not_equal, "{http://www.opengis.net/ogc}Literal")
+            property_value.text = str(measuring_category_id)
+    else:
+        # No Filter element found, add it with the PropertyIsNotEqualTo element
+        filter_element = ET.SubElement(feature_type_style, "{http://www.opengis.net/ogc}Filter")
+        property_is_not_equal = ET.SubElement(filter_element, "{http://www.opengis.net/ogc}PropertyIsNotEqualTo")
+        property_name = ET.SubElement(property_is_not_equal, "{http://www.opengis.net/ogc}PropertyName")
+        property_name.text = "measuring_category_id"
+        property_value = ET.SubElement(property_is_not_equal, "{http://www.opengis.net/ogc}Literal")
+        property_value.text = str(measuring_category_id)
+
+    # Add a new rule for the measuring category with the provided polygon style details
+    new_rule = ET.SubElement(feature_type_style, "{http://www.opengis.net/sld}Rule")
+
+    # Add the filter for the measuring category
+    filter_element = ET.SubElement(new_rule, "{http://www.opengis.net/ogc}Filter")
+    property_is_equal = ET.SubElement(filter_element, "{http://www.opengis.net/ogc}PropertyIsEqualTo")
+    property_name = ET.SubElement(property_is_equal, "{http://www.opengis.net/ogc}PropertyName")
+    property_name.text = "measuring_category_id"
+    property_value = ET.SubElement(property_is_equal, "{http://www.opengis.net/ogc}Literal")
+    property_value.text = str(measuring_category_id)
+
+    # Add the polygon symbolizer with the provided style details
+    polygon_symbolizer = ET.SubElement(new_rule, "{http://www.opengis.net/sld}PolygonSymbolizer")
+    fill_element = ET.SubElement(polygon_symbolizer, "{http://www.opengis.net/sld}Fill")
+    fill_color_element = ET.SubElement(fill_element, "{http://www.opengis.net/sld}CssParameter", name="fill")
+    fill_color_element.text = fill_color
+    fill_opacity_element = ET.SubElement(fill_element, "{http://www.opengis.net/sld}CssParameter", name="fill-opacity")
+    fill_opacity_element.text = fill_opacity
+
+    stroke_element = ET.SubElement(polygon_symbolizer, "{http://www.opengis.net/sld}Stroke")
+    stroke_color_element = ET.SubElement(stroke_element, "{http://www.opengis.net/sld}CssParameter", name="stroke")
+    stroke_color_element.text = stroke_color
+    stroke_width_element = ET.SubElement(stroke_element, "{http://www.opengis.net/sld}CssParameter", name="stroke-width")
+    stroke_width_element.text = stroke_width
+
+    # Convert the modified XML back to a string
+    modified_sld_xml = ET.tostring(root, encoding="unicode")
+
+    print(modified_sld_xml)
+    return modified_sld_xml
+
+
 
 logger = get_task_logger("app.logger")
 
@@ -247,8 +331,8 @@ def measuring_category_post_save_for_assiging_style(sender, instance, created, *
     It will create a view
     """
     print(f"{instance} Category Style is saved")
-    workpace = instance.measuring_category.project.owner.username
-    layer_url = f"{geoserver_url}/rest/workspaces/{workpace}/layers/{instance.measuring_category.view_name}"
+    workspace = instance.measuring_category.project.owner.username
+    layer_url = f"{geoserver_url}/rest/workspaces/{workspace}/layers/{instance.measuring_category.view_name}"
     auth = HTTPBasicAuth(username, password)
     response = requests.get(layer_url, auth=auth)
     headers = {'Content-Type': 'text/xml'}
@@ -261,7 +345,7 @@ def measuring_category_post_save_for_assiging_style(sender, instance, created, *
         else:
             print(f"Failed to update layer '{instance.measuring_category.view_name}' with the style '{instance.measuring_category.view_name}'. Error: {layer_response.text}")
 
-    style_url = f"{geoserver_url}/rest/workspaces/{workpace}/styles/{instance.measuring_category.view_name}.sld"
+    style_url = f"{geoserver_url}/rest/workspaces/{workspace}/styles/{instance.measuring_category.view_name}.sld"
     response_style = requests.get(style_url, auth=auth)
     if response_style.status_code == 200:
         logger.info("There is the style ")
@@ -309,12 +393,12 @@ def measuring_category_post_save_for_assiging_style(sender, instance, created, *
 
         # Similar things for project also 
         project_name = instance.measuring_category.project.name.replace(" ", "_").lower() 
-        style_url_project = f"{geoserver_url}/rest/workspaces/{workpace}/styles/{project_name}.sld"
+        style_url_project = f"{geoserver_url}/rest/workspaces/{workspace}/styles/{project_name}.sld"
         response_style_project = requests.get(style_url_project, auth=auth)
 
         if response_style_project.status_code == 200:
             print(f"Style exists for this project {project_name}")
-            layer_url = f"{geoserver_url}/rest/workspaces/{workpace}/layers/{project_name}"
+            layer_url = f"{geoserver_url}/rest/workspaces/{workspace}/layers/{project_name}"
             headers = {'Content-Type': 'text/xml'}
             layer_data_project = f'<layer> <defaultStyle><name>{project_name}</name></defaultStyle></layer>'
             layer_response = requests.put(layer_url, data=layer_data_project, headers=headers, auth=auth)
@@ -324,7 +408,13 @@ def measuring_category_post_save_for_assiging_style(sender, instance, created, *
                 response_style_project = requests.get(style_url_project, auth=auth)  
                 if response_style_project.status_code == 200:
                     sld_xml = response_style_project.content.decode("utf-8")
-                    print(sld_xml,"sld xml of the project ")
+                    # print(sld_xml,"sld xml of the project ")
+                    sld_xml_modified= modify_xml_for_project(sld_xml,measuring_category_id=instance.measuring_category.id,fill_color=instance.fill, fill_opacity= str(instance.fill_opacity), stroke_color=instance.stroke, stroke_width=str(instance.stroke_width))
+                    sld_url = f"{geoserver_url}/rest/workspaces/{workspace}/styles/{project_name}"
+                    headers = {'Content-Type': 'application/vnd.ogc.sld+xml'}
+                    response = requests.put(sld_url, data=sld_xml_modified, headers=headers, auth=auth)
+                    print("sucess all ")
+
                 else:
                     print("Failed to retrieve SLD:", response_style_project.status_code)    
 
