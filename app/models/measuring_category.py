@@ -133,26 +133,27 @@ def create_and_publish_style(workspace_name, table_name, fill, fill_opacity, str
         headers = {'Content-Type': 'application/vnd.ogc.sld+xml'}
         response = requests.put(sld_url, data=sld_xml, headers=headers, auth=auth)
 
-        if response.status_code == 200:
-            logger.info("Now assgining style")
-            print(f"SLD content uploaded for style '{style_name}'!")
-            logger.info(sld_xml,'sld xml')
+        # if response.status_code == 200:
+        #     logger.info("Now assgining style")
+        #     print(f"SLD content uploaded for style '{style_name}'!")
+        #     # logger.info(sld_xml,'sld xml')
 
-            # # Update the layer with the newly created style
-            layer_url = f"{geoserver_url}/rest/workspaces/{workspace_name}/layers/{table_name}"
+        #     # # Update the layer with the newly created style
+        #     layer_url = f"{geoserver_url}/rest/workspaces/{workspace_name}/layers/{table_name}"
+            
 
-            layer_data = f'<layer> <defaultStyle><name>{style_name}</name></defaultStyle></layer>'
-            logger.info(layer_data,'layer data')
+        #     layer_data = f'<layer> <defaultStyle><name>{style_name}</name></defaultStyle></layer>'
+        #     # logger.info(layer_data,'layer data')
 
-            layer_response = requests.put(layer_url, data=layer_data, headers=headers, auth=auth)
-            logger.info("Now assgining style complete")
+        #     layer_response = requests.put(layer_url, data=layer_data, headers=headers, auth=auth)
+        #     logger.info("Now assgining style complete")
 
-            if layer_response.status_code == 200:
-                print(f"Layer '{table_name}' updated with the style '{style_name}'!")
-            else:
-                print(f"Failed to update layer '{table_name}' with the style '{style_name}'. Error: {layer_response.text}")
-        else:
-            print(f"Failed to upload SLD content for style '{style_name}'. Error: {response.text}")
+        #     if layer_response.status_code == 200:
+        #         print(f"Layer '{table_name}' updated with the style '{style_name}'!")
+        #     else:
+        #         print(f"Failed to update layer '{table_name}' with the style '{style_name}'. Error: {layer_response.text}")
+        # else:
+            # print(f"Failed to upload SLD content for style '{style_name}'. Error: {response.text}")
     else:
         print(f"Failed to create style '{style_name}'. Error: {response.text}")
 
@@ -263,6 +264,13 @@ def measuring_category_post_save_for_creating_layer(sender, instance, created, *
             category_style.save()
 
 
+# Added by me Anup
+@receiver(signals.post_save, sender=CategoryStyle, dispatch_uid="category_style_post_save_assigning_style")
+def measuring_category_post_save_for_creating_layer(sender, instance, created, **kwargs):
+    """
+    It will create a view
+    """
+    print(f"{instance} Category Style is saved")
 
 
 @app.task
