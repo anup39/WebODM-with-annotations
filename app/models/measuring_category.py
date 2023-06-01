@@ -17,6 +17,7 @@ logger = get_task_logger("app.logger")
 geoserver_url = 'http://137.135.165.161:8600/geoserver'
 username = 'admin'
 password = 'geoserver'
+store = 'database'
 
 
 
@@ -54,29 +55,7 @@ def check_workspace_exists(workspace_name):
         return False
 
 
-def publish_table_to_geoserver(workspace_name, table_name ,create_and_publish_style, fill,fill_opacity,  stroke, stroke_width ):
-    print(workspace_name, table_name , "table name","workspace name")
- 
-    # Set the table URL with the correct data store name
-    table_url = f"{geoserver_url}/rest/workspaces/{workspace_name}/datastores/database/featuretypes"
 
-    # Create the XML payload to publish the table
-    data = f'<featureType><name>{table_name}</name></featureType>'
-
-    headers = {'Content-Type': 'text/xml'}
-    auth = HTTPBasicAuth(username, password)
-
-    # Send the request to publish the table
-    response = requests.post(table_url, data=data, headers=headers, auth=auth)
-
-
-    if response.status_code == 201:
-        print(f"Table '{table_name}' published successfully!")
-        create_and_publish_style(workspace_name, table_name, fill ,  fill_opacity, stroke, stroke_width )
-
-
-    else:
-        print(f"Failed to publish table '{table_name}'. Error: {response.text}")
 
 
 def create_and_publish_style(workspace_name, table_name, fill, fill_opacity, stroke, stroke_width):
@@ -132,33 +111,35 @@ def create_and_publish_style(workspace_name, table_name, fill, fill_opacity, str
         sld_url = f"{geoserver_url}/rest/workspaces/{workspace_name}/styles/{style_name}"
         headers = {'Content-Type': 'application/vnd.ogc.sld+xml'}
         response = requests.put(sld_url, data=sld_xml, headers=headers, auth=auth)
-
-        # if response.status_code == 200:
-        #     logger.info("Now assgining style")
-        #     print(f"SLD content uploaded for style '{style_name}'!")
-        #     # logger.info(sld_xml,'sld xml')
-
-        #     # # Update the layer with the newly created style
-        #     layer_url = f"{geoserver_url}/rest/workspaces/{workspace_name}/layers/{table_name}"
-            
-
-        #     layer_data = f'<layer> <defaultStyle><name>{style_name}</name></defaultStyle></layer>'
-        #     # logger.info(layer_data,'layer data')
-
-        #     layer_response = requests.put(layer_url, data=layer_data, headers=headers, auth=auth)
-        #     logger.info("Now assgining style complete")
-
-        #     if layer_response.status_code == 200:
-        #         print(f"Layer '{table_name}' updated with the style '{style_name}'!")
-        #     else:
-        #         print(f"Failed to update layer '{table_name}' with the style '{style_name}'. Error: {layer_response.text}")
-        # else:
-            # print(f"Failed to upload SLD content for style '{style_name}'. Error: {response.text}")
     else:
         print(f"Failed to create style '{style_name}'. Error: {response.text}")
 
 
 
+
+def publish_table_to_geoserver(workspace_name='super_admin', table_name=None ,create_and_publish_style=create_and_publish_style, fill='#2C3E50',fill_opacity=0.50,  stroke='#FFFFFF', stroke_width=1 ):
+    print(workspace_name, table_name , "table name","workspace name")
+ 
+    # Set the table URL with the correct data store name
+    table_url = f"{geoserver_url}/rest/workspaces/{workspace_name}/datastores/{store}/featuretypes"
+
+    # Create the XML payload to publish the table
+    data = f'<featureType><name>{table_name}</name></featureType>'
+
+    headers = {'Content-Type': 'text/xml'}
+    auth = HTTPBasicAuth(username, password)
+
+    # Send the request to publish the table
+    response = requests.post(table_url, data=data, headers=headers, auth=auth)
+
+
+    if response.status_code == 201:
+        print(f"Table '{table_name}' published successfully!")
+        create_and_publish_style(workspace_name, table_name, fill ,  fill_opacity, stroke, stroke_width )
+
+
+    else:
+        print(f"Failed to publish table '{table_name}'. Error: {response.text}")
                 
 class MeasuringCategory(models.Model):
     name = models.CharField(max_length=255, help_text=_(
@@ -171,6 +152,7 @@ class MeasuringCategory(models.Model):
         "Creation date"), verbose_name=_("Created at"))
     publised = models.BooleanField(default=False)
     view_name = models.CharField(max_length=255, blank=True, null=True, unique=True)
+    
     
 
     def __str__(self):
@@ -272,7 +254,8 @@ def measuring_category_post_save_for_assiging_style(sender, instance, created, *
     It will create a view
     """
     print(f"{instance} Category Style is saved")
-    layer_url = f"{geoserver_url}/rest/workspaces/{'super_admin'}/layers/{instance.measuring_category.view_name}"
+    workpace = instance.measuring_category.project.owner.username
+    layer_url = f"{geoserver_url}/rest/workspaces/{workpace}/layers/{instance.measuring_category.view_name}"
     auth = HTTPBasicAuth(username, password)
     response = requests.get(layer_url, auth=auth)
     headers = {'Content-Type': 'text/xml'}
@@ -285,7 +268,7 @@ def measuring_category_post_save_for_assiging_style(sender, instance, created, *
         else:
             print(f"Failed to update layer '{instance.measuring_category.view_name}' with the style '{instance.measuring_category.view_name}'. Error: {layer_response.text}")
 
-    style_url = f"{geoserver_url}/rest/workspaces/{'super_admin'}/styles/{instance.measuring_category.view_name}.sld"
+    style_url = f"{geoserver_url}/rest/workspaces/{workpace}/styles/{instance.measuring_category.view_name}.sld"
     response_style = requests.get(style_url, auth=auth)
     if response_style.status_code == 200:
         logger.info("There is the style ")
@@ -335,6 +318,12 @@ def measuring_category_post_save_for_assiging_style(sender, instance, created, *
             print("*********Style is updated now****************")
         else:
             print(f"Failed to update SLD content for style '{instance.measuring_category.view_name}'. Error: {response.text}")
+
+        project_name = instance.measuring_category.project.name.replace(" ", "_").lower() 
+
+        
+        style_url_project = f"{geoserver_url}/rest/workspaces/{workpace}/styles/{project_name}.sld"
+        print(style_url_project,"project style url")
         
 
 
