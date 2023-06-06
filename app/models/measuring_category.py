@@ -236,8 +236,10 @@ class StandardCategory(models.Model):
 class SubCategory(models.Model):
     name = models.CharField(max_length=255, help_text=_(
         "In which Sub category you want to seperate your project layer"), verbose_name=_("Name"))
-    project = models.ForeignKey(StandardCategory, on_delete=models.PROTECT, help_text=_(
+    project = models.ForeignKey(Project, on_delete=models.PROTECT, help_text=_(
         "Sub Category related to the project"), verbose_name=_("Project"))
+    standard_category = models.ForeignKey(StandardCategory, on_delete=models.PROTECT, help_text=_(
+        "Standard Category related to the project"), verbose_name=_("Standard Category"))
     description = models.TextField(default="", blank=True, help_text=_(
         "Description about this category"), verbose_name=_("Description"))
     created_at = models.DateTimeField(default=timezone.now, help_text=_(
@@ -250,6 +252,10 @@ class MeasuringCategory(models.Model):
         "In which category you want to seperate your project layer"), verbose_name=_("Name"))
     project = models.ForeignKey(Project, on_delete=models.PROTECT, help_text=_(
         "Category related to the project"), verbose_name=_("Project"))
+    standard_category = models.ForeignKey(StandardCategory, on_delete=models.PROTECT, help_text=_(
+        "Standard Category related to the project"), verbose_name=_("Standard Category"))
+    sub_category = models.ForeignKey(SubCategory, on_delete=models.PROTECT, help_text=_(
+        "Sub Category related to the project"), verbose_name=_("Sub Category"))
     description = models.TextField(default="", blank=True, help_text=_(
         "Description about this category"), verbose_name=_("Description"))
     created_at = models.DateTimeField(default=timezone.now, help_text=_(
