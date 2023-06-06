@@ -22,9 +22,13 @@ from codemirror2.widgets import CodeMirrorEditor
 from webodm import settings
 from django.core.files.uploadedfile import InMemoryUploadedFile
 from django.utils.translation import gettext_lazy as _, gettext
-from .models import MeasuringCategory, CategoryGeometry
+from .models import MeasuringCategory, CategoryGeometry 
 from .models.measuring_category import CategoryStyle
+# , StandardCategory, SubCategory
 
+
+# admin.site.register(StandardCategory)
+# admin.site.register(SubCategory)
 admin.site.register(CategoryGeometry)
 admin.site.register(CategoryStyle)
 

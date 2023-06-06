@@ -220,42 +220,42 @@ def publish_table_to_geoserver(workspace_name='super_admin', table_name=None ,cr
 
 
 
-class StandardCategory(models.Model):
-    name = models.CharField(max_length=255, help_text=_(
-        "In which standard category you want to seperate your project layer"), verbose_name=_("Name"))
-    project = models.ForeignKey(Project, on_delete=models.PROTECT, help_text=_(
-        "Standard Category related to the project"), verbose_name=_("Project"))
-    description = models.TextField(default="", blank=True, help_text=_(
-        "Description about this category"), verbose_name=_("Description"))
-    created_at = models.DateTimeField(default=timezone.now, help_text=_(
-        "Creation date"), verbose_name=_("Created at"))
-    publised = models.BooleanField(default=False)
-    view_name = models.CharField(max_length=255, blank=True, null=True, unique=True)
+# class StandardCategory(models.Model):
+#     name = models.CharField(max_length=255, help_text=_(
+#         "In which standard category you want to seperate your project layer"), verbose_name=_("Name"))
+#     project = models.ForeignKey(Project, on_delete=models.PROTECT, help_text=_(
+#         "Standard Category related to the project"), verbose_name=_("Project"), default=1)
+#     description = models.TextField(default="", blank=True, help_text=_(
+#         "Description about this category"), verbose_name=_("Description"))
+#     created_at = models.DateTimeField(default=timezone.now, help_text=_(
+#         "Creation date"), verbose_name=_("Created at"))
+#     publised = models.BooleanField(default=False)
+#     view_name = models.CharField(max_length=255, blank=True, null=True, unique=True)
 
 
-class SubCategory(models.Model):
-    name = models.CharField(max_length=255, help_text=_(
-        "In which Sub category you want to seperate your project layer"), verbose_name=_("Name"))
-    project = models.ForeignKey(Project, on_delete=models.PROTECT, help_text=_(
-        "Sub Category related to the project"), verbose_name=_("Project"))
-    standard_category = models.ForeignKey(StandardCategory, on_delete=models.PROTECT, help_text=_(
-        "Standard Category related to the project"), verbose_name=_("Standard Category"))
-    description = models.TextField(default="", blank=True, help_text=_(
-        "Description about this category"), verbose_name=_("Description"))
-    created_at = models.DateTimeField(default=timezone.now, help_text=_(
-        "Creation date"), verbose_name=_("Created at"))
-    publised = models.BooleanField(default=False)
-    view_name = models.CharField(max_length=255, blank=True, null=True, unique=True)
+# class SubCategory(models.Model):
+#     name = models.CharField(max_length=255, help_text=_(
+#         "In which Sub category you want to seperate your project layer"), verbose_name=_("Name"))
+#     project = models.ForeignKey(Project, on_delete=models.PROTECT, help_text=_(
+#         "Sub Category related to the project"), verbose_name=_("Project"))
+#     standard_category = models.ForeignKey(StandardCategory, on_delete=models.PROTECT, help_text=_(
+#         "Standard Category related to the project"), verbose_name=_("Standard Category"))
+#     description = models.TextField(default="", blank=True, help_text=_(
+#         "Description about this category"), verbose_name=_("Description"))
+#     created_at = models.DateTimeField(default=timezone.now, help_text=_(
+#         "Creation date"), verbose_name=_("Created at"))
+#     publised = models.BooleanField(default=False)
+#     view_name = models.CharField(max_length=255, blank=True, null=True, unique=True)
                 
 class MeasuringCategory(models.Model):
     name = models.CharField(max_length=255, help_text=_(
         "In which category you want to seperate your project layer"), verbose_name=_("Name"))
     project = models.ForeignKey(Project, on_delete=models.PROTECT, help_text=_(
         "Category related to the project"), verbose_name=_("Project"))
-    standard_category = models.ForeignKey(StandardCategory, on_delete=models.PROTECT, help_text=_(
-        "Standard Category related to the project"), verbose_name=_("Standard Category"))
-    sub_category = models.ForeignKey(SubCategory, on_delete=models.PROTECT, help_text=_(
-        "Sub Category related to the project"), verbose_name=_("Sub Category"))
+    # standard_category = models.ForeignKey(StandardCategory, on_delete=models.PROTECT, help_text=_(
+    #     "Standard Category related to the project"), verbose_name=_("Standard Category"))
+    # sub_category = models.ForeignKey(SubCategory, on_delete=models.PROTECT, help_text=_(
+    #     "Sub Category related to the project"), verbose_name=_("Sub Category"))
     description = models.TextField(default="", blank=True, help_text=_(
         "Description about this category"), verbose_name=_("Description"))
     created_at = models.DateTimeField(default=timezone.now, help_text=_(
