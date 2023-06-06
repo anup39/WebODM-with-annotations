@@ -11,12 +11,97 @@ from requests.auth import HTTPBasicAuth
 from worker.celery import app
 from celery.utils.log import get_task_logger
 from colorfield.fields import ColorField
+import xml.etree.ElementTree as ET
+
+
+
+def modify_xml_for_project(sld_xml, measuring_category_id=3, fill_color = "#FF0000",fill_opacity = "0.5",stroke_color = "#000000",stroke_width = "2"):
+    # Parse the SLD XML
+    tree = ET.ElementTree(ET.fromstring(sld_xml))
+    root = tree.getroot()
+
+    # Find the FeatureTypeStyle element
+    feature_type_style = root.find(".//{http://www.opengis.net/sld}FeatureTypeStyle")
+
+    # Check if the measuring category is already included in the filter
+    filter_element = feature_type_style.find(".//{http://www.opengis.net/ogc}Filter")
+    if filter_element is not None:
+        property_is_not_equal = filter_element.find(".//{http://www.opengis.net/ogc}PropertyIsNotEqualTo")
+        if property_is_not_equal is not None:
+            property_name = property_is_not_equal.find(".//{http://www.opengis.net/ogc}PropertyName")
+            property_value = property_is_not_equal.find(".//{http://www.opengis.net/ogc}Literal")
+            if (
+                property_name is not None
+                and property_name.text == "measuring_category_id"
+                and property_value is not None
+                and property_value.text == str(measuring_category_id)
+            ):
+                # Measuring category already included in the filter, no action needed
+                pass
+            else:
+                # Measuring category not included in the filter, add it using OR operator
+                or_element = ET.Element("{http://www.opengis.net/ogc}Or")
+                property_is_not_equal_new = ET.SubElement(or_element, "{http://www.opengis.net/ogc}PropertyIsNotEqualTo")
+                property_name_new = ET.SubElement(property_is_not_equal_new, "{http://www.opengis.net/ogc}PropertyName")
+                property_name_new.text = "measuring_category_id"
+                property_value_new = ET.SubElement(property_is_not_equal_new, "{http://www.opengis.net/ogc}Literal")
+                property_value_new.text = str(measuring_category_id)
+                filter_element.append(or_element)
+        else:
+            # No PropertyIsNotEqualTo element found, add it
+            property_is_not_equal = ET.SubElement(filter_element, "{http://www.opengis.net/ogc}PropertyIsNotEqualTo")
+            property_name = ET.SubElement(property_is_not_equal, "{http://www.opengis.net/ogc}PropertyName")
+            property_name.text = "measuring_category_id"
+            property_value = ET.SubElement(property_is_not_equal, "{http://www.opengis.net/ogc}Literal")
+            property_value.text = str(measuring_category_id)
+    else:
+        # No Filter element found, add it with the PropertyIsNotEqualTo element
+        filter_element = ET.SubElement(feature_type_style, "{http://www.opengis.net/ogc}Filter")
+        property_is_not_equal = ET.SubElement(filter_element, "{http://www.opengis.net/ogc}PropertyIsNotEqualTo")
+        property_name = ET.SubElement(property_is_not_equal, "{http://www.opengis.net/ogc}PropertyName")
+        property_name.text = "measuring_category_id"
+        property_value = ET.SubElement(property_is_not_equal, "{http://www.opengis.net/ogc}Literal")
+        property_value.text = str(measuring_category_id)
+
+    # Add a new rule for the measuring category with the provided polygon style details
+    new_rule = ET.SubElement(feature_type_style, "{http://www.opengis.net/sld}Rule")
+
+    # Add the filter for the measuring category
+    filter_element = ET.SubElement(new_rule, "{http://www.opengis.net/ogc}Filter")
+    property_is_equal = ET.SubElement(filter_element, "{http://www.opengis.net/ogc}PropertyIsEqualTo")
+    property_name = ET.SubElement(property_is_equal, "{http://www.opengis.net/ogc}PropertyName")
+    property_name.text = "measuring_category_id"
+    property_value = ET.SubElement(property_is_equal, "{http://www.opengis.net/ogc}Literal")
+    property_value.text = str(measuring_category_id)
+
+    # Add the polygon symbolizer with the provided style details
+    polygon_symbolizer = ET.SubElement(new_rule, "{http://www.opengis.net/sld}PolygonSymbolizer")
+    fill_element = ET.SubElement(polygon_symbolizer, "{http://www.opengis.net/sld}Fill")
+    fill_color_element = ET.SubElement(fill_element, "{http://www.opengis.net/sld}CssParameter", name="fill")
+    fill_color_element.text = fill_color
+    fill_opacity_element = ET.SubElement(fill_element, "{http://www.opengis.net/sld}CssParameter", name="fill-opacity")
+    fill_opacity_element.text = fill_opacity
+
+    stroke_element = ET.SubElement(polygon_symbolizer, "{http://www.opengis.net/sld}Stroke")
+    stroke_color_element = ET.SubElement(stroke_element, "{http://www.opengis.net/sld}CssParameter", name="stroke")
+    stroke_color_element.text = stroke_color
+    stroke_width_element = ET.SubElement(stroke_element, "{http://www.opengis.net/sld}CssParameter", name="stroke-width")
+    stroke_width_element.text = stroke_width
+
+    # Convert the modified XML back to a string
+    modified_sld_xml = ET.tostring(root, encoding="unicode")
+
+    print(modified_sld_xml)
+    return modified_sld_xml
+
+
 
 logger = get_task_logger("app.logger")
 
 geoserver_url = 'http://137.135.165.161:8600/geoserver'
 username = 'admin'
 password = 'geoserver'
+store = 'database'
 
 
 
@@ -54,11 +139,66 @@ def check_workspace_exists(workspace_name):
         return False
 
 
-def publish_table_to_geoserver(workspace_name, table_name ,create_and_publish_style, fill,fill_opacity,  stroke, stroke_width ):
+
+
+
+def create_and_publish_style(workspace_name, table_name, fill, fill_opacity, stroke, stroke_width):
+    style_url = f"{geoserver_url}/rest/workspaces/{workspace_name}/styles"
+    style_name = table_name
+    data = f'<style><name>{style_name}</name><filename>{style_name}.sld</filename></style>'
+    headers = {'Content-Type': 'text/xml'}
+    auth = HTTPBasicAuth(username, password)
+    response = requests.post(style_url, data=data, headers=headers, auth=auth)
+
+    sld_xml = f"""
+        <StyledLayerDescriptor version="1.0.0" xsi:schemaLocation="http://www.opengis.net/sld StyledLayerDescriptor.xsd" xmlns="http://www.opengis.net/sld" xmlns:ogc="http://www.opengis.net/ogc" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+            <NamedLayer>
+                <Name>{style_name}</Name>
+                <UserStyle>
+                <FeatureTypeStyle>
+                    <Rule>
+                    <ogc:Filter>
+                        <ogc:PropertyIsNotEqualTo>
+                        <ogc:PropertyName>measuring_category_id</ogc:PropertyName>
+                        <ogc:Literal>0</ogc:Literal>
+                        </ogc:PropertyIsNotEqualTo>
+                    </ogc:Filter>
+                    <PolygonSymbolizer>
+                        <Fill>
+                        <CssParameter name="fill">{fill}</CssParameter> <!-- Fill color for all other categories -->
+                        <CssParameter name="fill-opacity">{fill_opacity}</CssParameter>
+                        </Fill>
+                        <Stroke>
+                        <CssParameter name="stroke">{stroke}</CssParameter> <!-- Stroke color for all other categories -->
+                        <CssParameter name="stroke-width">{stroke_width}</CssParameter>
+                        </Stroke>
+                    </PolygonSymbolizer>
+                    </Rule>
+                    <!-- Add more rules for additional categories -->
+                </FeatureTypeStyle>
+                </UserStyle>
+            </NamedLayer>
+        </StyledLayerDescriptor>
+    """
+
+    if response.status_code == 201:
+        print(f"Style '{style_name}' created successfully!")
+
+        # Upload the SLD content for the style
+        sld_url = f"{geoserver_url}/rest/workspaces/{workspace_name}/styles/{style_name}"
+        headers = {'Content-Type': 'application/vnd.ogc.sld+xml'}
+        response = requests.put(sld_url, data=sld_xml, headers=headers, auth=auth)
+    else:
+        print(f"Failed to create style '{style_name}'. Error: {response.text}")
+
+
+
+
+def publish_table_to_geoserver(workspace_name='super_admin', table_name=None ,create_and_publish_style=create_and_publish_style, fill='#2C3E50',fill_opacity=0.50,  stroke='#FFFFFF', stroke_width=1 ):
     print(workspace_name, table_name , "table name","workspace name")
  
     # Set the table URL with the correct data store name
-    table_url = f"{geoserver_url}/rest/workspaces/{workspace_name}/datastores/database/featuretypes"
+    table_url = f"{geoserver_url}/rest/workspaces/{workspace_name}/datastores/{store}/featuretypes"
 
     # Create the XML payload to publish the table
     data = f'<featureType><name>{table_name}</name></featureType>'
@@ -77,87 +217,6 @@ def publish_table_to_geoserver(workspace_name, table_name ,create_and_publish_st
 
     else:
         print(f"Failed to publish table '{table_name}'. Error: {response.text}")
-
-
-def create_and_publish_style(workspace_name, table_name, fill, fill_opacity, stroke, stroke_width):
-    style_url = f"{geoserver_url}/rest/workspaces/{workspace_name}/styles"
-    style_name = table_name
-    data = f'<style><name>{style_name}</name><filename>{style_name}.sld</filename></style>'
-    headers = {'Content-Type': 'text/xml'}
-    auth = HTTPBasicAuth(username, password)
-    response = requests.post(style_url, data=data, headers=headers, auth=auth)
-
-    sld_xml = f"""<StyledLayerDescriptor version="1.0.0"
-        xsi:schemaLocation="http://www.opengis.net/sld StyledLayerDescriptor.xsd"
-        xmlns="http://www.opengis.net/sld"
-        xmlns:ogc="http://www.opengis.net/ogc"
-        xmlns:xlink="http://www.w3.org/1999/xlink"
-        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-        <!-- a named layer is the basic building block of an sld document -->
-        <NamedLayer>
-            <Name>{style_name}</Name>
-            <UserStyle>
-                <!-- they have names, titles and abstracts -->
-                <Title>Grey Polygon</Title>
-                <Abstract>A sample style that just prints out a grey interior with a black outline</Abstract>
-                <!-- FeatureTypeStyles describe how to render different features -->
-                <!-- a feature type for polygons -->
-                <FeatureTypeStyle>
-                    <!--FeatureTypeName>Feature</FeatureTypeName-->
-                    <Rule>
-                        <Name>Rule 1</Name>
-                        <Title>Grey Fill and Black Outline</Title>
-                        <Abstract>Grey fill with a black outline 1 pixel in width</Abstract>
-                        <!-- like a linesymbolizer but with a fill too -->
-                        <PolygonSymbolizer>
-                            <Fill>
-                                <CssParameter name="fill">{fill}</CssParameter>
-                                <CssParameter name="fill-opacity">{fill_opacity}</CssParameter>
-                            </Fill>
-                            <Stroke>
-                                <CssParameter name="stroke">{stroke}</CssParameter>
-                                <CssParameter name="stroke-width">{stroke_width}</CssParameter>
-                            </Stroke>
-                        </PolygonSymbolizer>
-                    </Rule>
-                </FeatureTypeStyle>
-            </UserStyle>
-        </NamedLayer>
-    </StyledLayerDescriptor>"""
-
-    if response.status_code == 201:
-        print(f"Style '{style_name}' created successfully!")
-
-        # Upload the SLD content for the style
-        sld_url = f"{geoserver_url}/rest/workspaces/{workspace_name}/styles/{style_name}"
-        headers = {'Content-Type': 'application/vnd.ogc.sld+xml'}
-        response = requests.put(sld_url, data=sld_xml, headers=headers, auth=auth)
-
-        if response.status_code == 200:
-            logger.info("Now assgining style")
-            print(f"SLD content uploaded for style '{style_name}'!")
-            logger.info(sld_xml,'sld xml')
-
-            # # Update the layer with the newly created style
-            layer_url = f"{geoserver_url}/rest/workspaces/{workspace_name}/layers/{table_name}"
-
-            layer_data = f'<layer> <defaultStyle><name>{style_name}</name></defaultStyle></layer>'
-            logger.info(layer_data,'layer data')
-
-            layer_response = requests.put(layer_url, data=layer_data, headers=headers, auth=auth)
-            logger.info("Now assgining style complete")
-
-            if layer_response.status_code == 200:
-                print(f"Layer '{table_name}' updated with the style '{style_name}'!")
-            else:
-                print(f"Failed to update layer '{table_name}' with the style '{style_name}'. Error: {layer_response.text}")
-        else:
-            print(f"Failed to upload SLD content for style '{style_name}'. Error: {response.text}")
-    else:
-        print(f"Failed to create style '{style_name}'. Error: {response.text}")
-
-
-
                 
 class MeasuringCategory(models.Model):
     name = models.CharField(max_length=255, help_text=_(
@@ -170,6 +229,7 @@ class MeasuringCategory(models.Model):
         "Creation date"), verbose_name=_("Created at"))
     publised = models.BooleanField(default=False)
     view_name = models.CharField(max_length=255, blank=True, null=True, unique=True)
+    
     
 
     def __str__(self):
@@ -193,6 +253,7 @@ class CategoryStyle(models.Model):
         "Stroke coloe for the polygon"), verbose_name=_("Stroke Color"))
     stroke_width = models.PositiveIntegerField(default=1 )
     xml  = models.TextField(null=True, blank=True)
+    
     
     
     def __str__(self):
@@ -263,6 +324,105 @@ def measuring_category_post_save_for_creating_layer(sender, instance, created, *
             category_style.save()
 
 
+# # Added by me Anup
+@receiver(signals.post_save, sender=CategoryStyle, dispatch_uid="category_style_post_save_assigning_style")
+def measuring_category_post_save_for_assiging_style(sender, instance, created, **kwargs):
+    """
+    It will create a view
+    """
+    print(f"{instance} Category Style is saved")
+    workspace = instance.measuring_category.project.owner.username
+    layer_url = f"{geoserver_url}/rest/workspaces/{workspace}/layers/{instance.measuring_category.view_name}"
+    auth = HTTPBasicAuth(username, password)
+    response = requests.get(layer_url, auth=auth)
+    headers = {'Content-Type': 'text/xml'}
+    if response.status_code == 200:
+        layer_data = f'<layer> <defaultStyle><name>{instance.measuring_category.view_name}</name></defaultStyle></layer>'
+        layer_response = requests.put(layer_url, data=layer_data, headers=headers, auth=auth)
+        logger.info("Now assgining style complete")
+        if layer_response.status_code == 200:
+            print(f"Layer '{instance.measuring_category.view_name}' updated with the style '{instance.measuring_category.view_name}'!")
+        else:
+            print(f"Failed to update layer '{instance.measuring_category.view_name}' with the style '{instance.measuring_category.view_name}'. Error: {layer_response.text}")
+
+    style_url = f"{geoserver_url}/rest/workspaces/{workspace}/styles/{instance.measuring_category.view_name}.sld"
+    response_style = requests.get(style_url, auth=auth)
+    if response_style.status_code == 200:
+        logger.info("There is the style ")
+        headers = {'Content-Type': 'application/vnd.ogc.sld+xml'}
+        sld_xml = f"""
+                    <StyledLayerDescriptor version="1.0.0" xsi:schemaLocation="http://www.opengis.net/sld StyledLayerDescriptor.xsd" xmlns="http://www.opengis.net/sld" xmlns:ogc="http://www.opengis.net/ogc" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+                        <NamedLayer>
+                            <Name>{instance.measuring_category.view_name}</Name>
+                            <UserStyle>
+                            <FeatureTypeStyle>
+                                <Rule>
+                                <ogc:Filter>
+                                    <ogc:PropertyIsNotEqualTo>
+                                    <ogc:PropertyName>measuring_category_id</ogc:PropertyName>
+                                    <ogc:Literal>0</ogc:Literal>
+                                    </ogc:PropertyIsNotEqualTo>
+                                </ogc:Filter>
+                                <PolygonSymbolizer>
+                                    <Fill>
+                                    <CssParameter name="fill">{instance.fill}</CssParameter> <!-- Fill color for all other categories -->
+                                    <CssParameter name="fill-opacity">{instance.fill_opacity}</CssParameter>
+                                    </Fill>
+                                    <Stroke>
+                                    <CssParameter name="stroke">{instance.stroke}</CssParameter> <!-- Stroke color for all other categories -->
+                                    <CssParameter name="stroke-width">{instance.stroke_width}</CssParameter>
+                                    </Stroke>
+                                </PolygonSymbolizer>
+                                </Rule>
+                                <!-- Add more rules for additional categories -->
+                            </FeatureTypeStyle>
+                            </UserStyle>
+                        </NamedLayer>
+                    </StyledLayerDescriptor>   
+            """
+
+
+        response = requests.put(style_url, data=sld_xml, headers=headers, auth=auth)
+
+        if response.status_code == 200:
+            print("*********Style is updated now****************")
+        else:
+            print(f"Failed to update SLD content for style '{instance.measuring_category.view_name}'. Error: {response.text}")
+
+
+
+        # Similar things for project also 
+        project_name = instance.measuring_category.project.name.replace(" ", "_").lower() 
+        style_url_project = f"{geoserver_url}/rest/workspaces/{workspace}/styles/{project_name}.sld"
+        response_style_project = requests.get(style_url_project, auth=auth)
+
+        if response_style_project.status_code == 200:
+            print(f"Style exists for this project {project_name}")
+            layer_url = f"{geoserver_url}/rest/workspaces/{workspace}/layers/{project_name}"
+            headers = {'Content-Type': 'text/xml'}
+            layer_data_project = f'<layer> <defaultStyle><name>{project_name}</name></defaultStyle></layer>'
+            layer_response = requests.put(layer_url, data=layer_data_project, headers=headers, auth=auth)
+
+            if layer_response.status_code == 200 :
+                print(f"Style is assgined to Project layer {project_name}")
+                response_style_project = requests.get(style_url_project, auth=auth)  
+                if response_style_project.status_code == 200:
+                    sld_xml = response_style_project.content.decode("utf-8")
+                    # print(sld_xml,"sld xml of the project ")
+                    sld_xml_modified= modify_xml_for_project(sld_xml,measuring_category_id=instance.measuring_category.id,fill_color=instance.fill, fill_opacity= str(instance.fill_opacity), stroke_color=instance.stroke, stroke_width=str(instance.stroke_width))
+                    sld_url = f"{geoserver_url}/rest/workspaces/{workspace}/styles/{project_name}"
+                    headers = {'Content-Type': 'application/vnd.ogc.sld+xml'}
+                    response = requests.put(sld_url, data=sld_xml_modified, headers=headers, auth=auth)
+                    print("sucess all ")
+
+                else:
+                    print("Failed to retrieve SLD:", response_style_project.status_code)    
+
+            else:
+                print(f"Failed to assgin the style feor project {project_name}")
+
+        
+        
 
 
 @app.task
@@ -285,3 +445,16 @@ def publish_views_to_geoserver():
 
         category.publised = True
         category.save()
+
+
+
+# Sql quries to delete all the view 
+
+# DO $$ 
+# DECLARE 
+#     view_name TEXT;
+# BEGIN 
+#     FOR view_name IN (SELECT table_name FROM information_schema.views WHERE table_schema = 'public' AND table_name NOT IN ('geography_columns', 'geometry_columns', 'raster_columns', 'raster_overviews')) LOOP
+#         EXECUTE 'DROP VIEW IF EXISTS public.' || quote_ident(view_name) || ' CASCADE;';
+#     END LOOP; 
+# END $$;
