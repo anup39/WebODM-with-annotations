@@ -4,6 +4,7 @@ import "../css/LayersControlLayer.scss";
 import { Checkbox } from "./Toggle";
 import { _ } from "../classes/gettext";
 import { ExpandButton } from "./Toggle";
+import Histogram from "./Histogram";
 export default class LayersControlLayerMeasuring extends React.Component {
   static defaultProps = {
     layer: null,
@@ -60,7 +61,7 @@ export default class LayersControlLayerMeasuring extends React.Component {
     const { meta } = this;
 
     return (
-      <div className="layers-control-layer overlay">
+      <div className="layers-control-layer">
         {this.props.overlay ?
           <>
             {meta.name === "All" ?
@@ -78,7 +79,7 @@ export default class LayersControlLayerMeasuring extends React.Component {
           </>
           : null}
 
-        {console.log(this.state.expanded, "state expanded")}
+        {this.state.expanded ? <Histogram /> : null}
 
       </div>
     );
