@@ -886,45 +886,6 @@ class Map extends React.Component {
     });
 
 
-    // Export map Added by me Anup
-
-    // const AddOverlayCtrlExport = Leaflet.Control.extend({
-    //   options: {
-    //     position: "topleft",
-    //   },
-
-    //   onAdd: function () {
-    //     this.container = Leaflet.DomUtil.create(
-    //       "div",
-    //       "leaflet-control-add-overlay leaflet-bar leaflet-control "
-    //     );
-    //     Leaflet.DomEvent.disableClickPropagation(this.container);
-    //     const btn = Leaflet.DomUtil.create(
-    //       "a",
-    //       "leaflet-control-add-overlay-button"
-
-    //     );
-    //     btn.setAttribute(
-    //       "title",
-    //       _("Export from here")
-    //     );
-
-    //     btn.onclick = function () {
-    //       // Open another div or perform any desired action
-    //       const otherDiv = document.getElementById("export-container");
-    //       otherDiv.style.display = "block"; // Show the other div
-    //     };
-
-    //     this.container.append(btn);
-
-    //     return this.container;
-    //   },
-    // });
-
-    // Adding Export Button
-    // new AddOverlayCtrlExport().addTo(this.map);
-
-
 
     // Plugin export 
     const options = { position: 'topleft', title: 'Export Map', printModes: ["Custom"] }
@@ -1058,15 +1019,8 @@ class Map extends React.Component {
             public={this.props.public}
           />
         </div>
-        {/* Added by me  */}
-        <div id="export-container" style={{ display: "none", position: "absolute", top: "50%", left: "50%", transform: "translate(-50%, -50%)", zIndex: "9999", backgroundColor: "#fff", boxShadow: "0 2px 4px rgba(0, 0, 0, 0.2)", padding: "10px" }}>
-          <h3>Export</h3>
-          <p>You can export from here</p>
-          <button onClick={this.handleSubmitExport} >Export</button>
-          <button style={{ cursor: "pointer" }} onClick={this.handleCloseExport}>
-            Close
-          </button>
-        </div>
+
+
 
       </div >
     );

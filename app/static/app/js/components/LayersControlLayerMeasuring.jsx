@@ -3,7 +3,7 @@ import PropTypes from "prop-types";
 import "../css/LayersControlLayer.scss";
 import { Checkbox } from "./Toggle";
 import { _ } from "../classes/gettext";
-
+import { ExpandButton } from "./Toggle";
 export default class LayersControlLayerMeasuring extends React.Component {
   static defaultProps = {
     layer: null,
@@ -16,6 +16,7 @@ export default class LayersControlLayerMeasuring extends React.Component {
     expanded: PropTypes.bool,
     map: PropTypes.object.isRequired,
     overlay: PropTypes.bool,
+
   };
 
   constructor(props) {
@@ -27,6 +28,7 @@ export default class LayersControlLayerMeasuring extends React.Component {
 
     this.state = {
       visible: this.map.hasLayer(props.layer),
+      expanded: props.expanded,
     };
   }
 
@@ -58,22 +60,28 @@ export default class LayersControlLayerMeasuring extends React.Component {
     const { meta } = this;
 
     return (
-      <div className="layers-control-layer">
-        {!this.props.overlay ? null : (
-          <div className="overlayIcon">
-            <i className={meta.icon || "fa fa-vector-square fa-fw"}></i>
-          </div>
-        )}
-        <Checkbox layer={this.props.layer} map={this.map} bind={[this, "visible"]} />
-        <a
-          title={meta.name}
-          className="layer-label"
-          href="javascript:void(0);"
-          onClick={this.handleLayerClick}
-        >
-          {meta.name}
-        </a>
+      <div className="layers-control-layer overlay">
+        {this.props.overlay ?
+          <>
+            {meta.name === "All" ?
+              <Checkbox layer={this.props.layer} map={this.map} bind={[this, "visible"]} />
+              : <ExpandButton bind={[this, 'expanded']} />
+            }
+            <a
+              title={meta.name}
+              className="layer-label"
+              href="javascript:void(0);"
+              onClick={this.handleLayerClick}
+            >
+              {meta.name}
+            </a>
+          </>
+          : null}
+
+        {console.log(this.state.expanded, "state expanded")}
+
       </div>
     );
+
   }
 }

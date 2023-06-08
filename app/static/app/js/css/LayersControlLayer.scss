@@ -1,8 +1,9 @@
-.leaflet-touch .leaflet-control-layers-control, .leaflet-control-layers-control{
-    .layers-control-layer{
+.leaflet-touch .leaflet-control-layers-control,
+.leaflet-control-layers-control {
+    .layers-control-layer {
         clear: both;
 
-        .layer-label{
+        .layer-label {
             width: auto;
             position: relative;
             top: 1px;
@@ -12,60 +13,64 @@
             display: block;
             text-align: left;
             padding-left: 4px;
-            margin-left: 50px;
+            margin-left: 1px;
             height: 22px;
             line-height: 22px;
             padding-top: 1px;
         }
 
-        .layer-expanded{
+        .layer-expanded {
             clear: both;
         }
 
-        select, input{
+        select,
+        input {
             height: auto;
             padding: 4px;
         }
 
-        label{
+        label {
             padding-top: 5px;
         }
 
-        .row.form-group.form-inline{
+        .row.form-group.form-inline {
             margin-bottom: 8px;
             margin-right: 0;
 
-            i{
+            i {
                 margin-top: 8px;
                 margin-bottom: 8px;
             }
         }
 
-        .btn{
+        .btn {
             padding: 0px 9px;
         }
-      
-        .toggle{
-          float: left;
-          width: 22px;
-          i{
-              font-size: 18px;
-          }
-          &:hover{
-              background-color: inherit !important;
-              border-width: 0;
-          }
-        }
 
-        .overlayIcon{
+        .toggle {
             float: left;
             width: 22px;
 
-            i{
+            i {
+                font-size: 18px;
+            }
+
+            &:hover {
+                background-color: inherit !important;
+                border-width: 0;
+            }
+        }
+
+        .overlayIcon {
+            float: left;
+            width: 22px;
+
+            i {
                 font-size: 16px;
                 margin-top: 4px;
                 margin-left: 1px;
             }
         }
+
     }
 }
