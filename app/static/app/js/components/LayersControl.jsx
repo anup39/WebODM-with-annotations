@@ -51,11 +51,12 @@ class LayersControlButton extends React.Component {
 }
 
 export default L.Control.extend({
-  options: {
-    position: "topright",
-  },
+  // options: {
+  //   position: "topright",
+  // },
 
   onAdd: function (map) {
+    console.log(this.options, "options ")
     this.container = L.DomUtil.create(
       "div",
       "leaflet-control-layers-control leaflet-bar leaflet-control"
