@@ -1,5 +1,6 @@
 import React, { Component } from 'react'
 import { ExpandButton } from './Toggle'
+import LayersControlLayerMeasuringCategory from './LayersControlLayerMeasuringCategory'
 
 export default class LayersControlLayerMeasuringSubCategory extends Component {
 
@@ -29,7 +30,7 @@ export default class LayersControlLayerMeasuringSubCategory extends Component {
                     </>
                     : null}
 
-                {/* {this.state.expanded ? <LayersControlLayerMeasuringSubCategory /> : null} */}
+                {this.state.expanded ? <LayersControlLayerMeasuringCategory overlay={true} /> : null}
 
             </div>
         )
