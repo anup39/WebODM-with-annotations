@@ -14,9 +14,7 @@ export default class LayersControlLayerMeasuringSubCategory extends Component {
 
     render() {
         return (
-
             <>
-
                 {
                     [1, 2, 3, 4, 5].map((item) =>
                         <div key={item} className="layers-control-layer sub-category">
@@ -40,8 +38,6 @@ export default class LayersControlLayerMeasuringSubCategory extends Component {
 
                     )
                 }</>
-
-
         )
     }
 }
