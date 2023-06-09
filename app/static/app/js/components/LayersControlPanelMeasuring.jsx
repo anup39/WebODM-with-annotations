@@ -52,8 +52,10 @@ export default class LayersControlPanelMeasuring extends React.Component {
 
     return (
       <div className="layers-control-panel">
+        <div>
         <span className="close-button" onClick={this.props.onClose} />
         <div className="title">{_("Measurings")}</div>
+        </div>
         <hr />
         {content}
       </div>

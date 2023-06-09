@@ -1,5 +1,6 @@
 import React, { Component } from 'react'
 import { Checkbox } from './Toggle'
+import { _ } from "../classes/gettext";
 
 export default class LayersControlLayerMeasuringCategory extends Component {
 
@@ -25,6 +26,12 @@ export default class LayersControlLayerMeasuringCategory extends Component {
                         >
                             Ground Grass 1
                         </a>
+                        <input
+                            type="range"
+                            step="1"
+                            // value={this.state.opacity}
+                            // onChange={this.updateOpacity}
+                        />
                     </>
                     : null}
 
