@@ -65,7 +65,7 @@ export default class LayersControlLayerMeasuringStandard extends React.Component
     const { meta } = this;
 
     return (
-      <div className="layers-control-layer">
+      <div className="layers-control-layer ">
         {this.props.overlay ?
           <>
             {meta.name === "All" ?
@@ -83,7 +83,7 @@ export default class LayersControlLayerMeasuringStandard extends React.Component
           </>
           : null}
 
-        {this.state.expanded ? <LayersControlLayerMeasuringSubCategory /> : null}
+        {this.state.expanded ? <LayersControlLayerMeasuringSubCategory overlay={true} /> : null}
 
       </div>
     );
