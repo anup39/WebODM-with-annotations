@@ -4,8 +4,12 @@ import "../css/LayersControlLayer.scss";
 import { Checkbox } from "./Toggle";
 import { _ } from "../classes/gettext";
 import { ExpandButton } from "./Toggle";
-import Histogram from "./Histogram";
-export default class LayersControlLayerMeasuring extends React.Component {
+import LayersControlLayerMeasuringSubCategory from "./LayersControlLayerMeasuringSubCategory";
+
+
+
+
+export default class LayersControlLayerMeasuringStandard extends React.Component {
   static defaultProps = {
     layer: null,
     expanded: false,
@@ -79,7 +83,7 @@ export default class LayersControlLayerMeasuring extends React.Component {
           </>
           : null}
 
-        {this.state.expanded ? <Histogram /> : null}
+        {this.state.expanded ? <LayersControlLayerMeasuringSubCategory /> : null}
 
       </div>
     );

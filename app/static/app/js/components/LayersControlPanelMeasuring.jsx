@@ -1,7 +1,7 @@
 import React from "react";
 import PropTypes from "prop-types";
 import "../css/LayersControlPanel.scss";
-import LayersControlLayerMeasuring from "./LayersControlLayerMeasuring";
+import LayersControlLayerMeasuringStandard from "./LayersControlLayerMeasuringStandard";
 import { _ } from "../classes/gettext";
 
 export default class LayersControlPanelMeasuring extends React.Component {
@@ -34,7 +34,7 @@ export default class LayersControlPanelMeasuring extends React.Component {
           {this.props.overlays_measuring.length ? (
             <div className="overlays theme-border-primary">
               {this.props.overlays_measuring.map((layer, i) => (
-                <LayersControlLayerMeasuring
+                <LayersControlLayerMeasuringStandard
                   map={this.props.map}
                   expanded={false}
                   overlay={true}
