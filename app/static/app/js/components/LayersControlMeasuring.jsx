@@ -61,6 +61,9 @@ export default L.Control.extend({
     this.map = map;
 
     L.DomEvent.disableClickPropagation(this.container);
+    L.DomEvent.disableScrollPropagation(this.container);
+
+
     this.update([]);
 
     return this.container;
