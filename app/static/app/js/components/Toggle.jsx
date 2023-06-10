@@ -80,6 +80,7 @@ class Toggle extends React.Component {
               // style: Style,
               style: function (feature) {
                 // Define the default style properties
+                console.log(style, "style");
               },
               onEachFeature: function (feature, layer) {
                 layer.bindPopup(`Name: ${feature.properties.name}`);

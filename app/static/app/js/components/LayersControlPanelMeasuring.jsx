@@ -3,6 +3,7 @@ import PropTypes from "prop-types";
 import "../css/LayersControlPanel.scss";
 import LayersControlLayerMeasuringStandard from "./LayersControlLayerMeasuringStandard";
 import { _ } from "../classes/gettext";
+import axios from "axios";
 
 export default class LayersControlPanelMeasuring extends React.Component {
   static defaultProps = {
@@ -22,6 +23,23 @@ export default class LayersControlPanelMeasuring extends React.Component {
 
   constructor(props) {
     super(props);
+    this.state = {
+      style: {},
+    };
+  }
+
+  componentDidMount() {
+    console.log(this.props.layer.id);
+    axios
+      .get(`/api/category-style/?project=${this.props.project_id}`)
+      .then((response) => {
+        this.setState({
+          style: response.data.results[0],
+        });
+      })
+      .catch((error) => {
+        console.log(error);
+      });
   }
 
   render() {
@@ -51,6 +69,7 @@ export default class LayersControlPanelMeasuring extends React.Component {
                 key={this.props.standard_categories.length + 1}
                 sub_categories={this.props.sub_categories}
                 categories_measuring={this.props.categories_measuring}
+                style={this.state.style}
               />
 
               {this.props.standard_categories.map((layer, i) => (

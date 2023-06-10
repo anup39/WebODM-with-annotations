@@ -42,6 +42,7 @@ export default class LayersControlLayerMeasuringStandard extends React.Component
               layer={this.props.layer}
               map={this.map}
               bind={[this, "visible"]}
+              style={this.props.style}
             />
           ) : (
             <ExpandButton bind={[this, "expanded"]} />
