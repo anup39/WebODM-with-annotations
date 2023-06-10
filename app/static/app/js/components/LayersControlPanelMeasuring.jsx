@@ -25,27 +25,27 @@ export default class LayersControlPanelMeasuring extends React.Component {
     super(props);
     this.state = {
       style: [],
+      project_id: null,
     };
   }
 
-  componentDidMount() {
-    axios
-      .get(`/api/category-style/?project=${this.props.project_id}`)
-      .then((response) => {
-        console.log(response.data.results[0]);
-        this.setState({
-          style: response.data.results,
+  componentDidUpdate(prevProps, prevState) {
+    if (prevProps.project_id !== this.props.project_id) {
+      axios
+        .get(`/api/category-style/?project=${parseInt(this.props.project_id)}`)
+        .then((response) => {
+          this.setState({
+            style: response.data.results,
+          });
+        })
+        .catch((error) => {
+          console.log(error);
         });
-      })
-      .catch((error) => {
-        console.log(error);
-      });
+    }
   }
 
   render() {
     let content = "";
-    console.log(this.state.style, "style");
-    console.log(this.props.project_id, "id of project");
 
     if (!this.props.standard_categories.length)
       content = (
