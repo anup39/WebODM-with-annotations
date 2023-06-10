@@ -87,7 +87,7 @@ export default class LayersControlLayerMeasuringStandard extends React.Component
           </>
           : null}
 
-        {/* {this.state.expanded ? <LayersControlLayerMeasuringSubCategory overlay={true} /> : null} */}
+        {this.state.expanded ? <LayersControlLayerMeasuringSubCategory overlay={true} sub_categories={this.props.sub_categories} categories_measuring={this.props.categories_measuring} /> : null}
 
       </div>
     );
