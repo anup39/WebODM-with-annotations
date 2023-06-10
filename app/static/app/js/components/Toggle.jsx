@@ -22,7 +22,30 @@ class Toggle extends React.Component {
   handleClick = () => {
     console.log(this.props.layer, "layer");
     console.log(this.props.map, "map");
+    // Create a WFS source
+    const wfsSource = new L.WFS.source({
+      url: "https://example.com/wfs",
+      typeName: "layer_name",
+      namespaceUri: "http://example.com/namespace",
+    });
+
+    // Create a WFS layer
+    const wfsLayer = new L.WFS({
+      source: wfsSource,
+      style: {
+        color: "blue",
+        weight: 2,
+      },
+      onEachFeature: function (feature, layer) {
+        // Add any desired feature interaction or popup functionality here
+        layer.bindPopup("Feature ID: " + feature.id);
+      },
+    });
+
+    // Add the WFS layer to the map
+    wfsLayer.addTo(map);
     // this.props.map.fitBounds(bounds);
+
     const [parent, prop] = this.props.bind;
     parent.setState({ [prop]: !parent.state[prop] });
   };
