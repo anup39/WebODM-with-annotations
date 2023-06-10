@@ -8,7 +8,6 @@ import LayersControlLayerMeasuringSubCategory from "./LayersControlLayerMeasurin
 
 
 
-
 export default class LayersControlLayerMeasuringStandard extends React.Component {
   static defaultProps = {
     layer: null,

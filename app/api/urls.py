@@ -16,12 +16,14 @@ from .users import UsersList
 from webodm import settings
 
 # Added by Anup
-from .measuring_category import MeasuringCategoryViewSet
+from .measuring_category import MeasuringCategoryViewSet , StandardCategoryViewSet, SubCategoryViewSet
 from .category_geometry import CategoryGeometryViewSet
 
 router = routers.DefaultRouter()
 router.register(r'projects', ProjectViewSet)
 # Added by Anup
+router.register(r'project-standard-category', StandardCategoryViewSet)
+router.register(r'project-sub-category', SubCategoryViewSet)
 router.register(r'project-measuring-category', MeasuringCategoryViewSet)
 router.register(r'category-geometry', CategoryGeometryViewSet)
 
