@@ -24,9 +24,9 @@ class Toggle extends React.Component {
     console.log(this.props.map, "map");
     // Create a WFS source
     const wfsSource = new L.WFS.source({
-      url: "https://example.com/wfs",
-      typeName: "layer_name",
-      namespaceUri: "http://example.com/namespace",
+      url: `${geoserver_url}/wfs`,
+      typeName: this.props.layer.view_name,
+      // namespaceUri: "http://example.com/namespace",
     });
 
     // Create a WFS layer
@@ -38,12 +38,12 @@ class Toggle extends React.Component {
       },
       onEachFeature: function (feature, layer) {
         // Add any desired feature interaction or popup functionality here
-        layer.bindPopup("Feature ID: " + feature.id);
+        layer.bindPopup("Feature ID: " + "Test");
       },
     });
 
     // Add the WFS layer to the map
-    wfsLayer.addTo(map);
+    wfsLayer.addTo(this.props.map);
     // this.props.map.fitBounds(bounds);
 
     const [parent, prop] = this.props.bind;
