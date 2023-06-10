@@ -6,10 +6,26 @@ export default class LayersControlLayerMeasuringCategory extends Component {
   constructor(props) {
     super(props);
     this.map = props.map;
+    this.layer_name = this.props.layer.view_name;
     this.state = {
       visible: false,
+      opacity: 0.5,
     };
   }
+
+  updateOpacity = (evt) => {
+    console.log(evt.target.value);
+    this.setState({
+      opacity: parseFloat(evt.target.value),
+    });
+
+    this.map.eachLayer(function (layer) {
+      if (layer?.layer_name === this.layer_name) {
+        // map.removeLayer(layer);
+        console.log(layer.options, "layer options");
+      }
+    });
+  };
 
   render() {
     return (
@@ -30,9 +46,11 @@ export default class LayersControlLayerMeasuringCategory extends Component {
           </a>
           <input
             type="range"
-            step="1"
-            // value={this.state.opacity}
-            // onChange={this.updateOpacity}
+            min="0"
+            max="1"
+            step="0.1"
+            value={this.state.opacity}
+            onChange={this.updateOpacity}
           />
         </div>
       </div>
