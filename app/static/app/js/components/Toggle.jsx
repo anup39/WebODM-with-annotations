@@ -29,7 +29,7 @@ class Toggle extends React.Component {
       // Get the style from the api call here
       const Style = {
         //  this.props.style
-        fillColor: style.fill_color,
+        color: style.fill,
         fillOpacity: style.fill_opacity,
       };
       axios
