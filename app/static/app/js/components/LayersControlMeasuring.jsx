@@ -7,9 +7,11 @@ import LayersControlPanelMeasuring from "./LayersControlPanelMeasuring";
 
 class LayersControlButtonMeasuring extends React.Component {
   static propTypes = {
-    overlays_measuring: PropTypes.array.isRequired,
+    categories_measuring: PropTypes.array.isRequired,
     map: PropTypes.object.isRequired,
   };
+
+
 
   constructor(props) {
     super(props);
@@ -29,6 +31,8 @@ class LayersControlButtonMeasuring extends React.Component {
 
   render() {
     const { showPanel } = this.state;
+    console.log(this.props.categories_measuring,"categories measuring")
+
 
     return (
       <div className={showPanel ? "open" : ""}>
@@ -40,13 +44,15 @@ class LayersControlButtonMeasuring extends React.Component {
         ></a>
         <LayersControlPanelMeasuring
           map={this.props.map}
-          overlays_measuring={this.props.overlays_measuring}
+          categories_measuring={this.props.categories_measuring}
           onClose={this.handleClose}
         />
       </div>
     );
   }
 }
+
+
 
 export default L.Control.extend({
   options: {
@@ -69,11 +75,11 @@ export default L.Control.extend({
     return this.container;
   },
 
-  update: function (overlays_measuring) {
+  update: function (categories_measuring) {
     ReactDOM.render(
       <LayersControlButtonMeasuring
         map={this.map}
-        overlays_measuring={overlays_measuring}
+        categories_measuring={categories_measuring}
       />,
       this.container
     );

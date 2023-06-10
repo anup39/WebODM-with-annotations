@@ -90,9 +90,9 @@ class Map extends React.Component {
       overlays: [],
       drawMode: false,
       standard_categories : [],
-      sub_categories :[]
+      sub_categories :[],
       categories_measuring: [],
-      overlays_measuring: [],
+      // overlays_measuring: [],
     };
 
     this.basemaps = {};
@@ -137,57 +137,18 @@ class Map extends React.Component {
 
   loadOverlayaMeasuring = (forceAddLayers = false) => {
     const project_id = this.props.project_id;
-    const user = this.props.user;
-    const allLayersNames = [];
-    const allLayers = [];
-    const allCategoryNames = []
-
     axios
       .get(`/api/projects/${project_id}`)
       .then((res) => {
-        const project_name_final = res.data.name.replace(/ /g, "_").toLowerCase();
-        allLayersNames.push({ name_db: "All", name_final: project_name_final });
-
-        return axios.get(`/api/project-measuring-category/?project=${project_id}`).then((res) => {
+        axios.get(`/api/project-measuring-category/?project=${project_id}`).then((res) => {
           const data = res.data.results;
-          data.forEach((category) => {
-            const category_name = category.name.replace(/ /g, "_").toLowerCase();
-            const category_name_final = project_name_final + "_" + category_name;
-            allLayersNames.push({ name_db: category.name, name_final: category_name_final });
-            allCategoryNames.push({ id: category.id, category: category.name })
+          return this.setState({categories_measuring: data});
           });
-
-          // Here make the env for the geoserver url
-          const wmsUrl = `${geoserver_url}/${user}/wms`;
-          const wmsParams = {
-            format: "image/png",
-            transparent: true,
-          };
-
-          allLayersNames.forEach((layerName) => {
-            const wmsLayer_ = layerName.name_final;
-            const wmsLayer = Leaflet.tileLayer.wms(wmsUrl, {
-              ...wmsParams,
-              layers: wmsLayer_,
-            });
-            wmsLayer[Symbol.for("meta")] = {
-              name: layerName.name_db,
-              // icon: "fa fa-tree fa-fw",
-            };
-
-
-            allLayers.push(wmsLayer);
-
-
-          });
-
-          this.setState({ overlays_measuring: allLayers, categories_measuring: allCategoryNames });
-        });
       })
       .catch((err) => {
         console.log(err, "error");
       });
-  };
+  }
 
 
   loadImageryLayers(forceAddLayers = false) {
@@ -592,7 +553,8 @@ class Map extends React.Component {
     this.layersControl_measuring = new LayersControlMeasuring({
       position: "topleft",
       // layers: this.state.imageryLayers,
-      overlays_measuring: this.state.overlays_measuring,
+      // overlays_measuring: this.state.overlays_measuring,
+      categories_measuring: this.state.categories_measuring
     }).addTo(this.map);
 
     this.autolayers = Leaflet.control
@@ -928,9 +890,9 @@ class Map extends React.Component {
     }
     if (
       this.layersControl_measuring &&
-      prevState.overlays_measuring !== this.state.overlays_measuring
+      prevState.categories_measuring !== this.state.categories_measuring
     ) {
-      this.layersControl_measuring.update(this.state.overlays_measuring);
+      this.layersControl_measuring.update(this.state.categories_measuring);
     }
     if (prevState.drawMode !== this.state.drawMode) {
       // Get the image layer
