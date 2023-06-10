@@ -75,11 +75,13 @@ export default L.Control.extend({
     return this.container;
   },
 
-  update: function (categories_measuring) {
+  update: function (categories_measuring, sub_categories, standard_categories) {
     ReactDOM.render(
       <LayersControlButtonMeasuring
         map={this.map}
         categories_measuring={categories_measuring}
+        sub_categories={sub_categories}
+        standard_categories={standard_categories}
       />,
       this.container
     );

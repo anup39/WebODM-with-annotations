@@ -145,29 +145,15 @@ class Map extends React.Component {
           const data = res.data.results;
           this.setState({categories_measuring: data});
           });
-      })
-      .catch((err) => {
-        console.log(err, "error");
-      });
 
-    axios
-      .get(`/api/projects/${project_id}`)
-      .then((res) => {
         axios.get(`/api/project-sub-category/?project=${project_id}`).then((res) => {
-          const data = res.data.results;
-          this.setState({sub_categories: data});
-          });
-      })
-      .catch((err) => {
-        console.log(err, "error");
-      });
-    axios
-      .get(`/api/projects/${project_id}`)
-      .then((res) => {
+            const data = res.data.results;
+            this.setState({sub_categories: data});
+            });
         axios.get(`/api/project-standard-category/?project=${project_id}`).then((res) => {
-          const data = res.data.results;
-          this.setState({standard_categories: data});
-          });
+              const data = res.data.results;
+              this.setState({standard_categories: data});
+              });
       })
       .catch((err) => {
         console.log(err, "error");
@@ -916,9 +902,17 @@ class Map extends React.Component {
     }
     if (
       this.layersControl_measuring &&
-      prevState.categories_measuring !== this.state.categories_measuring
+      (
+        prevState.categories_measuring !== this.state.categories_measuring ||
+        prevState.sub_categories !== this.state.sub_categories ||
+        prevState.standard_categories !== this.state.standard_categories
+      )
     ) {
-      this.layersControl_measuring.update(this.state.categories_measuring);
+      this.layersControl_measuring.update(
+        this.state.categories_measuring,
+        this.state.sub_categories,
+        this.state.standard_categories
+      );
     }
     if (prevState.drawMode !== this.state.drawMode) {
       // Get the image layer
