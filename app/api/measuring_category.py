@@ -5,6 +5,13 @@ import django_filters
 from rest_framework import filters
 
 
+class StandardCategoryFilter(django_filters.FilterSet):
+    project = django_filters.CharFilter(field_name='project__id')
+
+    class Meta:
+        model = models.measuring_category.StandardCategory
+        fields = ['project']
+
 
 
 class StandardCategorySerializer(serializers.ModelSerializer):
@@ -20,8 +27,16 @@ class StandardCategoryViewSet(viewsets.ModelViewSet):
     serializer_class = StandardCategorySerializer 
     filter_backends = [DjangoFilterBackend,
                        filters.SearchFilter, filters.OrderingFilter]
-    # filter_class = MeasuringCategoryFilter
+    filter_class = StandardCategoryFilter
 
+
+
+class SubCategoryFilter(django_filters.FilterSet):
+    standard_category = django_filters.CharFilter(field_name='standard_category__id')
+
+    class Meta:
+        model = models.measuring_category.SubCategory
+        fields = ['standard_category']
 
 
 class SubCategorySerializer(serializers.ModelSerializer):
@@ -37,14 +52,14 @@ class SubCategoryViewSet(viewsets.ModelViewSet):
     serializer_class = SubCategorySerializer 
     filter_backends = [DjangoFilterBackend,
                        filters.SearchFilter, filters.OrderingFilter]
-    # filter_class = MeasuringCategoryFilter
+    filter_class = SubCategoryFilter
 
 class MeasuringCategoryFilter(django_filters.FilterSet):
-    project = django_filters.CharFilter(field_name='project__id')
+    sub_category = django_filters.CharFilter(field_name='sub_category__id')
 
     class Meta:
         model = models.MeasuringCategory
-        fields = ['project']
+        fields = ['sub_category']
 
 
 class MeasuringCategorySerializer(serializers.ModelSerializer):
