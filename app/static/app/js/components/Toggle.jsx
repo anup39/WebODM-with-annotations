@@ -78,9 +78,25 @@ class Toggle extends React.Component {
             const data = response.data;
             const selectedArea = Leaflet.geoJson(data, {
               // style: Style,
+
               style: function (feature) {
                 // Define the default style properties
                 console.log(style, "style");
+                const defaultStyle = {};
+
+                style.map((item) => {
+                  console.log(item, "item");
+                  console.log(feature.properties.measuring_category_id, "id ");
+                  if (
+                    item.measuring_category ===
+                    feature.properties.measuring_category_id
+                  ) {
+                    defaultStyle.fillColor = style.fill;
+                    defaultStyle.fillOpacity = style.fill_opacity;
+                  }
+                });
+
+                return defaultStyle;
               },
               onEachFeature: function (feature, layer) {
                 layer.bindPopup(`Name: ${feature.properties.name}`);
