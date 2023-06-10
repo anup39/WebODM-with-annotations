@@ -91,10 +91,12 @@ class Toggle extends React.Component {
                     item.measuring_category ===
                     feature.properties.measuring_category_id
                   ) {
-                    defaultStyle.fillColor = style.fill;
-                    defaultStyle.fillOpacity = style.fill_opacity;
+                    defaultStyle.fillColor = item.fill;
+                    defaultStyle.fillOpacity = item.fill_opacity;
                   }
                 });
+
+                console.log(defaultStyle, "default style");
 
                 return defaultStyle;
               },
