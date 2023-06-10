@@ -15,25 +15,24 @@ export default class LayersControlLayerMeasuringCategory extends Component {
     render() {
         return (
             <div className="layers-control-layer category">
-                {this.props.overlay ?
-                    <>
-                        <Checkbox bind={[this, 'visible']} />
-                        <a
-                            title={"Ground Grass 1"}
-                            className="layer-label"
-                            href="javascript:void(0);"
-                        // onClick={this.handleLayerClick}
-                        >
-                            Ground Grass 1
-                        </a>
-                        <input
-                            type="range"
-                            step="1"
-                            // value={this.state.opacity}
-                            // onChange={this.updateOpacity}
-                        />
-                    </>
-                    : null}
+                    <div >
+                    <Checkbox bind={[this, 'visible']} />
+                    <a
+                        title={this.props.layer.name}
+                        className="layer-label"
+                        href="javascript:void(0);"
+                    // onClick={this.handleLayerClick}
+                    >
+                        {this.props.layer.name}
+                    </a>
+                    <input
+                        type="range"
+                        step="1"
+                        // value={this.state.opacity}
+                        // onChange={this.updateOpacity}
+                    />
+                    
+                    </div>
 
             </div>
         )

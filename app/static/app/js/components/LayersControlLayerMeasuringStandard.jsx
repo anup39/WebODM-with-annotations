@@ -13,13 +13,11 @@ export default class LayersControlLayerMeasuringStandard extends React.Component
     layer: null,
     expanded: false,
     map: null,
-    overlay: false,
   };
   static propTypes = {
     layer: PropTypes.object.isRequired,
     expanded: PropTypes.bool,
     map: PropTypes.object.isRequired,
-    overlay: PropTypes.bool,
     sub_categories:PropTypes.array,
     categories_measuring:PropTypes.array,
 
@@ -27,53 +25,21 @@ export default class LayersControlLayerMeasuringStandard extends React.Component
 
   constructor(props) {
     super(props);
-
     this.map = props.map;
-
-    // this.meta = props.layer.name;
-
     this.state = {
-      // visible: this.map.hasLayer(props.layer),
+
+      // Check if the wms is there for visible
+      visible: false,
       expanded: props.expanded,
     };
-
-
   }
-
-  componentDidUpdate(prevProps, prevState) {
-    const { layer } = this.props;
-
-    // if (prevState.visible !== this.state.visible) {
-    //   if (this.state.visible) {
-    //     layer.addTo(this.map);
-    //   } else {
-    //     this.map.removeLayer(layer);
-    //   }
-    // }
-  }
-
-  handleLayerClick = () => {
-    const { layer } = this.props;
-
-    // const bounds =
-    //   layer.options.bounds !== undefined
-    //     ? layer.options.bounds
-    //     : layer.getBounds();
-    // this.map.fitBounds(bounds);
-
-    // if (layer.getPopup()) layer.openPopup();
-  };
-
   render() {
-    const { meta } = this;
+    console.log(this.state.sub_categories,"sub categoreis")
     const filtered = this.props.sub_categories.filter(obj => obj.standard_category === this.props.layer.id);
-    console.log(this.props.layer.id)
-
-    console.log(filtered,"filtered")
 
     return (
       <div className="layers-control-layer ">
-        {this.props.overlay ?
+    
           <>
             {this.props.layer.name === "All" ?
               <Checkbox layer={this.props.layer} map={this.map} bind={[this, "visible"]} />
@@ -84,15 +50,21 @@ export default class LayersControlLayerMeasuringStandard extends React.Component
               title={this.props.layer.name}
               className="layer-label"
               href="javascript:void(0);"
-              // onClick={this.handleLayerClick}
             >
               {this.props.layer.name}
             </a>
           </>
-          : null}
 
+        {this.state.expanded ? 
+          filtered.map((layer,i)=>
+            
+            <LayersControlLayerMeasuringSubCategory  map={this.props.map} expanded={false}  layer={layer}  key={i}   categories_measuring={this.props.categories_measuring} />
 
-        {this.state.expanded ? <LayersControlLayerMeasuringSubCategory overlay={true} sub_categories={filtered} categories_measuring={this.props.categories_measuring} /> : null}
+          
+
+          )
+        : null}
+
 
       </div>
     );

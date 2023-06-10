@@ -23,9 +23,7 @@ export default class LayersControlPanelMeasuring extends React.Component {
   render() {
     let content = "";
 
-    // console.log(this.props.categories_measuring, this.props.sub_categories, this.props.standard_categories)
-
-    if (!this.props.categories_measuring.length)
+    if (!this.props.standard_categories.length)
       content = (
         <span>
           <i className="loading fa fa-circle-notch fa-spin"></i>{" "}
@@ -41,7 +39,6 @@ export default class LayersControlPanelMeasuring extends React.Component {
                <LayersControlLayerMeasuringStandard
                   map={this.props.map}
                   expanded={false}
-                  overlay={true}
                   layer={{name:"All"}}
                   key={this.props.standard_categories.length+1}
                   sub_categories={this.props.sub_categories}
@@ -53,7 +50,6 @@ export default class LayersControlPanelMeasuring extends React.Component {
                 <LayersControlLayerMeasuringStandard
                   map={this.props.map}
                   expanded={false}
-                  overlay={true}
                   layer={layer}
                   key={i}
                   sub_categories={this.props.sub_categories}

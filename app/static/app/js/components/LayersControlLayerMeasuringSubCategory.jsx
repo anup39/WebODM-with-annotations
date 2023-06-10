@@ -7,37 +7,43 @@ export default class LayersControlLayerMeasuringSubCategory extends Component {
     constructor(props) {
         super(props)
         this.state = {
-            expanded: false
+            expanded: props.expanded,
+            visible:false
         }
 
     }
 
     render() {
+
+        const filtered = this.props.categories_measuring.filter(obj => obj.sub_category === this.props.layer.id);
+        console.log(filtered,"filtered Categories")
+    
         return (
             <>
-                {
-                    this.props.sub_categories.map((item) =>
-                        <div key={item.id} className="layers-control-layer sub-category">
-                            {this.props.overlay ?
-                                <>
+                <div   className="layers-control-layer sub-category">              
+                    <>
                                     <ExpandButton bind={[this, 'expanded']} />
                                     <a
-                                        title= {item.name}
+                                        title= {this.props.layer.name}
                                         className="layer-label"
                                         href="javascript:void(0);"
                                     // onClick={this.handleLayerClick}
                                     >
-                                        {item.name}
+                                        {this.props.layer.name}
                                     </a>
                                 </>
-                                : null}
-
-                            {/* {this.state.expanded ? <LayersControlLayerMeasuringCategory overlay={true} categories_measuring={this.props.categories_measuring} /> : null} */}
-
+                              
                         </div>
 
-                    )
-                }</>
+                    
+                        {this.state.expanded ? 
+          filtered.map((layer,i)=>
+            <LayersControlLayerMeasuringCategory  map={this.props.map} expanded={false}  layer={layer}  key={i}  />          
+
+          )
+        : null}
+                
+                </>
         )
     }
 }
