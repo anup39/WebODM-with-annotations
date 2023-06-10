@@ -120,6 +120,7 @@ class MapView extends React.Component {
           <Map
             user={this.props.user}
             project_id={this.props.project_id}
+            project_name={this.props.project_name}
             tiles={this.state.tiles}
             showBackground={true}
             mapType={this.state.selectedMapType}

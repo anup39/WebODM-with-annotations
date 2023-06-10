@@ -9,11 +9,13 @@ export default class LayersControlPanelMeasuring extends React.Component {
     categories_measuring: [],
     sub_categories: [],
     standard_categories: [],
+    project_name: "",
   };
   static propTypes = {
     onClose: PropTypes.func.isRequired,
     categories_measuring: PropTypes.array,
     map: PropTypes.object.isRequired,
+    project_name: PropTypes.string,
   };
 
   constructor(props) {
@@ -38,7 +40,12 @@ export default class LayersControlPanelMeasuring extends React.Component {
               <LayersControlLayerMeasuringStandard
                 map={this.props.map}
                 expanded={false}
-                layer={{ name: "All" }}
+                layer={{
+                  name: "All",
+                  view_name: this.props.project_name
+                    .replace(/ /g, "_")
+                    .toLowerCase(),
+                }}
                 key={this.props.standard_categories.length + 1}
                 sub_categories={this.props.sub_categories}
                 categories_measuring={this.props.categories_measuring}

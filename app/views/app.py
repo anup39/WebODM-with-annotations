@@ -78,6 +78,7 @@ def map(request, project_pk=None, task_pk=None):
         'params': {
             'user':request.user,
             'project_id': project.id,
+            'project_name':project.name,
             'map-items': json.dumps(mapItems),
             'title': title,
             'public': 'false',

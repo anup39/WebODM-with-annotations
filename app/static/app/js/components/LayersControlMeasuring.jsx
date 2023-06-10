@@ -11,6 +11,7 @@ class LayersControlButtonMeasuring extends React.Component {
     sub_categories: PropTypes.array,
     categories_measuring: PropTypes.array,
     map: PropTypes.object.isRequired,
+    project_name: PropTypes.string,
   };
   constructor(props) {
     super(props);
@@ -43,6 +44,7 @@ class LayersControlButtonMeasuring extends React.Component {
           categories_measuring={this.props.categories_measuring}
           sub_categories={this.props.sub_categories}
           standard_categories={this.props.standard_categories}
+          project_name={this.props.project_name}
           onClose={this.handleClose}
         />
       </div>
@@ -70,13 +72,19 @@ export default L.Control.extend({
     return this.container;
   },
 
-  update: function (categories_measuring, sub_categories, standard_categories) {
+  update: function (
+    categories_measuring,
+    sub_categories,
+    standard_categories,
+    project_name
+  ) {
     ReactDOM.render(
       <LayersControlButtonMeasuring
         map={this.map}
         categories_measuring={categories_measuring}
         sub_categories={sub_categories}
         standard_categories={standard_categories}
+        project_name={project_name}
       />,
       this.container
     );

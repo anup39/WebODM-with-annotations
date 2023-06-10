@@ -25,14 +25,9 @@ class Toggle extends React.Component {
     console.log(this.props.map, "map");
 
     if (this.props.layer && this.props.map) {
-      const handleJson = (data) => {
-        selectedArea = Leaflet.geoJson(data, {
-          style: myStyle,
-          onEachFeature: function (feature, layer) {
-            layer.bindPopup(`Name: ${feature.properties.name}`);
-          },
-        }).addTo(map);
-        map.fitBounds(selectedArea.getBounds());
+      //Geojson style file
+      const myStyle = {
+        color: "red",
       };
       axios
         .get(`${geoserver_url}/wfs`, {
@@ -41,26 +36,25 @@ class Toggle extends React.Component {
             version: "1.1.0",
             request: "GetFeature",
             typename: `super_admin:${this.props.layer.view_name}`,
-            // CQL_FILTER: "column='demo'",
-            srsname: "EPSG:3857",
-            outputFormat: "text/javascript",
+            srsname: "EPSG:4326",
+            outputFormat: "application/json",
           },
-          responseType: "jsonp",
-          jsonpCallback: handleJson,
-          jsonp: "format_options",
         })
         .then((response) => {
-          // Handle the response here
+          const data = response.data;
+          console.log(data, "data");
+          const selectedArea = Leaflet.geoJson(data, {
+            style: myStyle,
+            onEachFeature: function (feature, layer) {
+              layer.bindPopup(`Name: ${feature.properties.name}`);
+            },
+          }).addTo(this.props.map);
+          this.props.map.fitBounds(selectedArea.getBounds());
         })
         .catch((error) => {
           // Handle the error here
+          console.log(error);
         });
-
-      //Geojson style file
-      const myStyle = {
-        color: "red",
-      };
-      // the ajax callback function
     }
 
     const [parent, prop] = this.props.bind;
