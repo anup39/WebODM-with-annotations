@@ -89,8 +89,10 @@ class Map extends React.Component {
       imageryLayers: [],
       overlays: [],
       drawMode: false,
-      overlays_measuring: [],
+      standard_categories : [],
+      sub_categories :[]
       categories_measuring: [],
+      overlays_measuring: [],
     };
 
     this.basemaps = {};
