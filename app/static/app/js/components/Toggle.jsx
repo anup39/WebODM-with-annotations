@@ -24,6 +24,15 @@ class Toggle extends React.Component {
     console.log(this.props.map, "map");
 
     if (this.props.layer && this.props.map) {
+      const handleJson = (data) => {
+        selectedArea = Leaflet.geoJson(data, {
+          style: myStyle,
+          onEachFeature: function (feature, layer) {
+            layer.bindPopup(`Name: ${feature.properties.name}`);
+          },
+        }).addTo(map);
+        map.fitBounds(selectedArea.getBounds());
+      };
       $.ajax(`${geoserver_url}/wfs`, {
         type: "GET",
         data: {
@@ -44,15 +53,6 @@ class Toggle extends React.Component {
         color: "red",
       };
       // the ajax callback function
-      function handleJson(data) {
-        selectedArea = Leaflet.geoJson(data, {
-          style: myStyle,
-          onEachFeature: function (feature, layer) {
-            layer.bindPopup(`Name: ${feature.properties.name}`);
-          },
-        }).addTo(map);
-        map.fitBounds(selectedArea.getBounds());
-      }
     }
 
     const [parent, prop] = this.props.bind;
