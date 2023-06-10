@@ -6,11 +6,13 @@ import { _ } from "../classes/gettext";
 
 export default class LayersControlPanelMeasuring extends React.Component {
   static defaultProps = {
-    overlays_measuring: [],
+    categories_measuring: [],
+    sub_categories:[],
+    standard_categories:[]
   };
   static propTypes = {
     onClose: PropTypes.func.isRequired,
-    overlays_measuring: PropTypes.array,
+    categories_measuring: PropTypes.array,
     map: PropTypes.object.isRequired,
   };
 
@@ -21,7 +23,9 @@ export default class LayersControlPanelMeasuring extends React.Component {
   render() {
     let content = "";
 
-    if (!this.props.overlays_measuring.length)
+    console.log(this.props.categories_measuring, this.props.sub_categories, this.props.standard_categories)
+
+    if (!this.props.categories_measuring.length)
       content = (
         <span>
           <i className="loading fa fa-circle-notch fa-spin"></i>{" "}
@@ -31,9 +35,9 @@ export default class LayersControlPanelMeasuring extends React.Component {
     else {
       content = (
         <div>
-          {this.props.overlays_measuring.length ? (
+          {this.props.categories_measuring.length ? (
             <div className="overlays theme-border-primary">
-              {this.props.overlays_measuring.map((layer, i) => (
+              {this.props.categories_measuring.map((layer, i) => (
                 <LayersControlLayerMeasuringStandard
                   map={this.props.map}
                   expanded={false}

@@ -7,7 +7,7 @@ import LayersControlPanelMeasuring from "./LayersControlPanelMeasuring";
 
 class LayersControlButtonMeasuring extends React.Component {
   static propTypes = {
-    standard_categories: PropTypes.array.isRequired,
+    standard_categories: PropTypes.array,
     sub_categories: PropTypes.array,
     categories_measuring: PropTypes.array,
     map: PropTypes.object.isRequired,
@@ -30,11 +30,6 @@ class LayersControlButtonMeasuring extends React.Component {
 
   render() {
     const { showPanel } = this.state;
-    console.log(this.props.standard_categories,"standard categories")
-    console.log(this.props.sub_categories,"sub cateogries")
-    console.log(this.props.categories_measuring,"categories")
-
-
     return (
       <div className={showPanel ? "open" : ""}>
         <a
@@ -46,6 +41,8 @@ class LayersControlButtonMeasuring extends React.Component {
         <LayersControlPanelMeasuring
           map={this.props.map}
           categories_measuring={this.props.categories_measuring}
+          sub_categories={this.props.sub_categories}
+          standard_categories={this.props.standard_categories}
           onClose={this.handleClose}
         />
       </div>
