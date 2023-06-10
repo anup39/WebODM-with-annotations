@@ -3,6 +3,7 @@ import PropTypes from "prop-types";
 import "../css/Toggle.scss";
 import Leaflet from "leaflet";
 
+const geoserver_url = "http://137.135.165.161:8600/geoserver";
 class Toggle extends React.Component {
   static defaultProps = {};
   static propTypes = {
