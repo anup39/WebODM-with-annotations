@@ -7,8 +7,8 @@ import { _ } from "../classes/gettext";
 export default class LayersControlPanelMeasuring extends React.Component {
   static defaultProps = {
     categories_measuring: [],
-    sub_categories:[],
-    standard_categories:[]
+    sub_categories: [],
+    standard_categories: [],
   };
   static propTypes = {
     onClose: PropTypes.func.isRequired,
@@ -34,17 +34,15 @@ export default class LayersControlPanelMeasuring extends React.Component {
       content = (
         <div>
           {this.props.standard_categories.length ? (
-            
             <div className="overlays theme-border-primary">
-               <LayersControlLayerMeasuringStandard
-                  map={this.props.map}
-                  expanded={false}
-                  layer={{name:"All"}}
-                  key={this.props.standard_categories.length+1}
-                  sub_categories={this.props.sub_categories}
-                  categories_measuring={this.props.categories_measuring}
-
-                />
+              <LayersControlLayerMeasuringStandard
+                map={this.props.map}
+                expanded={false}
+                layer={{ name: "All" }}
+                key={this.props.standard_categories.length + 1}
+                sub_categories={this.props.sub_categories}
+                categories_measuring={this.props.categories_measuring}
+              />
 
               {this.props.standard_categories.map((layer, i) => (
                 <LayersControlLayerMeasuringStandard
@@ -54,7 +52,6 @@ export default class LayersControlPanelMeasuring extends React.Component {
                   key={i}
                   sub_categories={this.props.sub_categories}
                   categories_measuring={this.props.categories_measuring}
-
                 />
               ))}
             </div>
@@ -68,8 +65,8 @@ export default class LayersControlPanelMeasuring extends React.Component {
     return (
       <div className="layers-control-panel">
         <div>
-        <span className="close-button" onClick={this.props.onClose} />
-        <div className="title">{_("Measurings")}</div>
+          <span className="close-button" onClick={this.props.onClose} />
+          <div className="title">{_("Measurings")}</div>
         </div>
         <hr />
         {content}

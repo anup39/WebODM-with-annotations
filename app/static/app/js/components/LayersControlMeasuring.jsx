@@ -50,7 +50,6 @@ class LayersControlButtonMeasuring extends React.Component {
   }
 }
 
-
 export default L.Control.extend({
   options: {
     position: "topright",
@@ -65,7 +64,6 @@ export default L.Control.extend({
 
     L.DomEvent.disableClickPropagation(this.container);
     L.DomEvent.disableScrollPropagation(this.container);
-
 
     this.update([]);
 
