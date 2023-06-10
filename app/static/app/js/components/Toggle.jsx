@@ -22,29 +22,31 @@ class Toggle extends React.Component {
   handleClick = () => {
     console.log(this.props.layer, "layer");
     console.log(this.props.map, "map");
-    // Create a WFS source
-    const wfsSource = new L.WFS.source({
-      url: `${geoserver_url}/wfs`,
-      typeName: this.props.layer.view_name,
-      // namespaceUri: "http://example.com/namespace",
-    });
 
-    // Create a WFS layer
-    const wfsLayer = new L.WFS({
-      source: wfsSource,
-      style: {
-        color: "blue",
-        weight: 2,
-      },
-      onEachFeature: function (feature, layer) {
-        // Add any desired feature interaction or popup functionality here
-        layer.bindPopup("Feature ID: " + "Test");
-      },
-    });
+    if (this.props.layer && this.props.map) {
+      // Create a WFS source
+      const wfsSource = new L.WFS.source({
+        url: `${geoserver_url}/wfs`,
+        typeName: this.props.layer.view_name,
+        // namespaceUri: "http://example.com/namespace",
+      });
 
-    // Add the WFS layer to the map
-    wfsLayer.addTo(this.props.map);
-    // this.props.map.fitBounds(bounds);
+      // Create a WFS layer
+      const wfsLayer = new L.WFS({
+        source: wfsSource,
+        style: {
+          color: "blue",
+          weight: 2,
+        },
+        onEachFeature: function (feature, layer) {
+          // Add any desired feature interaction or popup functionality here
+          layer.bindPopup("Feature ID: " + "Test");
+        },
+      });
+      // Add the WFS layer to the map
+      wfsLayer.addTo(this.props.map);
+      // this.props.map.fitBounds(bounds);
+    }
 
     const [parent, prop] = this.props.bind;
     parent.setState({ [prop]: !parent.state[prop] });
