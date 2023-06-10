@@ -24,28 +24,35 @@ class Toggle extends React.Component {
     console.log(this.props.map, "map");
 
     if (this.props.layer && this.props.map) {
-      // Create a WFS source
-      const wfsSource = new L.WFS.source({
-        url: `${geoserver_url}/wfs`,
-        typeName: this.props.layer.view_name,
-        // namespaceUri: "http://example.com/namespace",
-      });
-
-      // Create a WFS layer
-      const wfsLayer = new L.WFS({
-        source: wfsSource,
-        style: {
-          color: "blue",
-          weight: 2,
+      $.ajax(`${geoserver_url}/wfs`, {
+        type: "GET",
+        data: {
+          service: "WFS",
+          version: "1.1.0",
+          request: "GetFeature",
+          typename: `super_admin:${this.props.layer.view_name}`,
+          // CQL_FILTER: "column='demo'",
+          srsname: "EPSG:4326",
+          outputFormat: "text/javascript",
         },
-        onEachFeature: function (feature, layer) {
-          // Add any desired feature interaction or popup functionality here
-          layer.bindPopup("Feature ID: " + "Test");
-        },
+        dataType: "jsonp",
+        jsonpCallback: "callback:handleJson",
+        jsonp: "format_options",
       });
-      // Add the WFS layer to the map
-      wfsLayer.addTo(this.props.map);
-      // this.props.map.fitBounds(bounds);
+      //Geojson style file
+      const myStyle = {
+        color: "red",
+      };
+      // the ajax callback function
+      function handleJson(data) {
+        selectedArea = Leaflet.geoJson(data, {
+          style: myStyle,
+          onEachFeature: function (feature, layer) {
+            layer.bindPopup(`Name: ${feature.properties.name}`);
+          },
+        }).addTo(map);
+        map.fitBounds(selectedArea.getBounds());
+      }
     }
 
     const [parent, prop] = this.props.bind;
