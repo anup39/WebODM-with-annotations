@@ -23,7 +23,7 @@ export default class LayersControlPanelMeasuring extends React.Component {
   render() {
     let content = "";
 
-    console.log(this.props.categories_measuring, this.props.sub_categories, this.props.standard_categories)
+    // console.log(this.props.categories_measuring, this.props.sub_categories, this.props.standard_categories)
 
     if (!this.props.categories_measuring.length)
       content = (
@@ -35,15 +35,30 @@ export default class LayersControlPanelMeasuring extends React.Component {
     else {
       content = (
         <div>
-          {this.props.categories_measuring.length ? (
+          {this.props.standard_categories.length ? (
+            
             <div className="overlays theme-border-primary">
-              {this.props.categories_measuring.map((layer, i) => (
+               <LayersControlLayerMeasuringStandard
+                  map={this.props.map}
+                  expanded={false}
+                  overlay={true}
+                  layer={{name:"All"}}
+                  key={this.props.standard_categories.length+1}
+                  sub_categories={this.props.sub_categories}
+                  categories_measuring={this.props.categories_measuring}
+
+                />
+
+              {this.props.standard_categories.map((layer, i) => (
                 <LayersControlLayerMeasuringStandard
                   map={this.props.map}
                   expanded={false}
                   overlay={true}
                   layer={layer}
                   key={i}
+                  sub_categories={this.props.sub_categories}
+                  categories_measuring={this.props.categories_measuring}
+
                 />
               ))}
             </div>

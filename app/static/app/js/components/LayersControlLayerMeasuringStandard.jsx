@@ -20,6 +20,8 @@ export default class LayersControlLayerMeasuringStandard extends React.Component
     expanded: PropTypes.bool,
     map: PropTypes.object.isRequired,
     overlay: PropTypes.bool,
+    sub_categories:PropTypes.array,
+    categories_measuring:PropTypes.array,
 
   };
 
@@ -28,36 +30,38 @@ export default class LayersControlLayerMeasuringStandard extends React.Component
 
     this.map = props.map;
 
-    this.meta = props.layer[Symbol.for("meta")] || {};
+    // this.meta = props.layer.name;
 
     this.state = {
-      visible: this.map.hasLayer(props.layer),
+      // visible: this.map.hasLayer(props.layer),
       expanded: props.expanded,
     };
+
+
   }
 
   componentDidUpdate(prevProps, prevState) {
     const { layer } = this.props;
 
-    if (prevState.visible !== this.state.visible) {
-      if (this.state.visible) {
-        layer.addTo(this.map);
-      } else {
-        this.map.removeLayer(layer);
-      }
-    }
+    // if (prevState.visible !== this.state.visible) {
+    //   if (this.state.visible) {
+    //     layer.addTo(this.map);
+    //   } else {
+    //     this.map.removeLayer(layer);
+    //   }
+    // }
   }
 
   handleLayerClick = () => {
     const { layer } = this.props;
 
-    const bounds =
-      layer.options.bounds !== undefined
-        ? layer.options.bounds
-        : layer.getBounds();
-    this.map.fitBounds(bounds);
+    // const bounds =
+    //   layer.options.bounds !== undefined
+    //     ? layer.options.bounds
+    //     : layer.getBounds();
+    // this.map.fitBounds(bounds);
 
-    if (layer.getPopup()) layer.openPopup();
+    // if (layer.getPopup()) layer.openPopup();
   };
 
   render() {
@@ -67,22 +71,23 @@ export default class LayersControlLayerMeasuringStandard extends React.Component
       <div className="layers-control-layer ">
         {this.props.overlay ?
           <>
-            {meta.name === "All" ?
+            {this.props.layer.name === "All" ?
               <Checkbox layer={this.props.layer} map={this.map} bind={[this, "visible"]} />
-              : <ExpandButton bind={[this, 'expanded']} />
+              : 
+              <ExpandButton bind={[this, 'expanded']} />
             }
             <a
-              title={meta.name}
+              title={this.props.layer.name}
               className="layer-label"
               href="javascript:void(0);"
-              onClick={this.handleLayerClick}
+              // onClick={this.handleLayerClick}
             >
-              {meta.name}
+              {this.props.layer.name}
             </a>
           </>
           : null}
 
-        {this.state.expanded ? <LayersControlLayerMeasuringSubCategory overlay={true} /> : null}
+        {/* {this.state.expanded ? <LayersControlLayerMeasuringSubCategory overlay={true} /> : null} */}
 
       </div>
     );
