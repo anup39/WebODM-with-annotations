@@ -24,17 +24,17 @@ export default class LayersControlPanelMeasuring extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      style: {},
+      style: [],
     };
   }
 
   componentDidMount() {
-    console.log(this.props.layer.id);
     axios
       .get(`/api/category-style/?project=${this.props.project_id}`)
       .then((response) => {
+        console.log(response.data.results[0]);
         this.setState({
-          style: response.data.results[0],
+          style: response.data.results,
         });
       })
       .catch((error) => {
@@ -44,6 +44,8 @@ export default class LayersControlPanelMeasuring extends React.Component {
 
   render() {
     let content = "";
+    console.log(this.state.style, "style");
+    console.log(this.props.project_id, "id of project");
 
     if (!this.props.standard_categories.length)
       content = (
@@ -80,6 +82,7 @@ export default class LayersControlPanelMeasuring extends React.Component {
                   key={i}
                   sub_categories={this.props.sub_categories}
                   categories_measuring={this.props.categories_measuring}
+                  style={this.state.style}
                 />
               ))}
             </div>
