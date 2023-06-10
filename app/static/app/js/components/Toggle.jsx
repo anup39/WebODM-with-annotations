@@ -87,10 +87,12 @@ class Toggle extends React.Component {
                   weight: 2,
                 };
 
+                console.log(feature, "features");
+
                 // Set different styles based on feature properties
-                if (feature.properties.category === "A") {
+                if (feature.properties.measuring_category_id === 3) {
                   return { fillColor: "red" };
-                } else if (feature.properties.category === "B") {
+                } else if (feature.measuring_category_id === 2) {
                   return { fillColor: "green" };
                 } else {
                   return defaultStyle;
