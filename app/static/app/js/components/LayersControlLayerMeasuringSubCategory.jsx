@@ -16,7 +16,7 @@ export default class LayersControlLayerMeasuringSubCategory extends Component {
     render() {
 
         const filtered = this.props.categories_measuring.filter(obj => obj.sub_category === this.props.layer.id);
-        console.log(filtered,"filtered Categories")
+\
     
         return (
             <>
@@ -27,7 +27,6 @@ export default class LayersControlLayerMeasuringSubCategory extends Component {
                                         title= {this.props.layer.name}
                                         className="layer-label"
                                         href="javascript:void(0);"
-                                    // onClick={this.handleLayerClick}
                                     >
                                         {this.props.layer.name}
                                     </a>

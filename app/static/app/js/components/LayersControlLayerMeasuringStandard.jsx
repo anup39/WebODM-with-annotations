@@ -34,7 +34,7 @@ export default class LayersControlLayerMeasuringStandard extends React.Component
     };
   }
   render() {
-    console.log(this.state.sub_categories,"sub categoreis")
+
     const filtered = this.props.sub_categories.filter(obj => obj.standard_category === this.props.layer.id);
 
     return (
@@ -57,10 +57,7 @@ export default class LayersControlLayerMeasuringStandard extends React.Component
 
         {this.state.expanded ? 
           filtered.map((layer,i)=>
-            
-            <LayersControlLayerMeasuringSubCategory  map={this.props.map} expanded={false}  layer={layer}  key={i}   categories_measuring={this.props.categories_measuring} />
-
-          
+            <LayersControlLayerMeasuringSubCategory  map={this.props.map} expanded={false}  layer={layer}  key={i}   categories_measuring={this.props.categories_measuring} />          
 
           )
         : null}
