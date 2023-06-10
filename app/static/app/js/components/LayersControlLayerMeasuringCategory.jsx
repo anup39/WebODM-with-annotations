@@ -34,6 +34,10 @@ export default class LayersControlLayerMeasuringCategory extends Component {
     });
   };
 
+  componentDidMount() {
+    console.log(this.props.layer.id);
+  }
+
   render() {
     return (
       <div className="layers-control-layer category">

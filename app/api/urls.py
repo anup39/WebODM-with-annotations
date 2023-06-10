@@ -16,7 +16,7 @@ from .users import UsersList
 from webodm import settings
 
 # Added by Anup
-from .measuring_category import MeasuringCategoryViewSet , StandardCategoryViewSet, SubCategoryViewSet
+from .measuring_category import MeasuringCategoryViewSet , StandardCategoryViewSet, SubCategoryViewSet, CategoryStyleViewSet
 from .category_geometry import CategoryGeometryViewSet
 
 router = routers.DefaultRouter()
@@ -26,6 +26,7 @@ router.register(r'project-standard-category', StandardCategoryViewSet)
 router.register(r'project-sub-category', SubCategoryViewSet)
 router.register(r'project-measuring-category', MeasuringCategoryViewSet)
 router.register(r'category-geometry', CategoryGeometryViewSet)
+router.register(r'category-style',CategoryStyleViewSet)
 
 router.register(r'processingnodes', ProcessingNodeViewSet)
 router.register(r'presets', PresetViewSet, basename='presets')

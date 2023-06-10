@@ -79,3 +79,28 @@ class MeasuringCategoryViewSet(viewsets.ModelViewSet):
                        filters.SearchFilter, filters.OrderingFilter]
     filter_class = MeasuringCategoryFilter
 
+
+class CategoryStyleFilter(django_filters.FilterSet):
+    measuring_category = django_filters.CharFilter(field_name='measuring_category__id')
+    class Meta:
+        model = models.measuring_category.CategoryStyle
+        fields = ['measuring_category']
+
+
+class CategoryStyleSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = models.measuring_category.CategoryStyle
+        fields = "__all__"
+
+
+class CategoryStyleViewSet(viewsets.ModelViewSet):
+
+    queryset = models.measuring_category.CategoryStyle.objects.all()
+    serializer_class = CategoryStyleSerializer
+    filter_backends = [DjangoFilterBackend,
+                       filters.SearchFilter, filters.OrderingFilter]
+    filter_class = CategoryStyleFilter
+
+
+
