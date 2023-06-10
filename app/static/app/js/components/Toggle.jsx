@@ -24,7 +24,9 @@ class Toggle extends React.Component {
     console.log(this.props.layer, "layer");
     console.log(this.props.map, "map");
 
-    if (this.props.layer && this.props.map) {
+    const [parent, prop] = this.props.bind;
+
+    if (this.props.layer && this.props.map && !parent.state[prop]) {
       //Geojson style file
       const myStyle = {
         color: "red",
@@ -57,7 +59,6 @@ class Toggle extends React.Component {
         });
     }
 
-    const [parent, prop] = this.props.bind;
     parent.setState({ [prop]: !parent.state[prop] });
   };
 
