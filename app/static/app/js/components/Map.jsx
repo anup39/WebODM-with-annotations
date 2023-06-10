@@ -574,6 +574,7 @@ class Map extends React.Component {
       sub_categories: this.state.sub_categories,
       standard_categories: this.state.standard_categories,
       project_name: this.props.project_name,
+      project_id: this.props.project_id,
     }).addTo(this.map);
 
     this.autolayers = Leaflet.control
@@ -920,7 +921,8 @@ class Map extends React.Component {
         this.state.categories_measuring,
         this.state.sub_categories,
         this.state.standard_categories,
-        this.props.project_name
+        this.props.project_name,
+        this.props.project_id
       );
     }
     if (prevState.drawMode !== this.state.drawMode) {

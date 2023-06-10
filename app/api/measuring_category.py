@@ -81,10 +81,12 @@ class MeasuringCategoryViewSet(viewsets.ModelViewSet):
 
 
 class CategoryStyleFilter(django_filters.FilterSet):
-    project = django_filters.CharFilter(field_name='project_id')
+    project = django_filters.CharFilter(field_name='project__id')
+    measuring_category = django_filters.CharFilter(field_name='measuring_category__id')
+
     class Meta:
         model = models.measuring_category.CategoryStyle
-        fields = ['project_id']
+        fields = ['project','measuring_category']
 
 
 class CategoryStyleSerializer(serializers.ModelSerializer):

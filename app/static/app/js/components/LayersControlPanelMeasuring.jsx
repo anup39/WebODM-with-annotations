@@ -10,12 +10,14 @@ export default class LayersControlPanelMeasuring extends React.Component {
     sub_categories: [],
     standard_categories: [],
     project_name: "",
+    project_id: 0,
   };
   static propTypes = {
     onClose: PropTypes.func.isRequired,
     categories_measuring: PropTypes.array,
     map: PropTypes.object.isRequired,
     project_name: PropTypes.string,
+    project_id: PropTypes.number,
   };
 
   constructor(props) {
