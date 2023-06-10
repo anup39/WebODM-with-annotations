@@ -41,7 +41,7 @@ class Toggle extends React.Component {
           request: "GetFeature",
           typename: `super_admin:${this.props.layer.view_name}`,
           // CQL_FILTER: "column='demo'",
-          srsname: "EPSG:4326",
+          srsname: "EPSG:3857",
           outputFormat: "text/javascript",
         },
         dataType: "jsonp",
