@@ -5,6 +5,7 @@ import { _ } from "../classes/gettext";
 export default class LayersControlLayerMeasuringCategory extends Component {
   constructor(props) {
     super(props);
+    this.map = props.map;
     this.state = {
       visible: false,
     };
@@ -14,7 +15,11 @@ export default class LayersControlLayerMeasuringCategory extends Component {
     return (
       <div className="layers-control-layer category">
         <div>
-          <Checkbox bind={[this, "visible"]} />
+          <Checkbox
+            bind={[this, "visible"]}
+            map={this.map}
+            layer={this.props.layer}
+          />
           <a
             title={this.props.layer.name}
             className="layer-label"

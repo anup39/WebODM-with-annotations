@@ -19,13 +19,8 @@ class Toggle extends React.Component {
   }
 
   handleClick = () => {
-    // console.log(this.props.layer, "layer")
-    // console.log(this.props.map, 'map')
-    // Define the bounding box coordinates
-    const southWest = L.latLng(40.7128, -74.006); // Example: New York City
-    const northEast = L.latLng(40.774, -73.9657); // Example: New York City
-    const bounds = L.latLngBounds(southWest, northEast);
-    // Zoom the map to the specified extent
+    console.log(this.props.layer, "layer");
+    console.log(this.props.map, "map");
     // this.props.map.fitBounds(bounds);
     const [parent, prop] = this.props.bind;
     parent.setState({ [prop]: !parent.state[prop] });
