@@ -63,11 +63,6 @@ class Toggle extends React.Component {
             console.log(error);
           });
       } else {
-        // const Style = {
-        //   //  this.props.style
-        //   color: style.fill,
-        //   fillOpacity: style.fill_opacity,
-        // };
         axios
           .get(`${geoserver_url}/wfs`, {
             params: {
@@ -83,6 +78,24 @@ class Toggle extends React.Component {
             const data = response.data;
             const selectedArea = Leaflet.geoJson(data, {
               // style: Style,
+              style: function (feature) {
+                // Define the default style properties
+                const defaultStyle = {
+                  fillColor: "blue",
+                  fillOpacity: 0.5,
+                  color: "black",
+                  weight: 2,
+                };
+
+                // Set different styles based on feature properties
+                if (feature.properties.category === "A") {
+                  return { fillColor: "red" };
+                } else if (feature.properties.category === "B") {
+                  return { fillColor: "green" };
+                } else {
+                  return defaultStyle;
+                }
+              },
               onEachFeature: function (feature, layer) {
                 layer.bindPopup(`Name: ${feature.properties.name}`);
               },
