@@ -16,7 +16,7 @@ export default class LayersControlLayerMeasuringSubCategory extends Component {
     render() {
 
         const filtered = this.props.categories_measuring.filter(obj => obj.sub_category === this.props.layer.id);
-\
+
     
         return (
             <>
