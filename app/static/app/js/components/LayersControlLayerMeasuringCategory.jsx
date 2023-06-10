@@ -1,6 +1,7 @@
 import React, { Component } from "react";
 import { Checkbox } from "./Toggle";
 import { _ } from "../classes/gettext";
+import axios from "axios";
 
 export default class LayersControlLayerMeasuringCategory extends Component {
   constructor(props) {
@@ -9,6 +10,7 @@ export default class LayersControlLayerMeasuringCategory extends Component {
     this.state = {
       visible: false,
       opacity: 0.5,
+      style: {},
     };
   }
 
@@ -36,6 +38,17 @@ export default class LayersControlLayerMeasuringCategory extends Component {
 
   componentDidMount() {
     console.log(this.props.layer.id);
+    axios
+      .get(`/api/category-style/?measuring_category=${this.props.layer.id}`)
+      .then((response) => {
+        this.setState({
+          style: response.data.results[0],
+          opacity: response.data.results[0].fill_opacity,
+        });
+      })
+      .catch((error) => {
+        console.log(error);
+      });
   }
 
   render() {
@@ -46,6 +59,7 @@ export default class LayersControlLayerMeasuringCategory extends Component {
             bind={[this, "visible"]}
             map={this.map}
             layer={this.props.layer}
+            style={this.state.style}
           />
           <a
             title={this.props.layer.name}

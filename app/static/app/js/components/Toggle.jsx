@@ -21,13 +21,16 @@ class Toggle extends React.Component {
   }
 
   handleClick = () => {
+    const style = this.props.style;
     const map = this.props.map;
     const [parent, prop] = this.props.bind;
 
     if (this.props.layer && this.props.map && !parent.state[prop]) {
       // Get the style from the api call here
-      const myStyle = {
-        color: "red",
+      const Style = {
+        //  this.props.style
+        fillColor: style.fill_color,
+        fillOpacity: style.fill_opacity,
       };
       axios
         .get(`${geoserver_url}/wfs`, {
@@ -43,7 +46,7 @@ class Toggle extends React.Component {
         .then((response) => {
           const data = response.data;
           const selectedArea = Leaflet.geoJson(data, {
-            style: myStyle,
+            style: Style,
             onEachFeature: function (feature, layer) {
               layer.bindPopup(`Name: ${feature.properties.name}`);
             },
