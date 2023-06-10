@@ -66,6 +66,10 @@ export default class LayersControlLayerMeasuringStandard extends React.Component
 
   render() {
     const { meta } = this;
+    const filtered = this.props.sub_categories.filter(obj => obj.standard_category === this.props.layer.id);
+    console.log(this.props.layer.id)
+
+    console.log(filtered,"filtered")
 
     return (
       <div className="layers-control-layer ">
@@ -87,7 +91,8 @@ export default class LayersControlLayerMeasuringStandard extends React.Component
           </>
           : null}
 
-        {this.state.expanded ? <LayersControlLayerMeasuringSubCategory overlay={true} sub_categories={this.props.sub_categories} categories_measuring={this.props.categories_measuring} /> : null}
+
+        {this.state.expanded ? <LayersControlLayerMeasuringSubCategory overlay={true} sub_categories={filtered} categories_measuring={this.props.categories_measuring} /> : null}
 
       </div>
     );
