@@ -233,6 +233,10 @@ class StandardCategory(models.Model):
     view_name = models.CharField(max_length=255, blank=True, null=True, unique=True)
 
 
+    def __str__(self):
+        return str(self.project.name) + "|"+str(self.name)
+
+
 class SubCategory(models.Model):
     name = models.CharField(max_length=255, help_text=_(
         "In which Sub category you want to seperate your project layer"), verbose_name=_("Name"))
@@ -246,6 +250,12 @@ class SubCategory(models.Model):
         "Creation date"), verbose_name=_("Created at"))
     publised = models.BooleanField(default=False)
     view_name = models.CharField(max_length=255, blank=True, null=True, unique=True)
+
+
+
+    def __str__(self):
+        return str(self.project.name) + "|"+str(self.standard_category.name)+"|"+str(self.name)
+
                 
 class MeasuringCategory(models.Model):
     name = models.CharField(max_length=255, help_text=_(
@@ -262,6 +272,7 @@ class MeasuringCategory(models.Model):
         "Creation date"), verbose_name=_("Created at"))
     publised = models.BooleanField(default=False)
     view_name = models.CharField(max_length=255, blank=True, null=True, unique=True)
+
     
     
 
