@@ -6,7 +6,6 @@ export default class LayersControlLayerMeasuringCategory extends Component {
   constructor(props) {
     super(props);
     this.map = props.map;
-    this.layer_name = this.props.layer.view_name;
     this.state = {
       visible: false,
       opacity: 0.5,
@@ -18,11 +17,19 @@ export default class LayersControlLayerMeasuringCategory extends Component {
     this.setState({
       opacity: parseFloat(evt.target.value),
     });
-
+    const layer_name = this.props.layer.view_name;
     this.map.eachLayer(function (layer) {
-      if (layer?.layer_name === this.layer_name) {
-        // map.removeLayer(layer);
-        console.log(layer.options, "layer options");
+      if (layer?.layer_name === layer_name) {
+        const currentLayer = layer;
+        currentLayer.eachLayer((mainlayer) => {
+          const currentStyle = mainlayer.options;
+
+          // Modify the fill color
+          currentStyle.fillOpacity = evt.target.value;
+
+          // Update the style of the layer on the map
+          mainlayer.setStyle(currentStyle);
+        });
       }
     });
   };
