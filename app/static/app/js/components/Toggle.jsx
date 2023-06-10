@@ -21,13 +21,11 @@ class Toggle extends React.Component {
   }
 
   handleClick = () => {
-    console.log(this.props.layer, "layer");
-    console.log(this.props.map, "map");
-
+    const map = this.props.map;
     const [parent, prop] = this.props.bind;
 
     if (this.props.layer && this.props.map && !parent.state[prop]) {
-      //Geojson style file
+      // Get the style from the api call here
       const myStyle = {
         color: "red",
       };
@@ -44,19 +42,31 @@ class Toggle extends React.Component {
         })
         .then((response) => {
           const data = response.data;
-          console.log(data, "data");
           const selectedArea = Leaflet.geoJson(data, {
             style: myStyle,
             onEachFeature: function (feature, layer) {
               layer.bindPopup(`Name: ${feature.properties.name}`);
             },
-          }).addTo(this.props.map);
+          });
+          const layerGroup = L.layerGroup();
+          layerGroup["layer_name"] = this.props.layer.view_name;
+          layerGroup.addLayer(selectedArea);
+          layerGroup.addTo(this.props.map);
           this.props.map.fitBounds(selectedArea.getBounds());
         })
         .catch((error) => {
           // Handle the error here
           console.log(error);
         });
+    }
+
+    if (this.props.layer && this.props.map && parent.state[prop]) {
+      const layer_name = this.props.layer.view_name;
+      map.eachLayer(function (layer) {
+        if (layer?.layer_name === layer_name) {
+          map.removeLayer(layer);
+        }
+      });
     }
 
     parent.setState({ [prop]: !parent.state[prop] });
