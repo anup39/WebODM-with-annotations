@@ -2,6 +2,7 @@ import React from "react";
 import PropTypes from "prop-types";
 import "../css/Toggle.scss";
 import Leaflet from "leaflet";
+import axios from "axios";
 
 const geoserver_url = "http://137.135.165.161:8600/geoserver";
 class Toggle extends React.Component {
@@ -33,21 +34,28 @@ class Toggle extends React.Component {
         }).addTo(map);
         map.fitBounds(selectedArea.getBounds());
       };
-      $.ajax(`${geoserver_url}/wfs`, {
-        type: "GET",
-        data: {
-          service: "WFS",
-          version: "1.1.0",
-          request: "GetFeature",
-          typename: `super_admin:${this.props.layer.view_name}`,
-          // CQL_FILTER: "column='demo'",
-          srsname: "EPSG:3857",
-          outputFormat: "text/javascript",
-        },
-        dataType: "jsonp",
-        jsonpCallback: "callback:handleJson",
-        jsonp: "format_options",
-      });
+      axios
+        .get(`${geoserver_url}/wfs`, {
+          params: {
+            service: "WFS",
+            version: "1.1.0",
+            request: "GetFeature",
+            typename: `super_admin:${this.props.layer.view_name}`,
+            // CQL_FILTER: "column='demo'",
+            srsname: "EPSG:3857",
+            outputFormat: "text/javascript",
+          },
+          responseType: "jsonp",
+          jsonpCallback: handleJson,
+          jsonp: "format_options",
+        })
+        .then((response) => {
+          // Handle the response here
+        })
+        .catch((error) => {
+          // Handle the error here
+        });
+
       //Geojson style file
       const myStyle = {
         color: "red",
