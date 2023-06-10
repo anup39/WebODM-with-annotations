@@ -26,41 +26,78 @@ class Toggle extends React.Component {
     const [parent, prop] = this.props.bind;
 
     if (this.props.layer && this.props.map && !parent.state[prop]) {
-      // Get the style from the api call here
-      const Style = {
-        //  this.props.style
-        color: style.fill,
-        fillOpacity: style.fill_opacity,
-      };
-      axios
-        .get(`${geoserver_url}/wfs`, {
-          params: {
-            service: "WFS",
-            version: "1.1.0",
-            request: "GetFeature",
-            typename: `super_admin:${this.props.layer.view_name}`,
-            srsname: "EPSG:4326",
-            outputFormat: "application/json",
-          },
-        })
-        .then((response) => {
-          const data = response.data;
-          const selectedArea = Leaflet.geoJson(data, {
-            style: Style,
-            onEachFeature: function (feature, layer) {
-              layer.bindPopup(`Name: ${feature.properties.name}`);
+      if (this.props.layer.name !== "All") {
+        // Get the style from the api call here
+        const Style = {
+          //  this.props.style
+          color: style.fill,
+          fillOpacity: style.fill_opacity,
+        };
+        axios
+          .get(`${geoserver_url}/wfs`, {
+            params: {
+              service: "WFS",
+              version: "1.1.0",
+              request: "GetFeature",
+              typename: `super_admin:${this.props.layer.view_name}`,
+              srsname: "EPSG:4326",
+              outputFormat: "application/json",
             },
+          })
+          .then((response) => {
+            const data = response.data;
+            const selectedArea = Leaflet.geoJson(data, {
+              style: Style,
+              onEachFeature: function (feature, layer) {
+                layer.bindPopup(`Name: ${feature.properties.name}`);
+              },
+            });
+            const layerGroup = L.layerGroup();
+            layerGroup["layer_name"] = this.props.layer.view_name;
+            layerGroup.addLayer(selectedArea);
+            layerGroup.addTo(this.props.map);
+            this.props.map.fitBounds(selectedArea.getBounds());
+          })
+          .catch((error) => {
+            // Handle the error here
+            console.log(error);
           });
-          const layerGroup = L.layerGroup();
-          layerGroup["layer_name"] = this.props.layer.view_name;
-          layerGroup.addLayer(selectedArea);
-          layerGroup.addTo(this.props.map);
-          this.props.map.fitBounds(selectedArea.getBounds());
-        })
-        .catch((error) => {
-          // Handle the error here
-          console.log(error);
-        });
+      } else {
+        // const Style = {
+        //   //  this.props.style
+        //   color: style.fill,
+        //   fillOpacity: style.fill_opacity,
+        // };
+        axios
+          .get(`${geoserver_url}/wfs`, {
+            params: {
+              service: "WFS",
+              version: "1.1.0",
+              request: "GetFeature",
+              typename: `super_admin:${this.props.layer.view_name}`,
+              srsname: "EPSG:4326",
+              outputFormat: "application/json",
+            },
+          })
+          .then((response) => {
+            const data = response.data;
+            const selectedArea = Leaflet.geoJson(data, {
+              // style: Style,
+              onEachFeature: function (feature, layer) {
+                layer.bindPopup(`Name: ${feature.properties.name}`);
+              },
+            });
+            const layerGroup = L.layerGroup();
+            layerGroup["layer_name"] = this.props.layer.view_name;
+            layerGroup.addLayer(selectedArea);
+            layerGroup.addTo(this.props.map);
+            this.props.map.fitBounds(selectedArea.getBounds());
+          })
+          .catch((error) => {
+            // Handle the error here
+            console.log(error);
+          });
+      }
     }
 
     if (this.props.layer && this.props.map && parent.state[prop]) {
