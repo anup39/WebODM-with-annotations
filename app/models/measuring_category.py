@@ -286,6 +286,8 @@ class MeasuringCategory(models.Model):
 
 
 class CategoryStyle(models.Model):
+    project = models.ForeignKey(Project, on_delete=models.PROTECT, help_text=_(
+        "Style related to the project"), verbose_name=_("Project"), null=True, blank=True)
     measuring_category = models.OneToOneField(MeasuringCategory, on_delete=models.PROTECT, help_text=_(
         "Geometry related to this Category"), verbose_name=_("Measuring Category"))
     created_at = models.DateTimeField(default=timezone.now, help_text=_(

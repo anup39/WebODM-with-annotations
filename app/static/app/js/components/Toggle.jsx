@@ -80,25 +80,6 @@ class Toggle extends React.Component {
               // style: Style,
               style: function (feature) {
                 // Define the default style properties
-
-                axios
-                  .get(
-                    `/api/category-style/?measuring_category=${feature.properties.measuring_category_id}`
-                  )
-                  .then((response) => {
-                    style = response.data.results[0];
-                    const defaultStyle = {
-                      fillColor: style.fill,
-                      fillOpacity: style.fill_opacity,
-                      color: fill,
-                      // weight: 2,
-                    };
-                  })
-                  .catch((error) => {
-                    console.log(error);
-                  });
-
-                return defaultStyle;
               },
               onEachFeature: function (feature, layer) {
                 layer.bindPopup(`Name: ${feature.properties.name}`);
