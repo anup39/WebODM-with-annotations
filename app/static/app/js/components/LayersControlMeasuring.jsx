@@ -7,12 +7,11 @@ import LayersControlPanelMeasuring from "./LayersControlPanelMeasuring";
 
 class LayersControlButtonMeasuring extends React.Component {
   static propTypes = {
-    categories_measuring: PropTypes.array.isRequired,
+    standard_categories: PropTypes.array.isRequired,
+    sub_categories: PropTypes.array,
+    categories_measuring: PropTypes.array,
     map: PropTypes.object.isRequired,
   };
-
-
-
   constructor(props) {
     super(props);
 
@@ -31,7 +30,9 @@ class LayersControlButtonMeasuring extends React.Component {
 
   render() {
     const { showPanel } = this.state;
-    console.log(this.props.categories_measuring,"categories measuring")
+    console.log(this.props.standard_categories,"standard categories")
+    console.log(this.props.sub_categories,"sub cateogries")
+    console.log(this.props.categories_measuring,"categories")
 
 
     return (
@@ -51,7 +52,6 @@ class LayersControlButtonMeasuring extends React.Component {
     );
   }
 }
-
 
 
 export default L.Control.extend({

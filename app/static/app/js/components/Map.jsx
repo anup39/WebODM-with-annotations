@@ -137,12 +137,36 @@ class Map extends React.Component {
 
   loadOverlayaMeasuring = (forceAddLayers = false) => {
     const project_id = this.props.project_id;
+
     axios
       .get(`/api/projects/${project_id}`)
       .then((res) => {
         axios.get(`/api/project-measuring-category/?project=${project_id}`).then((res) => {
           const data = res.data.results;
-          return this.setState({categories_measuring: data});
+          this.setState({categories_measuring: data});
+          });
+      })
+      .catch((err) => {
+        console.log(err, "error");
+      });
+
+    axios
+      .get(`/api/projects/${project_id}`)
+      .then((res) => {
+        axios.get(`/api/project-sub-category/?project=${project_id}`).then((res) => {
+          const data = res.data.results;
+          this.setState({sub_categories: data});
+          });
+      })
+      .catch((err) => {
+        console.log(err, "error");
+      });
+    axios
+      .get(`/api/projects/${project_id}`)
+      .then((res) => {
+        axios.get(`/api/project-standard-category/?project=${project_id}`).then((res) => {
+          const data = res.data.results;
+          this.setState({standard_categories: data});
           });
       })
       .catch((err) => {
@@ -554,7 +578,9 @@ class Map extends React.Component {
       position: "topleft",
       // layers: this.state.imageryLayers,
       // overlays_measuring: this.state.overlays_measuring,
-      categories_measuring: this.state.categories_measuring
+      categories_measuring: this.state.categories_measuring,
+      sub_categories:this.state.sub_categories,
+      standard_categories:this.state.standard_categories
     }).addTo(this.map);
 
     this.autolayers = Leaflet.control
