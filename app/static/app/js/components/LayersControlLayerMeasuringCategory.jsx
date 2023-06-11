@@ -15,7 +15,6 @@ export default class LayersControlLayerMeasuringCategory extends Component {
   }
 
   updateOpacity = (evt) => {
-    console.log(evt.target.value);
     this.setState({
       opacity: parseFloat(evt.target.value),
     });
@@ -37,7 +36,6 @@ export default class LayersControlLayerMeasuringCategory extends Component {
   };
 
   componentDidMount() {
-    console.log(this.props.layer.id);
     axios
       .get(`/api/category-style/?measuring_category=${this.props.layer.id}`)
       .then((response) => {
