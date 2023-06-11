@@ -24,6 +24,7 @@ import Basemaps from "../classes/Basemaps";
 import Standby from "./Standby";
 import LayersControl from "./LayersControl";
 import LayersControlMeasuring from "./LayersControlMeasuring";
+import ExportControl from "./ExportControl";
 import update from "immutability-helper";
 import Utils from "../classes/Utils";
 import "../vendor/leaflet/Leaflet.Ajax";
@@ -574,6 +575,20 @@ class Map extends React.Component {
       sub_categories: this.state.sub_categories,
       standard_categories: this.state.standard_categories,
       project_name: this.props.project_name,
+      project_id: this.props.project_id,
+    }).addTo(this.map);
+
+    // Adding the export control to the ui
+
+    // Adding a overlays for Measurings geometry
+    this.exportControl = new ExportControl({
+      position: "topleft",
+      // layers: this.state.imageryLayers,
+      // overlays_measuring: this.state.overlays_measuring,
+      // categories_measuring: this.state.categories_measuring,
+      // sub_categories: this.state.sub_categories,
+      // standard_categories: this.state.standard_categories,
+      // project_name: this.props.project_name,
       project_id: this.props.project_id,
     }).addTo(this.map);
 
