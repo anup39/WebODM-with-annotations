@@ -873,7 +873,7 @@ class Map extends React.Component {
       printModes: ["Custom"],
     };
 
-    Leaflet.control.browserPrint(options).addTo(this.map);
+    // Leaflet.control.browserPrint(options).addTo(this.map);
 
     // I have to investigate on this
     PluginsAPI.Map.triggerDidAddControls({

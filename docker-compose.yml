@@ -6,6 +6,8 @@ volumes:
   appmedia:
   geoserver-data:
     name: geoserver-data
+ 
+
 services:
   db:
     image: opendronemap/webodm_db
@@ -36,7 +38,7 @@ services:
       - WO_DEV
       - WO_DEV_WATCH_PLUGINS
     restart: unless-stopped
-    oom_score_adj: 0
+    oom_score_adj: 0 
   broker:
     image: redis
     container_name: broker
