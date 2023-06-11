@@ -8,6 +8,7 @@ import ExportControlPanel from "./ExportControlPanel";
 class ExportControlButton extends React.Component {
   static propTypes = {
     map: PropTypes.object.isRequired,
+    project_id: PropTypes.number,
   };
 
   constructor(props) {
@@ -27,13 +28,14 @@ class ExportControlButton extends React.Component {
   };
 
   render() {
+    console.log(this.props.project_id, "project id");
     const { showPanel } = this.state;
 
     return (
       <div className={showPanel ? "open" : ""}>
         <a
           href="javascript:void(0);"
-          title="Layers"
+          title="Export"
           onClick={this.handleOpen}
           className="leaflet-control-layers-control-button leaflet-bar-part theme-secondary"
         ></a>
@@ -56,18 +58,14 @@ export default L.Control.extend({
     this.map = map;
 
     L.DomEvent.disableClickPropagation(this.container);
-    this.update(this.options.layers, []);
+    this.update(this.options.project_id);
 
     return this.container;
   },
 
-  update: function (layers, overlays) {
+  update: function (project_id) {
     ReactDOM.render(
-      <ExportControlButton
-        map={this.map}
-        layers={layers}
-        overlays={overlays}
-      />,
+      <ExportControlButton map={this.map} project_id={project_id} />,
       this.container
     );
   },

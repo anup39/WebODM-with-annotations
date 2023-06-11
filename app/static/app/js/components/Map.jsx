@@ -95,6 +95,7 @@ class Map extends React.Component {
       sub_categories: [],
       categories_measuring: [],
       // overlays_measuring: [],
+      extent: [],
     };
 
     this.basemaps = {};
@@ -583,12 +584,6 @@ class Map extends React.Component {
     // Adding a overlays for Measurings geometry
     this.exportControl = new ExportControl({
       position: "topleft",
-      // layers: this.state.imageryLayers,
-      // overlays_measuring: this.state.overlays_measuring,
-      // categories_measuring: this.state.categories_measuring,
-      // sub_categories: this.state.sub_categories,
-      // standard_categories: this.state.standard_categories,
-      // project_name: this.props.project_name,
       project_id: this.props.project_id,
     }).addTo(this.map);
 
@@ -933,6 +928,16 @@ class Map extends React.Component {
         this.props.project_name,
         this.props.project_id
       );
+    }
+    if (
+      this.layersControl &&
+      (prevState.imageryLayers !== this.state.imageryLayers ||
+        prevState.overlays !== this.state.overlays)
+    ) {
+      this.layersControl.update(this.state.imageryLayers, this.state.overlays);
+    }
+    if (this.exportControl) {
+      this.exportControl.update(this.props.project_id);
     }
     if (prevState.drawMode !== this.state.drawMode) {
       // Get the image layer
