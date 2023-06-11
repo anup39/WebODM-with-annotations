@@ -786,12 +786,6 @@ class Map extends React.Component {
 
       editableLayers.addLayer(layer);
 
-      // // Assuming you have the categories array
-      // const categories = [
-      //   { id: 1, category: "Grass" },
-      //   { id: 2, category: "Lake" },
-      // ];
-
       // Function to handle form submission
       const saveSelectedCategory = (event) => {
         event.preventDefault();
@@ -813,7 +807,7 @@ class Map extends React.Component {
               },
               {
                 headers: {
-                  "X-CSRFToken": getCookie("csrftoken"), // Replace 'csrftoken' with the actual name of your CSRF token cookie
+                  "X-CSRFToken": getCookie("csrftoken"),
                 },
               }
             )

@@ -4,6 +4,7 @@ const mapPopupGenerator = (
   editSelectedCategory,
   saveSelectedCategory
 ) => {
+  console.log(categories, "categories");
   const form = document.createElement("form");
 
   const message = document.createElement("p");
@@ -13,19 +14,22 @@ const mapPopupGenerator = (
 
   const categoryGroup = document.createElement("div");
 
+  const input = document.createElement("input");
+  input.type = "text";
+  input.placeholder = "Type a category";
+  categoryGroup.appendChild(input);
+
+  const dropdown = document.createElement("select");
+  dropdown.name = "selectedCategory";
+
   categories.forEach((category) => {
-    const label = document.createElement("label");
-    label.textContent = category.category;
-
-    const radio = document.createElement("input");
-    radio.type = "radio";
-    radio.name = "selectedCategory";
-    radio.value = category.id;
-
-    label.appendChild(radio);
-    categoryGroup.appendChild(label);
-    categoryGroup.appendChild(document.createElement("br"));
+    const option = document.createElement("option");
+    option.value = category.id;
+    option.textContent = category.name;
+    dropdown.appendChild(option);
   });
+
+  categoryGroup.appendChild(dropdown);
 
   form.appendChild(categoryGroup);
 
