@@ -44,6 +44,8 @@ services:
     container_name: broker
     restart: unless-stopped
     oom_score_adj: -500
+    ports:
+      - "6379:6379"
   worker:
     image: opendronemap/webodm_webapp
     container_name: worker
