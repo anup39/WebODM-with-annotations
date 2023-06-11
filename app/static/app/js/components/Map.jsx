@@ -790,10 +790,10 @@ class Map extends React.Component {
       const saveSelectedCategory = (event) => {
         event.preventDefault();
         const selectedCategory = document.querySelector(
-          'input[name="selectedCategory"]:checked'
+          'select[name="selectedCategory"]'
         );
 
-        if (selectedCategory) {
+        if (selectedCategory && selectedCategory.value) {
           const categoryId = selectedCategory.value;
           const wkt_ = convertCoordinatesToWKT(layer.getLatLngs());
           this.setState({ showLoading: true });

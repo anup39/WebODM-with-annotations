@@ -14,11 +14,6 @@ const mapPopupGenerator = (
 
   const categoryGroup = document.createElement("div");
 
-  const input = document.createElement("input");
-  input.type = "text";
-  input.placeholder = "Type a category";
-  categoryGroup.appendChild(input);
-
   const dropdown = document.createElement("select");
   dropdown.name = "selectedCategory";
 
@@ -32,6 +27,8 @@ const mapPopupGenerator = (
   categoryGroup.appendChild(dropdown);
 
   form.appendChild(categoryGroup);
+
+  const line = document.createElement("hr");
 
   const saveButton = document.createElement("button");
   saveButton.textContent = "Save";
@@ -47,6 +44,7 @@ const mapPopupGenerator = (
   editButton.type = "button";
   editButton.addEventListener("click", editSelectedCategory);
 
+  form.appendChild(line);
   form.appendChild(saveButton);
   form.appendChild(deleteButton);
   form.appendChild(editButton);
