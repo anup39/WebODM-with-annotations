@@ -30,6 +30,7 @@ export default class LayersControlLayer extends React.Component {
     this.map = props.map;
 
     const url = this.getLayerUrl();
+    console.log(url, "url");
     const params = Utils.queryParams({ search: url.slice(url.indexOf("?")) });
 
     this.meta = props.layer[Symbol.for("meta")] || {};

@@ -28,7 +28,8 @@ from rest_framework import exceptions
 from rest_framework.response import Response
 from worker.tasks import export_raster, export_pointcloud
 from django.utils.translation import gettext as _
-
+from django.utils.decorators import method_decorator
+from django.views.decorators.csrf import csrf_exempt
 
 for custom_colormap in custom_colormaps:
     colormap = colormap.register(custom_colormap)
@@ -264,6 +265,11 @@ class Metadata(TaskNestedView):
 
 
 class Tiles(TaskNestedView):
+
+    @method_decorator(csrf_exempt)
+    def dispatch(self, *args, **kwargs):
+        return super().dispatch(*args, **kwargs)
+
     def get(self, request, pk=None, project_pk=None, tile_type="", z="", x="", y="", scale=1, ext=None):
         """
         Get a tile image
