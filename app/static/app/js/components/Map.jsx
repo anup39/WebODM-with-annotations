@@ -804,8 +804,6 @@ class Map extends React.Component {
 
       editableLayers.addLayer(layer);
 
-      console.log(type, "type");
-
       if (type === "rectangle") {
         this.setState({ showLoading: true });
         const bounds = layer.getBounds();
