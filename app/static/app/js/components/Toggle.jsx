@@ -41,6 +41,7 @@ class Toggle extends React.Component {
         } else {
           window.layers_in_map.push({
             name: parent.meta.name,
+            view_name: parent.meta.name,
             type: "xyz",
             url: "http://137.135.165.161:8000" + parent.meta.tileUrl,
           });
@@ -48,13 +49,13 @@ class Toggle extends React.Component {
       } else {
         // console.log("not -checked", parent);
         if (this.props?.layer?.view_name) {
-          console.log(this.props.layer.view_name);
+          const layer_name_ = this.props.layer.view_name;
           window.layers_in_map = window.layers_in_map.filter(function (item) {
-            return item.view_name !== this.props.layer.view_name;
+            return item.view_name !== layer_name_;
           });
         } else {
           window.layers_in_map = window.layers_in_map.filter(function (item) {
-            return item.name !== parent.meta.name;
+            return item.view_name !== parent.meta.name;
           });
         }
       }

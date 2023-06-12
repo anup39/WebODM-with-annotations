@@ -274,6 +274,7 @@ class Map extends React.Component {
                   layer.addTo(this.map);
                   window.layers_in_map.push({
                     name: meta.name,
+                    view_name: meta.name,
                     type: "xyz",
                     url: "http://137.135.165.161:8000" + tileUrl,
                   });
