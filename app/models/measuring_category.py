@@ -14,6 +14,15 @@ from colorfield.fields import ColorField
 import xml.etree.ElementTree as ET
 
 
+logger = get_task_logger("app.logger")
+
+geoserver_url = 'http://137.135.165.161:8600/geoserver'
+username = 'admin'
+password = 'geoserver'
+store = 'database'
+
+
+
 
 def modify_xml_for_project(sld_xml, measuring_category_id=3, fill_color = "#FF0000",fill_opacity = "0.5",stroke_color = "#000000",stroke_width = "2"):
     # Parse the SLD XML
@@ -93,17 +102,6 @@ def modify_xml_for_project(sld_xml, measuring_category_id=3, fill_color = "#FF00
 
     print(modified_sld_xml)
     return modified_sld_xml
-
-
-
-logger = get_task_logger("app.logger")
-
-geoserver_url = 'http://137.135.165.161:8600/geoserver'
-username = 'admin'
-password = 'geoserver'
-store = 'database'
-
-
 
 def create_geoserver_workspace_(workspace_name):
     workspace_url = f"{geoserver_url}/rest/workspaces"
@@ -219,10 +217,64 @@ def publish_table_to_geoserver(workspace_name='super_admin', table_name=None ,cr
         print(f"Failed to publish table '{table_name}'. Error: {response.text}")
 
 
+class GlobalStandardCategory(models.Model):
+    name = models.CharField(max_length=255, help_text=_(
+        "In which standard category you want to seperate your project layer"), verbose_name=_("Name"), unique=True)
+    description = models.TextField(default="", blank=True, help_text=_(
+        "Description about this category"), verbose_name=_("Description"))
+    created_at = models.DateTimeField(default=timezone.now, help_text=_(
+        "Creation date"), verbose_name=_("Created at"))
+
+    def __str__(self):
+        return str(self.name)
+
+
+class GlobalSubCategory(models.Model):
+    name = models.CharField(max_length=255, help_text=_(
+        "In which Sub category you want to seperate your project layer"), verbose_name=_("Name"))
+    standard_category = models.ForeignKey(GlobalStandardCategory, on_delete=models.PROTECT, help_text=_(
+        "Standard Category related to the project"), verbose_name=_("Standard Category"),blank=True, null=True )
+    description = models.TextField(default="", blank=True, help_text=_(
+        "Description about this category"), verbose_name=_("Description"))
+    created_at = models.DateTimeField(default=timezone.now, help_text=_(
+        "Creation date"), verbose_name=_("Created at"))
+
+
+
+
+    def __str__(self):
+        return str(self.standard_category.name)+"|"+str(self.name)
+
+
+class GlobalMeasuringCategory(models.Model):
+    name = models.CharField(max_length=255, help_text=_(
+        "In which category you want to seperate your project layer"), verbose_name=_("Name"))
+    sub_category = models.ForeignKey(GlobalSubCategory, on_delete=models.PROTECT, help_text=_(
+        "Sub Category related to the project"), verbose_name=_("Sub Category"), null=True, blank=True)
+    description = models.TextField(default="", blank=True, help_text=_(
+        "Description about this category"), verbose_name=_("Description"))
+    created_at = models.DateTimeField(default=timezone.now, help_text=_(
+        "Creation date"), verbose_name=_("Created at"))
+
+    def __str__(self):
+        return self.sub_category.standard_category.name + "|" + "|" +self.sub_category.name+"|"+ self.name
+
+
+class ManageCategory(models.Model):
+    project = models.OneToOneField(Project, on_delete=models.PROTECT, help_text=_(
+        "Standard Category related to the project"), verbose_name=_("Project"))
+    standard_category = models.ManyToManyField(GlobalStandardCategory, blank=True, null=True )
+    sub_category = models.ManyToManyField(GlobalSubCategory,  blank=True, null=True )
+    category = models.ManyToManyField(GlobalMeasuringCategory,  blank=True, null=True )
+
+
+    def __str__(self) -> str:
+        return self.project.name
+    
 
 class StandardCategory(models.Model):
     name = models.CharField(max_length=255, help_text=_(
-        "In which standard category you want to seperate your project layer"), verbose_name=_("Name"))
+        "In which standard category you want to seperate your project layer"), verbose_name=_("Name"),unique=False)
     project = models.ForeignKey(Project, on_delete=models.PROTECT, help_text=_(
         "Standard Category related to the project"), verbose_name=_("Project"), null=True, blank=True)
     description = models.TextField(default="", blank=True, help_text=_(
@@ -235,6 +287,8 @@ class StandardCategory(models.Model):
 
     def __str__(self):
         return str(self.project.name) + "|"+str(self.name)
+
+
 
 
 class SubCategory(models.Model):
@@ -331,6 +385,11 @@ def project_post_save_for_creating_layer(sender, instance, created, **kwargs):
                create_geoserver_workspace(instance.owner.username , create_geoserver_workspace_)
             create_geoserver_layer(instance.owner.username, view_name , publish_table_to_geoserver)
 
+            # Now create a Category Management for this 
+            project = Project.objects.get(id=instance.id)
+
+            ManageCategory.objects.create(project=project)
+
 
 
 # Added by me Anup
@@ -340,10 +399,11 @@ def project_post_save_project_for_mc(sender, instance, created, **kwargs):
     It will create two category by default Grass and Garden
     """
     if created:
-        MeasuringCategory.objects.create(
-            name="Grass", project=instance, description="Measures grass")
-        MeasuringCategory.objects.create(
-            name="Garden", project=instance, description="Measure Garden")
+        # MeasuringCategory.objects.create(
+        #     name="Grass", project=instance, description="Measures grass")
+        # MeasuringCategory.objects.create(
+        #     name="Garden", project=instance, description="Measure Garden")
+        pass
 
 
 # Added by me Anup
