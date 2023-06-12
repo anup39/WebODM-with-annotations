@@ -816,10 +816,12 @@ class Map extends React.Component {
 
         axios
           .post("http://137.135.165.161:8050/api/qgis/export/", {
-            project_id: "1",
+            project_id: this.props.project_id,
+            project_name: this.props.project_name,
             title: "Drawn",
-            description: "this is my map",
+            description: "This is my map",
             extent: { bbox: formattedBbox },
+            layers_in_map: window.layers_in_map,
           })
           .then((response) => {
             const imageUrl = `http://137.135.165.161:8050/api/qgis/images/${response.data.path}`;
