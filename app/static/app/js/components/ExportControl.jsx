@@ -36,7 +36,7 @@ class ExportControlButton extends React.Component {
           href="javascript:void(0);"
           title="Export"
           onClick={this.handleOpen}
-          className="leaflet-control-layers-control-button leaflet-bar-part theme-secondary"
+          className="leaflet-control-layers-control-button leaflet-bar-part theme-secondary export"
         ></a>
         <ExportControlPanel map={this.props.map} onClose={this.handleClose} />
       </div>
