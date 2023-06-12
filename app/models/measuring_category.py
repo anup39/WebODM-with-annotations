@@ -360,17 +360,17 @@ def measuring_category_post_save_for_creating_layer(sender, instance, created, *
             view_name_standard = instance.standard_category.name.replace(" ", "_").lower() 
             view_name_sub = instance.sub_category.name.replace(" ", "_").lower() 
             view_name = view_name_project+ "_" + view_name_standard+ "_"+view_name_sub+"_" + instance.name.replace(" ", "_").lower()
-            print(view_name,"view name ")
 
             cursor.execute(
                 f"CREATE OR REPLACE VIEW {view_name} AS SELECT mc.*, cg.geom , cg.properties ,cg.measuring_category_id FROM public.app_measuringcategory mc JOIN public.app_categorygeometry cg ON mc.id = cg.measuring_category_id WHERE cg.measuring_category_id = %s", [instance.id])
             print("****************Congratulations the view is created***************")
             instance.view_name = view_name
             category = MeasuringCategory.objects.get(id=instance.id)
+            project = Project.objects.get(id=instance.project.id)
             category.view_name = view_name
             category.save()
 
-            category_style = CategoryStyle.objects.create(measuring_category=category)
+            category_style = CategoryStyle.objects.create(project=project, measuring_category=category)
             category_style.save()
 
 
