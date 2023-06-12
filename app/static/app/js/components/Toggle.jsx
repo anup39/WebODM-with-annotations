@@ -31,7 +31,13 @@ class Toggle extends React.Component {
       if (!parent.state[prop]) {
         // console.log("checked", parent);
         if (this.props?.layer?.view_name) {
-          console.log(this.prop.layer.view_name);
+          console.log(this.props.layer.view_name);
+          window.layers_in_map.push({
+            name: this.props.layer.name,
+            view_name: this.props.layer.view_name,
+            type: "WFS",
+            url: `${geoserver_url}/wfs`,
+          });
         } else {
           window.layers_in_map.push({
             name: parent.meta.name,
@@ -42,7 +48,10 @@ class Toggle extends React.Component {
       } else {
         // console.log("not -checked", parent);
         if (this.props?.layer?.view_name) {
-          console.log(this.prop.layer.view_name);
+          console.log(this.props.layer.view_name);
+          window.layers_in_map = window.layers_in_map.filter(function (item) {
+            return item.view_name !== this.props.layer.view_name;
+          });
         } else {
           window.layers_in_map = window.layers_in_map.filter(function (item) {
             return item.name !== parent.meta.name;
