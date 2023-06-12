@@ -28,7 +28,6 @@ class ExportControlButton extends React.Component {
   };
 
   render() {
-    console.log(this.props.project_id, "project id");
     const { showPanel } = this.state;
 
     return (

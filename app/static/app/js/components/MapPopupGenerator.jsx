@@ -4,7 +4,6 @@ const mapPopupGenerator = (
   editSelectedCategory,
   saveSelectedCategory
 ) => {
-  console.log(categories, "categories");
   const form = document.createElement("form");
 
   const message = document.createElement("p");

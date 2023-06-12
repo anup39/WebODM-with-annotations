@@ -796,6 +796,38 @@ class Map extends React.Component {
 
       editableLayers.addLayer(layer);
 
+      console.log(type, "type");
+
+      if (type === "rectangle") {
+        this.setState({ showLoading: true });
+        const bounds = layer.getBounds();
+        const formattedBbox = [
+          bounds.getSouthWest().lng,
+          bounds.getSouthWest().lat,
+          bounds.getNorthEast().lng,
+          bounds.getNorthEast().lat,
+        ];
+
+        setTimeout(() => {
+          editableLayers.clearLayers();
+        }, 3000);
+
+        axios
+          .post("http://137.135.165.161:8050/api/qgis/export/", {
+            project_id: "1",
+            title: "Drawn",
+            description: "this is my map",
+            extent: { bbox: formattedBbox },
+          })
+          .then((response) => {
+            console.log(response.data);
+            this.setState({ showLoading: false });
+          })
+          .catch((error) => {
+            console.log(error);
+          });
+      }
+
       // Function to handle form submission
       const saveSelectedCategory = (event) => {
         event.preventDefault();
@@ -875,15 +907,6 @@ class Map extends React.Component {
     this.map.on(Leaflet.Draw.Event.DRAWSTOP, (e) => {
       this.setState({ drawMode: false });
     });
-
-    // Plugin export
-    const options = {
-      position: "topleft",
-      title: "Export Map",
-      printModes: ["Custom"],
-    };
-
-    // Leaflet.control.browserPrint(options).addTo(this.map);
 
     // I have to investigate on this
     PluginsAPI.Map.triggerDidAddControls({
