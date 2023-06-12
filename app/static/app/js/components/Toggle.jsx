@@ -25,6 +25,26 @@ class Toggle extends React.Component {
     const map = this.props.map;
     const [parent, prop] = this.props.bind;
 
+    // this is for the print
+    console.log(window.layers_in_map);
+    if (prop === "visible") {
+      if (!parent.state[prop]) {
+        // console.log("checked", parent);
+        if (this.props?.layer?.view_name) {
+          console.log(this.prop.layer.view_name);
+        } else {
+          console.log(parent.meta);
+        }
+      } else {
+        // console.log("not -checked", parent);
+        if (this.props?.layer.?view_name) {
+          console.log(this.prop.layer.view_name);
+        } else {
+          console.log(parent.meta);
+        }
+      }
+    }
+
     if (this.props.layer && this.props.map && !parent.state[prop]) {
       if (this.props.layer.name !== "All") {
         // Get the style from the api call here

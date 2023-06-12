@@ -44,6 +44,7 @@ export default class ExportControlPanel extends React.Component {
   handleMapClick = (event) => {
     const map = this.props.map;
     const clickPoint = event.latlng;
+    map.closePopup();
 
     if (!this.rectangleDrawer) {
       this.rectangleDrawer = new L.Draw.Rectangle(map);
@@ -70,23 +71,6 @@ export default class ExportControlPanel extends React.Component {
           fillOpacity: 0.2,
         }).addTo(map);
       }
-
-      var layerUrls = [];
-
-      function getLayerUrls(layer) {
-        if (layer._url) {
-          layerUrls.push(layer._url);
-        } else if (layer instanceof L.GeoJSON) {
-          var geojsonURL = layer.options.url;
-          if (geojsonURL) {
-            layerUrls.push(geojsonURL);
-          }
-        } else if (layer instanceof L.LayerGroup) {
-          layer.eachLayer(getLayerUrls);
-        }
-      }
-
-      map.eachLayer(getLayerUrls);
 
       this.rectangleDrawer.disable();
       this.rectangleDrawer = null;

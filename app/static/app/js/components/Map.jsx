@@ -271,6 +271,7 @@ class Map extends React.Component {
                   prevSelectedLayers.indexOf(layerId(layer)) !== -1
                 ) {
                   layer.addTo(this.map);
+                  window.layers_in_map.push(tileUrl);
                 }
 
                 // Show 3D switch button only if we have a single orthophoto
@@ -478,6 +479,7 @@ class Map extends React.Component {
 
   componentDidMount() {
     const { showBackground, tiles } = this.props;
+    window.layers_in_map = [];
 
     this.map = Leaflet.map(this.container, {
       scrollWheelZoom: true,
@@ -808,10 +810,6 @@ class Map extends React.Component {
           bounds.getNorthEast().lat,
         ];
 
-        setTimeout(() => {
-          editableLayers.clearLayers();
-        }, 3000);
-
         axios
           .post("http://137.135.165.161:8050/api/qgis/export/", {
             project_id: "1",
@@ -820,8 +818,31 @@ class Map extends React.Component {
             extent: { bbox: formattedBbox },
           })
           .then((response) => {
-            console.log(response.data);
-            this.setState({ showLoading: false });
+            const imageUrl = `http://137.135.165.161:8050/api/qgis/images/${response.data.path}`;
+
+            setTimeout(() => {
+              axios
+                .get(imageUrl, {
+                  responseType: "blob",
+                })
+                .then((response) => {
+                  const url = window.URL.createObjectURL(
+                    new Blob([response.data])
+                  );
+                  const link = document.createElement("a");
+                  link.href = url;
+                  link.setAttribute("download", "image.png");
+                  document.body.appendChild(link);
+                  link.click();
+                  link.remove();
+                  console.log("Image downloaded successfully!");
+                  editableLayers.clearLayers();
+                  this.setState({ showLoading: false });
+                })
+                .catch((error) => {
+                  console.error("Error downloading image:", error);
+                });
+            }, 10000);
           })
           .catch((error) => {
             console.log(error);
