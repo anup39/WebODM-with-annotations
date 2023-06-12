@@ -86,6 +86,14 @@ def map(request, project_pk=None, task_pk=None):
         }.items()
     })
 
+# @login_required
+def print(request):
+    return render (request,'app/print.html',{
+        'params':{
+        'user':request.user
+                }.items()
+    })
+
 
 @login_required
 def model_display(request, project_pk=None, task_pk=None):

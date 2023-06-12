@@ -826,29 +826,11 @@ class Map extends React.Component {
           .then((response) => {
             const imageUrl = `http://137.135.165.161:8050/api/qgis/images/${response.data.path}`;
 
-            setTimeout(() => {
-              axios
-                .get(imageUrl, {
-                  responseType: "blob",
-                })
-                .then((response) => {
-                  const url = window.URL.createObjectURL(
-                    new Blob([response.data])
-                  );
-                  const link = document.createElement("a");
-                  link.href = url;
-                  link.setAttribute("download", "image.png");
-                  document.body.appendChild(link);
-                  link.click();
-                  link.remove();
-                  console.log("Image downloaded successfully!");
-                  editableLayers.clearLayers();
-                  this.setState({ showLoading: false });
-                })
-                .catch((error) => {
-                  console.error("Error downloading image:", error);
-                });
-            }, 10000);
+            const printUrl = `/print?image=${encodeURIComponent(imageUrl)}`;
+            window.open(printUrl, "_blank");
+
+            editableLayers.clearLayers();
+            this.setState({ showLoading: false });
           })
           .catch((error) => {
             console.log(error);
