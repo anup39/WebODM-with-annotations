@@ -25,25 +25,33 @@ class Toggle extends React.Component {
     const map = this.props.map;
     const [parent, prop] = this.props.bind;
 
-    // this is for the print
     console.log(window.layers_in_map);
+    // this is for the print
     if (prop === "visible") {
       if (!parent.state[prop]) {
         // console.log("checked", parent);
         if (this.props?.layer?.view_name) {
           console.log(this.prop.layer.view_name);
         } else {
-          console.log(parent.meta);
+          window.layers_in_map.push({
+            name: parent.meta.name,
+            type: "xyz",
+            url: "http://137.135.165.161:8000" + parent.meta.tileUrl,
+          });
         }
       } else {
         // console.log("not -checked", parent);
-        if (this.props?.layer.?view_name) {
+        if (this.props?.layer?.view_name) {
           console.log(this.prop.layer.view_name);
         } else {
-          console.log(parent.meta);
+          window.layers_in_map = window.layers_in_map.filter(function (item) {
+            return item.name !== parent.meta.name;
+          });
         }
       }
     }
+
+    console.log(window.layers_in_map);
 
     if (this.props.layer && this.props.map && !parent.state[prop]) {
       if (this.props.layer.name !== "All") {

@@ -263,6 +263,7 @@ class Map extends React.Component {
                 // Associate metadata with this layer
                 meta.name = name + ` (${this.typeToHuman(type)})`;
                 meta.metaUrl = metaUrl;
+                meta.tileUrl = tileUrl;
                 layer[Symbol.for("meta")] = meta;
                 layer[Symbol.for("tile-meta")] = mres;
 
@@ -271,7 +272,11 @@ class Map extends React.Component {
                   prevSelectedLayers.indexOf(layerId(layer)) !== -1
                 ) {
                   layer.addTo(this.map);
-                  window.layers_in_map.push(tileUrl);
+                  window.layers_in_map.push({
+                    name: meta.name,
+                    type: "xyz",
+                    url: "http://137.135.165.161:8000" + tileUrl,
+                  });
                 }
 
                 // Show 3D switch button only if we have a single orthophoto
