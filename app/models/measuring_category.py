@@ -13,7 +13,7 @@ from worker.celery import app
 from celery.utils.log import get_task_logger
 from colorfield.fields import ColorField
 import xml.etree.ElementTree as ET
-from django.db.models import UniqueConstraint, Q, Func
+
 
 
 logger = get_task_logger("app.logger")
@@ -249,7 +249,12 @@ class GlobalSubCategory(models.Model):
     created_at = models.DateTimeField(default=timezone.now, help_text=_(
         "Creation date"), verbose_name=_("Created at"))
 
-  
+    class Meta:
+        unique_together = (("standard_category", "name"),)
+
+    def save(self, *args, **kwargs):
+        self.name = self.name.lower()
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return str(self.standard_category.name)+"|"+str(self.name)
