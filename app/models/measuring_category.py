@@ -263,7 +263,7 @@ class GlobalMeasuringCategory(models.Model):
 
 class ManageCategory(models.Model):
     project = models.OneToOneField(Project, on_delete=models.PROTECT, help_text=_(
-        "Standard Category related to the project"), verbose_name=_("Project"))
+        "Manage Category related to the project"), verbose_name=_("Project"))
     standard_category = models.ManyToManyField(GlobalStandardCategory, blank=True, null=True )
     sub_category = models.ManyToManyField(GlobalSubCategory,  blank=True, null=True )
     category = models.ManyToManyField(GlobalMeasuringCategory,  blank=True, null=True )
