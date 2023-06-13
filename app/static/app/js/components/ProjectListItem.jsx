@@ -632,7 +632,7 @@ class ProjectListItem extends React.Component {
     location.href = `/admin/app/managecategory/${this.state.data.manage_category_id}/change/`;
   };
   handleManageStyles = () => {
-    location.href = `/admin/app/managecategory/${this.state.data.manage_category_id}/change/`;
+    location.href = `/admin/app/categorystyle/?project_id=${this.state.data.id}`;
   };
 
   // Added by me Anup
@@ -692,8 +692,6 @@ class ProjectListItem extends React.Component {
     const userTags = Tags.userTags(data.tags);
     const { showWMS, wmsLink } = this.state;
     const { showWFS, wfsLink } = this.state;
-
-    console.log(this.props.data, "data for dasboard");
 
     let deleteWarning = _(
       "All tasks, images and models associated with this project will be permanently deleted. Are you sure you want to continue?"

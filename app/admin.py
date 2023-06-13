@@ -35,7 +35,23 @@ admin.site.register(GlobalCategoryStyle)
 admin.site.register(StandardCategory)
 admin.site.register(SubCategory)
 admin.site.register(CategoryGeometry)
-admin.site.register(CategoryStyle)
+
+
+
+class CategoryStyleAdmin(admin.ModelAdmin):
+    def get_queryset(self, request):
+        # Get the project ID from the request parameters
+        project_id = request.GET.get('project_id')
+        
+        # Filter the queryset based on the project ID
+        queryset = super().get_queryset(request)
+        if project_id:
+            queryset = queryset.filter(project_id=project_id)
+        
+        return queryset
+    
+
+admin.site.register(CategoryStyle,CategoryStyleAdmin)
 
 class ManageCategoryAdmin(admin.ModelAdmin):
     readonly_fields = ('project',)  # Specify the fields to be read-only
