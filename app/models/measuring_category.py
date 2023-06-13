@@ -98,7 +98,7 @@ def modify_xml_for_project(sld_xml, measuring_category_id=3, fill_color = "#FF00
     # Convert the modified XML back to a string
     modified_sld_xml = ET.tostring(root, encoding="unicode")
 
-    print(modified_sld_xml)
+    # print(modified_sld_xml)
     return modified_sld_xml
 
 def create_geoserver_workspace_(workspace_name):
@@ -540,9 +540,13 @@ def measuring_category_post_save_for_creating_layer(sender, instance, created, *
             project = Project.objects.get(id=instance.project.id)
             category.view_name = view_name
             category.save()
-
-            category_style = CategoryStyle.objects.create(project=project, measuring_category=category)
-            category_style.save()
+            
+            print(category.name,"name of the categoyr")
+            globalmeasuringcategory= GlobalMeasuringCategory.objects.get(name=category.name)
+            if GlobalCategoryStyle.objects.filter(category=globalmeasuringcategory).exists():
+                global_style = GlobalCategoryStyle.objects.get(category=globalmeasuringcategory)
+                category_style = CategoryStyle.objects.create(project=project, measuring_category=category, fill=global_style.fill, fill_opacity=global_style.fill_opacity,stroke= global_style.stroke, stroke_width= global_style.stroke_width)
+                category_style.save()
 
 
 @receiver(signals.post_save, sender=GlobalCategoryStyle, dispatch_uid="global_category_style_post_save_creating_style")
@@ -645,8 +649,6 @@ def measuring_category_post_save_for_assiging_style(sender, instance, created, *
                 print(f"Failed to assgin the style feor project {project_name}")
 
         
-        
-
 
 @app.task
 def publish_views_to_geoserver():
