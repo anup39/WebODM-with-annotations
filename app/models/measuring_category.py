@@ -488,12 +488,12 @@ def check_category_changes(sender, instance, action, model, **kwargs):
 
         prev_categories = set(instance.category.all().values_list('pk', flat=True))
 
-        # Get the newly selected standard categories
+        # Get the newly selected  categories
         new_categories = set(kwargs['pk_set']) - prev_categories
 
-        # Print the changes for standard categories
+        # Print the changes for  categories
         if new_categories:
-            print("Newly selected standard categories:")
+            print("Newly selected  categories:")
             for category_id in new_categories:
                 category = GlobalMeasuringCategory.objects.get(pk=category_id)
                 print(category) 
@@ -503,12 +503,12 @@ def check_category_changes(sender, instance, action, model, **kwargs):
 
         prev_categories = set(instance.category.all().values_list('pk', flat=True))
 
-        # Get the newly selected standard categories
+        # Get the newly selected  categories
         new_categories = set(kwargs['pk_set']) - prev_categories
 
-        # Print the changes for standard categories
+        # Print the changes for  categories
         if new_categories:
-            print(" Unselected standard categories:")
+            print(" Unselected  categories:")
             for category_id in new_categories:
                 category = GlobalMeasuringCategory.objects.get(pk=category_id)
                 print(category) 
