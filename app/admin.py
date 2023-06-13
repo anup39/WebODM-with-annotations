@@ -26,7 +26,8 @@ from .models import MeasuringCategory, CategoryGeometry
 from .models.measuring_category import CategoryStyle, StandardCategory, SubCategory , GlobalStandardCategory, GlobalSubCategory, GlobalMeasuringCategory , ManageCategory
 
 
-admin.site.register(ManageCategory)
+
+
 admin.site.register(GlobalStandardCategory)
 admin.site.register(GlobalSubCategory)
 admin.site.register(GlobalMeasuringCategory)
@@ -34,6 +35,29 @@ admin.site.register(StandardCategory)
 admin.site.register(SubCategory)
 admin.site.register(CategoryGeometry)
 admin.site.register(CategoryStyle)
+
+class ManageCategoryAdmin(admin.ModelAdmin):
+    readonly_fields = ('project',)  # Specify the fields to be read-only
+
+    fieldsets = (
+        ('',{
+            'fields': ('project',),
+        }),
+        ('', {
+            'fields': ('standard_category',),
+        }),
+        ('', {
+            'fields': ('sub_category',),
+        }),
+        ('', {
+            'fields': ('category',),
+        }),
+    )
+
+
+   
+
+admin.site.register(ManageCategory, ManageCategoryAdmin)
 
 
 class MeasuringCategoryAdmin(admin.ModelAdmin):
