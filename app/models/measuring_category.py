@@ -301,6 +301,8 @@ class StandardCategory(models.Model):
         "Creation date"), verbose_name=_("Created at"))
     publised = models.BooleanField(default=False)
     view_name = models.CharField(max_length=255, blank=True, null=True, unique=True)
+    is_display = models.BooleanField(default=False)
+    is_deleted = models.BooleanField(default=False)
 
 
     def __str__(self):
@@ -322,6 +324,8 @@ class SubCategory(models.Model):
         "Creation date"), verbose_name=_("Created at"))
     publised = models.BooleanField(default=False)
     view_name = models.CharField(max_length=255, blank=True, null=True, unique=True)
+    is_display = models.BooleanField(default=False)
+    is_deleted = models.BooleanField(default=False)
 
 
 
@@ -344,9 +348,10 @@ class MeasuringCategory(models.Model):
         "Creation date"), verbose_name=_("Created at"))
     publised = models.BooleanField(default=False)
     view_name = models.CharField(max_length=255, blank=True, null=True, unique=True)
+    is_display = models.BooleanField(default=False)
+    is_deleted = models.BooleanField(default=False)
 
-    
-    
+
 
     def __str__(self):
         return self.project.name + " - " + self.name
@@ -371,7 +376,8 @@ class CategoryStyle(models.Model):
         "Stroke coloe for the polygon"), verbose_name=_("Stroke Color"))
     stroke_width = models.PositiveIntegerField(default=1 )
     xml  = models.TextField(null=True, blank=True)
-    
+    is_edited = models.BooleanField(default=False)
+    is_deleted = models.BooleanField(default=False)
     
     
     def __str__(self):
