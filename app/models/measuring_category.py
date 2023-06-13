@@ -449,6 +449,11 @@ def check_standard_category_changes(sender, instance, action, model, **kwargs):
                 category = GlobalStandardCategory.objects.get(pk=category_id)
                 if not StandardCategory.objects.filter(project=instance.project.id, name=category.name).exists():                    
                     StandardCategory.objects.create(project=instance.project, name=category.name , description=category.description ,is_display=True)
+                else:
+                    standard_category = StandardCategory.objects.get(project=instance.project.id, name=category.name)
+                    standard_category.is_display = True
+                    standard_category.save()
+
 
     if action == "post_remove":
         print("category is removed")
@@ -458,7 +463,7 @@ def check_standard_category_changes(sender, instance, action, model, **kwargs):
             for category_id in new_standard_categories:
                 category = GlobalStandardCategory.objects.get(pk=category_id)
                 if StandardCategory.objects.filter(project=instance.project.id, name=category.name).exists():                    
-                    standard_category = StandardCategory.objects.filter(project=instance.project.id, name=category.name)
+                    standard_category = StandardCategory.objects.get(project=instance.project.id, name=category.name)
                     standard_category.is_display = False
                     standard_category.save()
 
