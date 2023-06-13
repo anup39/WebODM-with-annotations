@@ -442,34 +442,26 @@ def check_standard_category_changes(sender, instance, action, model, **kwargs):
 
     if action == "pre_add":
         print("new category added")
-
         prev_standard_categories = set(instance.standard_category.all().values_list('pk', flat=True))
-
-        # Get the newly selected standard categories
         new_standard_categories = set(kwargs['pk_set']) - prev_standard_categories
-
-        # Print the changes for standard categories
         if new_standard_categories:
-            print("Newly selected standard categories:")
             for category_id in new_standard_categories:
                 category = GlobalStandardCategory.objects.get(pk=category_id)
-                
-                print(category) 
+                if not StandardCategory.objects.filter(project=instance.project.id, name=category.name).exists():                    
+                    StandardCategory.objects.create(project=instance.project, name=category.name , description=category.description ,is_display=True)
 
     if action == "post_remove":
         print("category is removed")
-
         prev_standard_categories = set(instance.standard_category.all().values_list('pk', flat=True))
-
-        # Get the newly selected standard categories
         new_standard_categories = set(kwargs['pk_set']) - prev_standard_categories
-
-        # Print the changes for standard categories
         if new_standard_categories:
-            print(" Unselected standard categories:")
             for category_id in new_standard_categories:
                 category = GlobalStandardCategory.objects.get(pk=category_id)
-                print(category) 
+                if StandardCategory.objects.filter(project=instance.project.id, name=category.name).exists():                    
+                    standard_category = StandardCategory.objects.filter(project=instance.project.id, name=category.name)
+                    standard_category.is_display = False
+                    standard_category.save()
+
 
     if action == "post_clear":
         print("Clear")
