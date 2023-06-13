@@ -13,6 +13,7 @@ from worker.celery import app
 from celery.utils.log import get_task_logger
 from colorfield.fields import ColorField
 import xml.etree.ElementTree as ET
+from django.core.exceptions import ValidationError
 
 
 
@@ -476,13 +477,15 @@ def check_sub_category_changes(sender, instance, action, model, **kwargs):
             print("Newly selected sub categories:")
             for category_id in new_sub_categories:
                 category = GlobalSubCategory.objects.get(pk=category_id)
-                standard_category = StandardCategory.objects.get(project=instance.project, name=category.standard_category.name)
-                if not SubCategory.objects.filter(project=instance.project, standard_category = standard_category ,name=category.name).exists():                    
-                    SubCategory.objects.create(project=instance.project, standard_category =standard_category ,name=category.name ,is_display=True)
-                else:
-                    sub_category = SubCategory.objects.get(project=instance.project, standard_category =standard_category ,name=category.name)
-                    sub_category.is_display = True
-                    sub_category.save()
+                if StandardCategory.objects.filter(project=instance.project, name=category.standard_category.name).exists():
+                    standard_category = StandardCategory.objects.get(project=instance.project, name=category.standard_category.name)
+                    if not SubCategory.objects.filter(project=instance.project, standard_category = standard_category ,name=category.name).exists():                    
+                        SubCategory.objects.create(project=instance.project, standard_category =standard_category ,name=category.name ,is_display=True)
+                    else:
+                        sub_category = SubCategory.objects.get(project=instance.project, standard_category =standard_category ,name=category.name)
+                        sub_category.is_display = True
+                        sub_category.save()
+  
 
     if action == "post_remove":
         print("category is removed")
@@ -492,11 +495,14 @@ def check_sub_category_changes(sender, instance, action, model, **kwargs):
             print(" Unselected sub categories:")
             for category_id in new_sub_categories:
                 category = GlobalSubCategory.objects.get(pk=category_id)
-                standard_category = StandardCategory.objects.get(project=instance.project, name=category.standard_category.name)
-                if SubCategory.objects.filter(project=instance.project, standard_category = standard_category ,name=category.name).exists():                    
-                    sub_category = SubCategory.objects.get(project=instance.project, standard_category = standard_category ,name=category.name)
-                    sub_category.is_display = False
-                    sub_category.save()
+                if StandardCategory.objects.filter(project=instance.project, name=category.standard_category.name).exists():
+                    standard_category = StandardCategory.objects.get(project=instance.project, name=category.standard_category.name)
+                    if SubCategory.objects.filter(project=instance.project, standard_category = standard_category ,name=category.name).exists():                    
+                        sub_category = SubCategory.objects.get(project=instance.project, standard_category = standard_category ,name=category.name)
+                        sub_category.is_display = False
+                        sub_category.save()
+      
+
 
     if action == "post_clear":
         print("Clear")
@@ -512,14 +518,18 @@ def check_category_changes(sender, instance, action, model, **kwargs):
             print("Newly selected  categories:")
             for category_id in new_categories:
                 category = GlobalMeasuringCategory.objects.get(pk=category_id)
-                standard_category = StandardCategory.objects.get(project=instance.project, name=category.sub_category.standard_category.name)
-                sub_category = SubCategory.objects.get(project=instance.project, standard_category=standard_category,name=category.sub_category.name)
-                if not MeasuringCategory.objects.filter(project=instance.project, standard_category = standard_category ,sub_category=sub_category, name=category.name).exists():                    
-                    MeasuringCategory.objects.create(project=instance.project, standard_category =standard_category ,name=category.name ,sub_category=sub_category, is_display=True)
-                else:
-                    m_category =MeasuringCategory.objects.get(project=instance.project, standard_category =standard_category ,sub_category=sub_category, name=category.name)
-                    m_category.is_display = True
-                    m_category.save()
+                if StandardCategory.objects.filter(project=instance.project, name=category.sub_category.standard_category.name).exists():
+                    standard_category = StandardCategory.objects.get(project=instance.project, name=category.sub_category.standard_category.name)
+                    if SubCategory.objects.filter(project=instance.project, standard_category=standard_category,name=category.sub_category.name).exists():
+                        sub_category = SubCategory.objects.get(project=instance.project, standard_category=standard_category,name=category.sub_category.name)
+                        if not MeasuringCategory.objects.filter(project=instance.project, standard_category = standard_category ,sub_category=sub_category, name=category.name).exists():                    
+                            MeasuringCategory.objects.create(project=instance.project, standard_category =standard_category ,name=category.name ,sub_category=sub_category, is_display=True)
+                        else:
+                            m_category =MeasuringCategory.objects.get(project=instance.project, standard_category =standard_category ,sub_category=sub_category, name=category.name)
+                            m_category.is_display = True
+                            m_category.save()
+             
+            
 
     if action == "post_remove":
         prev_categories = set(instance.category.all().values_list('pk', flat=True))
@@ -528,12 +538,15 @@ def check_category_changes(sender, instance, action, model, **kwargs):
             print(" Unselected  categories:")
             for category_id in new_categories:
                 category = GlobalMeasuringCategory.objects.get(pk=category_id)
-                standard_category = StandardCategory.objects.get(project=instance.project, name=category.sub_category.standard_category.name)
-                sub_category = SubCategory.objects.get(project=instance.project, standard_category=standard_category,name=category.sub_category.name)
-                if MeasuringCategory.objects.filter(project=instance.project, standard_category = standard_category, sub_category=sub_category, name=category.name).exists():                    
-                    m_category = MeasuringCategory.objects.get(project=instance.project, standard_category = standard_category ,sub_category=sub_category, name=category.name)
-                    m_category.is_display = False
-                    m_category.save()
+                if StandardCategory.objects.filter(project=instance.project, name=category.sub_category.standard_category.name).exists():
+                    standard_category = StandardCategory.objects.get(project=instance.project, name=category.sub_category.standard_category.name)
+                    if SubCategory.objects.filter(project=instance.project, standard_category=standard_category,name=category.sub_category.name).exists():
+                        sub_category = SubCategory.objects.get(project=instance.project, standard_category=standard_category,name=category.sub_category.name)
+                        if MeasuringCategory.objects.filter(project=instance.project, standard_category = standard_category, sub_category=sub_category, name=category.name).exists():                    
+                            m_category = MeasuringCategory.objects.get(project=instance.project, standard_category = standard_category ,sub_category=sub_category, name=category.name)
+                            m_category.is_display = False
+                            m_category.save()
+    
 
     if action == "post_clear":
         print("Clear")
