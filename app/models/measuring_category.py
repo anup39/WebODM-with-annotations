@@ -261,6 +261,23 @@ class GlobalMeasuringCategory(models.Model):
         return self.sub_category.standard_category.name + "|" + "|" +self.sub_category.name+"|"+ self.name
 
 
+
+class GlobalCategoryStyle(models.Model):
+    category = models.OneToOneField(GlobalMeasuringCategory, on_delete=models.PROTECT, help_text=_(
+        "Style related to this Category"), verbose_name=_("Category"))
+    fill = ColorField(default='#2c3e50', help_text=_(
+        "Fill color for the polygon"), verbose_name=_("Fill Color"))
+    fill_opacity = models.DecimalField(decimal_places=2, max_digits=3, default=0.5)
+    stroke = ColorField(default='#ffffff', help_text=_(
+        "Stroke color for the polygon"), verbose_name=_("Stroke Color"))
+    stroke_width = models.PositiveIntegerField(default=1 )
+    xml  = models.TextField(null=True, blank=True)
+    created_at = models.DateTimeField(default=timezone.now, help_text=_(
+        "Creation date"), verbose_name=_("Created at"))
+    
+    def __str__(self):
+        return self.category.name
+
 class ManageCategory(models.Model):
     project = models.OneToOneField(Project, on_delete=models.PROTECT, help_text=_(
         "Manage Category related to the project"), verbose_name=_("Project"))

@@ -23,7 +23,7 @@ from webodm import settings
 from django.core.files.uploadedfile import InMemoryUploadedFile
 from django.utils.translation import gettext_lazy as _, gettext
 from .models import MeasuringCategory, CategoryGeometry 
-from .models.measuring_category import CategoryStyle, StandardCategory, SubCategory , GlobalStandardCategory, GlobalSubCategory, GlobalMeasuringCategory , ManageCategory
+from .models.measuring_category import CategoryStyle, StandardCategory, SubCategory , GlobalStandardCategory, GlobalSubCategory, GlobalMeasuringCategory  ,GlobalCategoryStyle, ManageCategory
 
 
 
@@ -31,6 +31,7 @@ from .models.measuring_category import CategoryStyle, StandardCategory, SubCateg
 admin.site.register(GlobalStandardCategory)
 admin.site.register(GlobalSubCategory)
 admin.site.register(GlobalMeasuringCategory)
+admin.site.register(GlobalCategoryStyle)
 admin.site.register(StandardCategory)
 admin.site.register(SubCategory)
 admin.site.register(CategoryGeometry)
