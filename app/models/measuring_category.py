@@ -218,9 +218,16 @@ def publish_table_to_geoserver(workspace_name='super_admin', table_name=None ,cr
         print(f"Failed to publish table '{table_name}'. Error: {response.text}")
 
 
+class CaseInsensitiveCharField(models.CharField):
+    def get_prep_value(self, value):
+        value = super().get_prep_value(value)
+        if value is not None:
+            value = value.lower()
+        return value
+
 class GlobalStandardCategory(models.Model):
-    name = models.CharField(max_length=255, help_text=_(
-        "In which standard category you want to seperate your project layer"), verbose_name=_("Name"), unique=True)
+    name = CaseInsensitiveCharField(max_length=255, help_text=_(
+        "Standard Category name"), verbose_name=_("Name"), unique=True)
     description = models.TextField(default="", blank=True, help_text=_(
         "Description about this category"), verbose_name=_("Description"))
     created_at = models.DateTimeField(default=timezone.now, help_text=_(
@@ -232,7 +239,7 @@ class GlobalStandardCategory(models.Model):
 
 class GlobalSubCategory(models.Model):
     name = models.CharField(max_length=255, help_text=_(
-        "In which Sub category you want to seperate your project layer"), verbose_name=_("Name"))
+        "In which Sub category you want to seperate your project layer"), verbose_name=_("Name") )
     standard_category = models.ForeignKey(GlobalStandardCategory, on_delete=models.PROTECT, help_text=_(
         "Standard Category related to the project"), verbose_name=_("Standard Category"),blank=True, null=True )
     description = models.TextField(default="", blank=True, help_text=_(
@@ -446,6 +453,7 @@ def check_standard_category_changes(sender, instance, action, model, **kwargs):
             print("Newly selected standard categories:")
             for category_id in new_standard_categories:
                 category = GlobalStandardCategory.objects.get(pk=category_id)
+                
                 print(category) 
 
     if action == "post_remove":
