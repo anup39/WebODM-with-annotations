@@ -61,11 +61,11 @@ class ManageCategoryAdmin(admin.ModelAdmin):
 admin.site.register(ManageCategory, ManageCategoryAdmin)
 
 
-class MeasuringCategoryAdmin(admin.ModelAdmin):
-    list_display = ('id', 'name', 'project', 'created_at')
+# class MeasuringCategoryAdmin(admin.ModelAdmin):
+#     list_display = ('id', 'name', 'project', 'created_at')
 
 
-admin.site.register(MeasuringCategory, MeasuringCategoryAdmin)
+admin.site.register(MeasuringCategory)
 
 
 class ProjectAdmin(GuardedModelAdmin):

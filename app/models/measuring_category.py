@@ -366,7 +366,7 @@ class MeasuringCategory(models.Model):
 
 
     def __str__(self):
-        return self.project.name + " - " + self.name
+        return self.project.name + "|" + self.standard_category.name+"|"+ self.sub_category.name+"|" + self.name
 
     class Meta:
         verbose_name = _("MeasuringCategory")
@@ -428,18 +428,6 @@ def project_post_save_for_creating_layer(sender, instance, created, **kwargs):
 
 
 
-# Added by me Anup
-@receiver(signals.post_save, sender=Project, dispatch_uid="project_post_save_measuring_category")
-def project_post_save_project_for_mc(sender, instance, created, **kwargs):
-    """
-    It will create two category by default Grass and Garden
-    """
-    if created:
-        # MeasuringCategory.objects.create(
-        #     name="Grass", project=instance, description="Measures grass")
-        # MeasuringCategory.objects.create(
-        #     name="Garden", project=instance, description="Measure Garden")
-        pass
 
 
 @receiver(m2m_changed, sender=ManageCategory.standard_category.through)
@@ -518,33 +506,34 @@ def check_category_changes(sender, instance, action, model, **kwargs):
 
     if action == "pre_add":
         print("new category added")
-
         prev_categories = set(instance.category.all().values_list('pk', flat=True))
-
-        # Get the newly selected  categories
         new_categories = set(kwargs['pk_set']) - prev_categories
-
-        # Print the changes for  categories
         if new_categories:
             print("Newly selected  categories:")
             for category_id in new_categories:
                 category = GlobalMeasuringCategory.objects.get(pk=category_id)
-                print(category) 
+                standard_category = StandardCategory.objects.get(project=instance.project, name=category.sub_category.standard_category.name)
+                sub_category = SubCategory.objects.get(project=instance.project, standard_category=standard_category,name=category.sub_category.name)
+                if not MeasuringCategory.objects.filter(project=instance.project, standard_category = standard_category ,sub_category=sub_category, name=category.name).exists():                    
+                    MeasuringCategory.objects.create(project=instance.project, standard_category =standard_category ,name=category.name ,sub_category=sub_category, is_display=True)
+                else:
+                    m_category =MeasuringCategory.objects.get(project=instance.project, standard_category =standard_category ,sub_category=sub_category, name=category.name)
+                    m_category.is_display = True
+                    m_category.save()
 
     if action == "post_remove":
-        print("category is removed")
-
         prev_categories = set(instance.category.all().values_list('pk', flat=True))
-
-        # Get the newly selected  categories
         new_categories = set(kwargs['pk_set']) - prev_categories
-
-        # Print the changes for  categories
         if new_categories:
             print(" Unselected  categories:")
             for category_id in new_categories:
                 category = GlobalMeasuringCategory.objects.get(pk=category_id)
-                print(category) 
+                standard_category = StandardCategory.objects.get(project=instance.project, name=category.sub_category.standard_category.name)
+                sub_category = SubCategory.objects.get(project=instance.project, standard_category=standard_category,name=category.sub_category.name)
+                if MeasuringCategory.objects.filter(project=instance.project, standard_category = standard_category, sub_category=sub_category, name=category.name).exists():                    
+                    m_category = MeasuringCategory.objects.get(project=instance.project, standard_category = standard_category ,sub_category=sub_category, name=category.name)
+                    m_category.is_display = False
+                    m_category.save()
 
     if action == "post_clear":
         print("Clear")
