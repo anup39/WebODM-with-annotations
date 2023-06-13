@@ -3,6 +3,7 @@ from django.db import models
 from django.utils.translation import gettext_lazy as _
 from django.utils import timezone
 from django.db.models import signals
+from django.db.models.signals import m2m_changed
 from django.dispatch import receiver
 from django.db import connection
 import requests
@@ -404,6 +405,117 @@ def project_post_save_project_for_mc(sender, instance, created, **kwargs):
         # MeasuringCategory.objects.create(
         #     name="Garden", project=instance, description="Measure Garden")
         pass
+
+
+@receiver(m2m_changed, sender=ManageCategory.standard_category.through)
+def check_standard_category_changes(sender, instance, action, model, **kwargs):
+
+    if action == "pre_add":
+        print("new category added")
+
+        prev_standard_categories = set(instance.standard_category.all().values_list('pk', flat=True))
+
+        # Get the newly selected standard categories
+        new_standard_categories = set(kwargs['pk_set']) - prev_standard_categories
+
+        # Print the changes for standard categories
+        if new_standard_categories:
+            print("Newly selected standard categories:")
+            for category_id in new_standard_categories:
+                category = GlobalStandardCategory.objects.get(pk=category_id)
+                print(category) 
+
+    if action == "post_remove":
+        print("category is removed")
+
+        prev_standard_categories = set(instance.standard_category.all().values_list('pk', flat=True))
+
+        # Get the newly selected standard categories
+        new_standard_categories = set(kwargs['pk_set']) - prev_standard_categories
+
+        # Print the changes for standard categories
+        if new_standard_categories:
+            print(" Unselected standard categories:")
+            for category_id in new_standard_categories:
+                category = GlobalStandardCategory.objects.get(pk=category_id)
+                print(category) 
+
+    if action == "post_clear":
+        print("Clear")
+
+
+@receiver(m2m_changed, sender=ManageCategory.sub_category.through)
+def check_sub_category_changes(sender, instance, action, model, **kwargs):
+
+    if action == "pre_add":
+        print("new category added")
+
+        prev_sub_categories = set(instance.sub_category.all().values_list('pk', flat=True))
+
+        # Get the newly selected sub categories
+        new_sub_categories = set(kwargs['pk_set']) - prev_sub_categories
+
+        # Print the changes for sub categories
+        if new_sub_categories:
+            print("Newly selected sub categories:")
+            for category_id in new_sub_categories:
+                category = GlobalSubCategory.objects.get(pk=category_id)
+                print(category) 
+
+    if action == "post_remove":
+        print("category is removed")
+
+        prev_sub_categories = set(instance.sub_category.all().values_list('pk', flat=True))
+
+        # Get the newly selected sub categories
+        new_sub_categories = set(kwargs['pk_set']) - prev_sub_categories
+
+        # Print the changes for sub categories
+        if new_sub_categories:
+            print(" Unselected sub categories:")
+            for category_id in new_sub_categories:
+                category = GlobalSubCategory.objects.get(pk=category_id)
+                print(category) 
+
+    if action == "post_clear":
+        print("Clear")
+
+@receiver(m2m_changed, sender=ManageCategory.category.through)
+def check_category_changes(sender, instance, action, model, **kwargs):
+
+    if action == "pre_add":
+        print("new category added")
+
+        prev_categories = set(instance.category.all().values_list('pk', flat=True))
+
+        # Get the newly selected standard categories
+        new_categories = set(kwargs['pk_set']) - prev_categories
+
+        # Print the changes for standard categories
+        if new_categories:
+            print("Newly selected standard categories:")
+            for category_id in new_categories:
+                category = GlobalMeasuringCategory.objects.get(pk=category_id)
+                print(category) 
+
+    if action == "post_remove":
+        print("category is removed")
+
+        prev_categories = set(instance.category.all().values_list('pk', flat=True))
+
+        # Get the newly selected standard categories
+        new_categories = set(kwargs['pk_set']) - prev_categories
+
+        # Print the changes for standard categories
+        if new_categories:
+            print(" Unselected standard categories:")
+            for category_id in new_categories:
+                category = GlobalMeasuringCategory.objects.get(pk=category_id)
+                print(category) 
+
+    if action == "post_clear":
+        print("Clear")
+
 
 
 # Added by me Anup
