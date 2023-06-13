@@ -13,6 +13,7 @@ from worker.celery import app
 from celery.utils.log import get_task_logger
 from colorfield.fields import ColorField
 import xml.etree.ElementTree as ET
+from django.db.models import UniqueConstraint, Q, Func
 
 
 logger = get_task_logger("app.logger")
@@ -237,6 +238,7 @@ class GlobalStandardCategory(models.Model):
         return str(self.name)
 
 
+
 class GlobalSubCategory(models.Model):
     name = models.CharField(max_length=255, help_text=_(
         "In which Sub category you want to seperate your project layer"), verbose_name=_("Name") )
@@ -247,8 +249,7 @@ class GlobalSubCategory(models.Model):
     created_at = models.DateTimeField(default=timezone.now, help_text=_(
         "Creation date"), verbose_name=_("Created at"))
 
-
-
+  
 
     def __str__(self):
         return str(self.standard_category.name)+"|"+str(self.name)
