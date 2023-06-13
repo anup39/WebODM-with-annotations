@@ -31,6 +31,7 @@ class ProjectSerializer(serializers.ModelSerializer):
     created_at = serializers.ReadOnlyField()
     permissions = serializers.SerializerMethodField()
     tags = TagsField(required=False)
+    manage_category_id = serializers.SerializerMethodField()
 
     def get_permissions(self, obj):
         if 'request' in self.context:
@@ -45,6 +46,13 @@ class ProjectSerializer(serializers.ModelSerializer):
             return user.is_superuser or obj.owner.id == user.id
         return False
 
+    def get_manage_category_id(self, obj):
+        project= models.Project.objects.get(id=obj.id)
+        manage_categories=models.measuring_category.ManageCategory.objects.filter(project=project)
+        try:
+            return manage_categories[0].id
+        except:
+            return 0
     class Meta:
         model = models.Project
         exclude = ('deleting', )

@@ -49,9 +49,9 @@ class ProjectListItem extends React.Component {
       filterText: "",
       // Added by me Anup
       showWMS: false,
-      wmsLink: '',
+      wmsLink: "",
       showWFS: false,
-      wfsLink: '',
+      wfsLink: "",
     };
 
     this.sortItems = [
@@ -80,7 +80,8 @@ class ProjectListItem extends React.Component {
     this.taskDeleted = this.taskDeleted.bind(this);
     this.taskMoved = this.taskMoved.bind(this);
     this.hasPermission = this.hasPermission.bind(this);
-    this.handleAddCategory = this.handleAddCategory.bind(this);
+    this.handleManageCategories = this.handleManageCategories.bind(this);
+    this.handleManageStyles = this.handleManageStyles.bind(this);
   }
 
   refresh() {
@@ -626,10 +627,12 @@ class ProjectListItem extends React.Component {
     }
   };
 
-
   // Added by me Anup
-  handleAddCategory = () => {
-    location.href = `/admin/app/measuringcategory/`;
+  handleManageCategories = () => {
+    location.href = `/admin/app/managecategory/${this.state.data.manage_category_id}/change/`;
+  };
+  handleManageStyles = () => {
+    location.href = `/admin/app/managecategory/${this.state.data.manage_category_id}/change/`;
   };
 
   // Added by me Anup
@@ -637,7 +640,7 @@ class ProjectListItem extends React.Component {
   handleShowWMS = () => {
     // console.log(this.state.data, 'data')
     // Generate the WMS link based on your requirements
-    const wmsLink = 'http://137.135.165.161:8600/geoserver/wms'; // Replace with your actual WMS link
+    const wmsLink = "http://137.135.165.161:8600/geoserver/wms"; // Replace with your actual WMS link
 
     // Update the state to show the WMS input field
     this.setState({
@@ -650,18 +653,18 @@ class ProjectListItem extends React.Component {
   handleCopyWMSLink = () => {
     // Copy the WMS link to the clipboard
     const { wmsLink } = this.state;
-    const input = document.createElement('input');
-    input.setAttribute('value', wmsLink);
+    const input = document.createElement("input");
+    input.setAttribute("value", wmsLink);
     document.body.appendChild(input);
     input.select();
-    document.execCommand('copy');
+    document.execCommand("copy");
     document.body.removeChild(input);
   };
 
   // Added by me Anup
   handleShowWFS = () => {
     // Generate the WMS link based on your requirements
-    const wfsLink = 'http://137.135.165.161:8600/geoserver/wfs'; // Replace with your actual WMS link
+    const wfsLink = "http://137.135.165.161:8600/geoserver/wfs"; // Replace with your actual WMS link
 
     // Update the state to show the WMS input field
     this.setState({
@@ -674,14 +677,13 @@ class ProjectListItem extends React.Component {
   handleCopyWFSLink = () => {
     // Copy the WMS link to the clipboard
     const { wfsLink } = this.state;
-    const input = document.createElement('input');
-    input.setAttribute('value', wfsLink);
+    const input = document.createElement("input");
+    input.setAttribute("value", wfsLink);
     document.body.appendChild(input);
     input.select();
-    document.execCommand('copy');
+    document.execCommand("copy");
     document.body.removeChild(input);
   };
-
 
   render() {
     const { refreshing, data, filterTags } = this.state;
@@ -690,6 +692,8 @@ class ProjectListItem extends React.Component {
     const userTags = Tags.userTags(data.tags);
     const { showWMS, wmsLink } = this.state;
     const { showWFS, wfsLink } = this.state;
+
+    console.log(this.props.data, "data for dasboard");
 
     let deleteWarning = _(
       "All tasks, images and models associated with this project will be permanently deleted. Are you sure you want to continue?"
@@ -708,17 +712,6 @@ class ProjectListItem extends React.Component {
         href="javascript:void(0);"
         ref={this.setRef("dropzone")}
       >
-        {/* Added by Anup */}
-        <button
-          style={{ backgroundColor: "#2c3d4f", color: "white" }}
-          onClick={this.handleAddCategory}
-        >
-          Add Category
-        </button>
-
-
-
-
         {canEdit ? (
           <EditProjectDialog
             ref={(domNode) => {
@@ -797,14 +790,14 @@ class ProjectListItem extends React.Component {
             {data.name}
             {userTags.length > 0
               ? userTags.map((t, i) => (
-                <div
-                  key={i}
-                  className="tag-badge small-badge"
-                  onClick={this.handleTagClick(t)}
-                >
-                  {t}
-                </div>
-              ))
+                  <div
+                    key={i}
+                    className="tag-badge small-badge"
+                    onClick={this.handleTagClick(t)}
+                  >
+                    {t}
+                  </div>
+                ))
               : ""}
           </div>
           <div className="project-description">{data.description}</div>
@@ -830,7 +823,7 @@ class ProjectListItem extends React.Component {
               <div className="task-filters">
                 <div className="btn-group">
                   {this.state.selectedTags.length ||
-                    this.state.filterText !== "" ? (
+                  this.state.filterText !== "" ? (
                     <a
                       className="quick-clear-filter"
                       href="javascript:void(0)"
@@ -920,29 +913,29 @@ class ProjectListItem extends React.Component {
 
             {numTasks > 0
               ? [
-                <i key="edit-icon" className="fa fa-globe"></i>,
-                <a
-                  key="edit-text"
-                  href="javascript:void(0);"
-                  onClick={this.viewMap}
-                >
-                  {_("View Map")}
-                </a>,
-              ]
+                  <i key="edit-icon" className="fa fa-globe"></i>,
+                  <a
+                    key="edit-text"
+                    href="javascript:void(0);"
+                    onClick={this.viewMap}
+                  >
+                    {_("View Map")}
+                  </a>,
+                ]
               : ""}
 
             {canEdit
               ? [
-                <i key="edit-icon" className="far fa-edit"></i>,
-                <a
-                  key="edit-text"
-                  href="javascript:void(0);"
-                  onClick={this.handleEditProject}
-                >
-                  {" "}
-                  {_("Edit")}
-                </a>,
-              ]
+                  <i key="edit-icon" className="far fa-edit"></i>,
+                  <a
+                    key="edit-text"
+                    href="javascript:void(0);"
+                    onClick={this.handleEditProject}
+                  >
+                    {" "}
+                    {_("Edit")}
+                  </a>,
+                ]
               : ""}
           </div>
         </div>
@@ -1009,15 +1002,28 @@ class ProjectListItem extends React.Component {
           )}
         </div>
 
-
-
-
         {/* Added by me Anup
-           */}
+         */}
         <div style={{ display: "flex" }}>
           <div>
             <button
-              style={{ backgroundColor: '#2c3d4f', color: 'white' }}
+              style={{ backgroundColor: "#2c3d4f", color: "white" }}
+              onClick={this.handleManageCategories}
+            >
+              Manage Categories
+            </button>
+          </div>
+          <div>
+            <button
+              style={{ backgroundColor: "#2c3d4f", color: "white" }}
+              onClick={this.handleManageStyles}
+            >
+              Manage Styles
+            </button>
+          </div>
+          <div>
+            <button
+              style={{ backgroundColor: "#2c3d4f", color: "white" }}
               onClick={this.handleShowWMS}
             >
               Get WMS
@@ -1031,10 +1037,9 @@ class ProjectListItem extends React.Component {
             )}
           </div>
 
-
           <div>
             <button
-              style={{ backgroundColor: '#2c3d4f', color: 'white' }}
+              style={{ backgroundColor: "#2c3d4f", color: "white" }}
               onClick={this.handleShowWFS}
             >
               Get WFS
@@ -1048,8 +1053,6 @@ class ProjectListItem extends React.Component {
             )}
           </div>
         </div>
-
-
       </li>
     );
   }
