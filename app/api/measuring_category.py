@@ -23,7 +23,7 @@ class StandardCategorySerializer(serializers.ModelSerializer):
 
 class StandardCategoryViewSet(viewsets.ModelViewSet):
 
-    queryset = models.measuring_category.StandardCategory.objects.all()
+    queryset = models.measuring_category.StandardCategory.objects.filter(is_display=True)
     serializer_class = StandardCategorySerializer 
     filter_backends = [DjangoFilterBackend,
                        filters.SearchFilter, filters.OrderingFilter]
@@ -49,7 +49,7 @@ class SubCategorySerializer(serializers.ModelSerializer):
 
 class SubCategoryViewSet(viewsets.ModelViewSet):
 
-    queryset = models.measuring_category.SubCategory.objects.all()
+    queryset = models.measuring_category.SubCategory.objects.filter(is_display=True)
     serializer_class = SubCategorySerializer 
     filter_backends = [DjangoFilterBackend,
                        filters.SearchFilter, filters.OrderingFilter]
@@ -73,7 +73,7 @@ class MeasuringCategorySerializer(serializers.ModelSerializer):
 
 class MeasuringCategoryViewSet(viewsets.ModelViewSet):
 
-    queryset = models.MeasuringCategory.objects.all()
+    queryset = models.MeasuringCategory.objects.filter(is_display=True)
     serializer_class = MeasuringCategorySerializer
     filter_backends = [DjangoFilterBackend,
                        filters.SearchFilter, filters.OrderingFilter]
