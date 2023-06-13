@@ -260,7 +260,7 @@ class GlobalCategoryStyle(models.Model):
         "Creation date"), verbose_name=_("Created at"))
     
     def __str__(self):
-        return self.category.name
+        return self.category.sub_category.standard_category.name +"|"+  self.category.sub_category.name +"|"+ self.category.name
 
 class ManageCategory(models.Model):
     project = models.OneToOneField(Project, on_delete=models.PROTECT, help_text=_(
