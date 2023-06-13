@@ -238,7 +238,6 @@ class GlobalStandardCategory(models.Model):
         return str(self.name)
 
 
-
 class GlobalSubCategory(models.Model):
     name = models.CharField(max_length=255, help_text=_(
         "In which Sub category you want to seperate your project layer"), verbose_name=_("Name") )
@@ -453,10 +452,10 @@ def check_standard_category_changes(sender, instance, action, model, **kwargs):
         if new_standard_categories:
             for category_id in new_standard_categories:
                 category = GlobalStandardCategory.objects.get(pk=category_id)
-                if not StandardCategory.objects.filter(project=instance.project.id, name=category.name).exists():                    
+                if not StandardCategory.objects.filter(project=instance.project, name=category.name).exists():                    
                     StandardCategory.objects.create(project=instance.project, name=category.name , description=category.description ,is_display=True)
                 else:
-                    standard_category = StandardCategory.objects.get(project=instance.project.id, name=category.name)
+                    standard_category = StandardCategory.objects.get(project=instance.project, name=category.name)
                     standard_category.is_display = True
                     standard_category.save()
 
@@ -468,8 +467,8 @@ def check_standard_category_changes(sender, instance, action, model, **kwargs):
         if new_standard_categories:
             for category_id in new_standard_categories:
                 category = GlobalStandardCategory.objects.get(pk=category_id)
-                if StandardCategory.objects.filter(project=instance.project.id, name=category.name).exists():                    
-                    standard_category = StandardCategory.objects.get(project=instance.project.id, name=category.name)
+                if StandardCategory.objects.filter(project=instance.project, name=category.name).exists():                    
+                    standard_category = StandardCategory.objects.get(project=instance.project, name=category.name)
                     standard_category.is_display = False
                     standard_category.save()
 
@@ -483,33 +482,33 @@ def check_sub_category_changes(sender, instance, action, model, **kwargs):
 
     if action == "pre_add":
         print("new category added")
-
         prev_sub_categories = set(instance.sub_category.all().values_list('pk', flat=True))
-
-        # Get the newly selected sub categories
         new_sub_categories = set(kwargs['pk_set']) - prev_sub_categories
-
-        # Print the changes for sub categories
         if new_sub_categories:
             print("Newly selected sub categories:")
             for category_id in new_sub_categories:
                 category = GlobalSubCategory.objects.get(pk=category_id)
-                print(category) 
+                standard_category = StandardCategory.objects.get(project=instance.project, name=category.standard_category.name)
+                if not SubCategory.objects.filter(project=instance.project, standard_category = standard_category ,name=category.name).exists():                    
+                    SubCategory.objects.create(project=instance.project, standard_category =standard_category ,name=category.name ,is_display=True)
+                else:
+                    sub_category = SubCategory.objects.get(project=instance.project, standard_category =standard_category ,name=category.name)
+                    sub_category.is_display = True
+                    sub_category.save()
 
     if action == "post_remove":
         print("category is removed")
-
         prev_sub_categories = set(instance.sub_category.all().values_list('pk', flat=True))
-
-        # Get the newly selected sub categories
         new_sub_categories = set(kwargs['pk_set']) - prev_sub_categories
-
-        # Print the changes for sub categories
         if new_sub_categories:
             print(" Unselected sub categories:")
             for category_id in new_sub_categories:
                 category = GlobalSubCategory.objects.get(pk=category_id)
-                print(category) 
+                standard_category = StandardCategory.objects.get(project=instance.project, name=category.standard_category.name)
+                if SubCategory.objects.filter(project=instance.project, standard_category = standard_category ,name=category.name).exists():                    
+                    sub_category = SubCategory.objects.get(project=instance.project, standard_category = standard_category ,name=category.name)
+                    sub_category.is_display = False
+                    sub_category.save()
 
     if action == "post_clear":
         print("Clear")
