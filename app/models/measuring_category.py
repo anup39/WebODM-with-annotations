@@ -13,9 +13,6 @@ from worker.celery import app
 from celery.utils.log import get_task_logger
 from colorfield.fields import ColorField
 import xml.etree.ElementTree as ET
-from django.core.exceptions import ValidationError
-
-
 
 logger = get_task_logger("app.logger")
 
@@ -23,8 +20,6 @@ geoserver_url = 'http://137.135.165.161:8600/geoserver'
 username = 'admin'
 password = 'geoserver'
 store = 'database'
-
-
 
 
 def modify_xml_for_project(sld_xml, measuring_category_id=3, fill_color = "#FF0000",fill_opacity = "0.5",stroke_color = "#000000",stroke_width = "2"):
@@ -111,10 +106,7 @@ def create_geoserver_workspace_(workspace_name):
     data = f'<workspace><name>{workspace_name}</name></workspace>'
     headers = {'Content-Type': 'text/xml'}
     auth = HTTPBasicAuth(username, password)
-
-    response = requests.post(workspace_url, data=data,
-                             headers=headers, auth=auth)
-
+    response = requests.post(workspace_url, data=data,headers=headers, auth=auth)
     if response.status_code == 201:
         print(f"Workspace '{workspace_name}' created successfully!")
     else:
@@ -123,10 +115,7 @@ def create_geoserver_workspace_(workspace_name):
 
 
 def check_workspace_exists(workspace_name):
-    # Set the workspace URL
     workspace_url = f"{geoserver_url}/rest/workspaces/{workspace_name}.xml"
-
-    # Send a GET request to check if the workspace exists
     response = requests.get(workspace_url, auth=HTTPBasicAuth(username, password))
 
     if response.status_code == 200:
@@ -138,9 +127,6 @@ def check_workspace_exists(workspace_name):
     else:
         print(f"Failed to check workspace '{workspace_name}'. Error: {response.text}")
         return False
-
-
-
 
 
 def create_and_publish_style(workspace_name, table_name, fill, fill_opacity, stroke, stroke_width):
@@ -184,8 +170,6 @@ def create_and_publish_style(workspace_name, table_name, fill, fill_opacity, str
 
     if response.status_code == 201:
         print(f"Style '{style_name}' created successfully!")
-
-        # Upload the SLD content for the style
         sld_url = f"{geoserver_url}/rest/workspaces/{workspace_name}/styles/{style_name}"
         headers = {'Content-Type': 'application/vnd.ogc.sld+xml'}
         response = requests.put(sld_url, data=sld_xml, headers=headers, auth=auth)
@@ -193,29 +177,16 @@ def create_and_publish_style(workspace_name, table_name, fill, fill_opacity, str
         print(f"Failed to create style '{style_name}'. Error: {response.text}")
 
 
-
-
 def publish_table_to_geoserver(workspace_name='super_admin', table_name=None ,create_and_publish_style=create_and_publish_style, fill='#2C3E50',fill_opacity=0.50,  stroke='#FFFFFF', stroke_width=1 ):
     print(workspace_name, table_name , "table name","workspace name")
- 
-    # Set the table URL with the correct data store name
     table_url = f"{geoserver_url}/rest/workspaces/{workspace_name}/datastores/{store}/featuretypes"
-
-    # Create the XML payload to publish the table
     data = f'<featureType><name>{table_name}</name></featureType>'
-
     headers = {'Content-Type': 'text/xml'}
     auth = HTTPBasicAuth(username, password)
-
-    # Send the request to publish the table
     response = requests.post(table_url, data=data, headers=headers, auth=auth)
-
-
     if response.status_code == 201:
         print(f"Table '{table_name}' published successfully!")
         create_and_publish_style(workspace_name, table_name, fill ,  fill_opacity, stroke, stroke_width )
-
-
     else:
         print(f"Failed to publish table '{table_name}'. Error: {response.text}")
 
@@ -404,9 +375,6 @@ class CategoryStyle(models.Model):
 # Added by me Anup
 @receiver(signals.post_save, sender=Project, dispatch_uid="project_post_save_creating_layer")
 def project_post_save_for_creating_layer(sender, instance, created, **kwargs):
-    """
-    It will create a view
-    """
     if created:
         print("*******************Signals started Project *************")
         with connection.cursor() as cursor:
@@ -424,7 +392,6 @@ def project_post_save_for_creating_layer(sender, instance, created, **kwargs):
 
             # Now create a Category Management for this 
             project = Project.objects.get(id=instance.id)
-
             ManageCategory.objects.create(project=project)
 
 
@@ -556,9 +523,6 @@ def check_category_changes(sender, instance, action, model, **kwargs):
 # Added by me Anup
 @receiver(signals.post_save, sender=MeasuringCategory, dispatch_uid="measuring_category_post_save_creating_layer")
 def measuring_category_post_save_for_creating_layer(sender, instance, created, **kwargs):
-    """
-    It will create a view
-    """
     if created:
         print("*******************Signals started  MC *************")
         with connection.cursor() as cursor:
@@ -581,12 +545,14 @@ def measuring_category_post_save_for_creating_layer(sender, instance, created, *
             category_style.save()
 
 
+@receiver(signals.post_save, sender=GlobalCategoryStyle, dispatch_uid="global_category_style_post_save_creating_style")
+def global_category_style_post_save_for_creating_style(sender, instance, created, **kwargs):
+    pass
+
+
 # # Added by me Anup
 @receiver(signals.post_save, sender=CategoryStyle, dispatch_uid="category_style_post_save_assigning_style")
 def measuring_category_post_save_for_assiging_style(sender, instance, created, **kwargs):
-    """
-    It will create a view
-    """
     print(f"{instance} Category Style is saved")
     workspace = instance.measuring_category.project.owner.username
     layer_url = f"{geoserver_url}/rest/workspaces/{workspace}/layers/{instance.measuring_category.view_name}"
@@ -685,19 +651,12 @@ def measuring_category_post_save_for_assiging_style(sender, instance, created, *
 @app.task
 def publish_views_to_geoserver():
     logger.info(f"****************Started Publishing************") 
-
     categories = MeasuringCategory.objects.filter(publised=False)
-
     for category in categories:
         workspace_name = category.project.owner.username
         table_name = category.view_name
-
-        # Call the publish_table_to_geoserver function
         category_style = CategoryStyle.objects.get(measuring_category = category.id)
         publish_table_to_geoserver(workspace_name=workspace_name, table_name=table_name , create_and_publish_style= create_and_publish_style, fill=category_style.fill , fill_opacity= category_style.fill_opacity, stroke= category_style.stroke, stroke_width= category_style.stroke_width)
-
-        # create_and_publish_style(workspace_name=workspace_name, table_name=table_name, fill=category_style.fill , fill_opacity= category_style.fill_opacity, stroke= category_style.stroke, stroke_width= category_style.stroke_width )
-
         logger.info(f"****************{table_name}************Published with style ") 
 
         category.publised = True
