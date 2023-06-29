@@ -909,7 +909,7 @@ class ProjectListItem extends React.Component {
               ""
             )}
 
-            {numTasks > 0
+            {numTasks >= 0
               ? [
                   <i key="edit-icon" className="fa fa-globe"></i>,
                   <a

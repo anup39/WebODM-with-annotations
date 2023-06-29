@@ -13,7 +13,7 @@ class CategoryGeometry(models.Model):
     created_at = models.DateTimeField(default=timezone.now, help_text=_(
         "Creation date"), verbose_name=_("Created at"))
     properties = fields.JSONField(default=dict, null=True, blank=True)
-    geom = PolygonField(srid=3857)
+    geom = PolygonField(srid=4326)
 
     def __str__(self):
         return self.measuring_category.project.name + " - " + self.measuring_category.name
@@ -24,3 +24,4 @@ class CategoryGeometry(models.Model):
 
 
 
+    
